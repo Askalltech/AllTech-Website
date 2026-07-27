@@ -70,11 +70,12 @@ const isActive = (href: string) =>
                     >
                       {cat.label}
                     </a>
-                    {cat.sublabel && (
-                      <div class="text-[10px] font-mono uppercase tracking-[0.12em] mt-0.5" style="color: var(--color-text-subtle)">
-                        {cat.sublabel}
-                      </div>
-                    )}
+                    {/* Always rendered (nbsp when empty) so every column's
+                        header block is the same height and the divider +
+                        first tiles align across all five columns. */}
+                    <div class="text-[10px] font-mono uppercase tracking-[0.12em] mt-0.5" style="color: var(--color-text-subtle)">
+                      {cat.sublabel || ' '}
+                    </div>
                   </div>
                   <ul class="space-y-0.5">
                     {cat.tiles.map((tile) => (

@@ -1,11 +1,47 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import SegmentHeader from '~/components/SegmentHeader.astro';
+import Icon from '~/components/Icon.astro';
 import { services, site, serviceLink } from '~/lib/site';
 
 const featured = services.find((s) => s.featured);
 // Second section embeds the Services page (all non-featured services).
 const rest = services.filter((s) => !s.featured);
+
+// Section 01 — who we actually work with, described by real operational
+// constraints rather than industry buzzwords.
+const whoWeSupport = [
+  ['01', 'Manufacturing', "Production lines that can't afford downtime, specialty software that's picky about updates, and machines on the floor that still need a network connection. We know better than to push a patch in the middle of a shift."],
+  ['02', 'Healthcare', "Patient records, scheduling systems, and compliance requirements that don't leave much room for error. We handle the technical side of keeping that data secure so your staff can focus on patients."],
+  ['03', 'Professional Services', 'Law firms, accounting practices, and title companies need email, file access, and video calls to just work — plus the confidentiality their clients expect.'],
+  ['04', 'Multi-Location Organizations', 'Consistent support and security across every site, even the ones without IT staff of their own. One standard, wherever you open next.'],
+  ['05', 'Nonprofits', "Real infrastructure and security on a budget that doesn't match a for-profit company's, without cutting corners on what protects your donor and client data."],
+  ['06', 'Growing Businesses', 'The point where email, invoicing, and a shared drive stop being enough. We help you build the network and security foundation before you outgrow it twice.'],
+];
+
+// Section 03 — why clients choose us, stated plainly instead of implied.
+const whyClientsChooseUs = [
+  'One team for IT and security — no hand-off between "the network guys" and "the security guys"',
+  'Local engineers who answer the phone, not a ticket queue routed overseas',
+  'We tell you what actually needs fixing first, not the scariest thing we can sell',
+  'Clients who have been with us for a decade, not just through a first-year contract',
+  'Local since 2009, on-site when a problem needs hands on the hardware',
+];
+
+// A normal week — the operational reality behind "managed IT and security,"
+// so the page reads like it's run by people who do this daily, not a vendor
+// describing a product.
+const aNormalWeek = [
+  'A suspicious login from a country nobody on staff has visited',
+  'An employee forwarding us a phishing email before clicking it',
+  'A backup job that failed silently overnight',
+  'A server old enough to be worth replacing before it fails',
+  'A new hire who needs a laptop, logins, and M365 access by Monday',
+  'A site-to-site connection between two offices that dropped again',
+  'A cyber-insurance renewal asking for proof of MFA and backups',
+  'A staff member locked out of email before a meeting they can\'t miss',
+];
+
 ---
 
 <BaseLayout
@@ -14,12 +50,16 @@ const rest = services.filter((s) => !s.featured);
 >
   <!-- ============ SECTION 1 · HERO ============ -->
   <section class="relative">
-    <!-- Decorative topology SVG on the right -->
+    <!-- Decorative topology SVG on the right — the original AllTech motif:
+         concentric square frames (squares not circles, distinct from
+         Cloudflare) with node dots at the intersections and a crosshair
+         through the center. A quiet background accent, not a foreground
+         illustration. -->
     <svg
       class="hidden lg:block absolute right-0 top-1/2 -translate-y-1/2 -z-0 opacity-50 pointer-events-none"
       width="560" height="560" viewBox="0 0 560 560" fill="none" aria-hidden="true"
     >
-      <!-- Concentric square frames (the AllTech motif — squares not circles, distinct from Cloudflare) -->
+      <!-- Concentric square frames -->
       <rect x="60"  y="60"  width="440" height="440" rx="6" stroke="rgba(236,140,0,0.12)" stroke-width="1" stroke-dasharray="2 4" />
       <rect x="110" y="110" width="340" height="340" rx="6" stroke="rgba(236,140,0,0.16)" stroke-width="1" stroke-dasharray="2 4" />
       <rect x="180" y="180" width="200" height="200" rx="6" stroke="rgba(236,140,0,0.20)" stroke-width="1" />
@@ -52,15 +92,35 @@ const rest = services.filter((s) => !s.featured);
         </h1>
 
         <p class="mt-7 text-xl max-w-2xl leading-relaxed" style="color: var(--color-text-default)">
-          AllTech designs, deploys, and runs the infrastructure that keeps Northern Utah
-          businesses online and secure — from UniFi networks to full Cloudflare Zero Trust rollouts.
+          AllTech runs the IT and cybersecurity for manufacturers, clinics, law firms,
+          nonprofits, and growing businesses across Northern Utah and southern Idaho.
+          When you call, you get the same engineers who built your network — not a ticket queue.
         </p>
 
-        <div class="mt-9 flex flex-wrap items-center gap-3">
-          <a href="/assessment" class="btn btn-primary">
-            Take the free security gap assessment
-            <span aria-hidden="true">→</span>
-          </a>
+        <div class="mt-9">
+          <span class="cta-orbit-wrap">
+            <!-- Animated gold "orbit sweep" behind the primary CTA: three
+                 concentric ellipses whose dash segment sweeps around on a
+                 loop, with pulsing nodes. pathLength normalizes the dash to
+                 640 on every ellipse regardless of size, so all three sweep
+                 in sync. Vertical padding on the wrap reserves space so the
+                 orbits never reach the paragraph above or the trust row
+                 below. Honors prefers-reduced-motion (static faint arcs). -->
+            <span class="cta-orbit-bg" aria-hidden="true">
+              <svg class="cta-orbit-svg" viewBox="0 0 560 220" fill="none" preserveAspectRatio="xMidYMid meet">
+                <ellipse class="orbit orbit-a" cx="280" cy="110" rx="232" ry="46" pathLength="640" />
+                <ellipse class="orbit orbit-b" cx="280" cy="110" rx="260" ry="58" pathLength="640" />
+                <ellipse class="orbit orbit-c" cx="280" cy="110" rx="200" ry="36" pathLength="640" />
+                <circle class="orbit-dot dot-a" cx="498" cy="126" r="3.1" />
+                <circle class="orbit-dot dot-b" cx="30" cy="124" r="3.1" />
+                <circle class="orbit-dot dot-c" cx="380" cy="79" r="2.6" />
+              </svg>
+            </span>
+            <a href="/assessment" class="btn btn-primary hero-cta">
+              Take the free security gap assessment
+              <span aria-hidden="true">→</span>
+            </a>
+          </span>
         </div>
 
         <div class="mt-14 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
@@ -73,10 +133,38 @@ const rest = services.filter((s) => !s.featured);
     </div>
   </section>
 
+  <!-- ============ SECTION 1 · WHO WE SUPPORT ============ -->
+  <section class="py-24 lg:py-32 scroll-mt-20">
+    <div class="container-wide">
+      <SegmentHeader index="01" label="Who we support" />
+      <div class="max-w-2xl mb-14">
+        <h2 class="text-4xl lg:text-5xl font-bold leading-tight">
+          Who we support.<br />
+          <span style="color: var(--color-amber-400)">Real businesses, real constraints.</span>
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed" style="color: var(--color-text-default)">
+          From a five-person office to a multi-site manufacturer, the businesses we work
+          with have one thing in common: technology has to work, and someone has to
+          actually be responsible for it. Here's who we spend our days supporting.
+        </p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {whoWeSupport.map(([n, title, body]) => (
+          <div class="card">
+            <div class="font-display text-2xl font-bold mb-2" style="color: var(--color-amber-500)">{n}</div>
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary)">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default)">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
   <!-- ============ SECTION 2 · WHAT WE DO (value statement + services) ============ -->
   <section id="services" class="py-24 lg:py-32 scroll-mt-20">
     <div class="container-wide">
-      <SegmentHeader index="01" label="What we do" />
+      <SegmentHeader index="02" label="What we do" />
       <div class="max-w-2xl mb-14">
         <h2 class="text-4xl lg:text-5xl font-bold leading-tight">
           What we do.<br />
@@ -97,13 +185,28 @@ const rest = services.filter((s) => !s.featured);
           <div class="absolute top-0 right-0 w-80 h-80 rounded-full blur-3xl pointer-events-none" style="background: rgba(236,140,0,0.12)"></div>
           <div class="relative grid lg:grid-cols-12 gap-6 items-center">
             <div class="lg:col-span-8">
+              <Icon name={featured.icon} size={40} class="mb-4" />
               <div class="eyebrow mb-3">Featured · Cloudflare Partner</div>
               <h3 class="font-display text-3xl lg:text-4xl font-bold mb-3" style="color: var(--color-text-primary)">
                 {featured.name}
               </h3>
               <p class="text-lg leading-relaxed max-w-2xl" style="color: var(--color-text-default)">{featured.short}</p>
             </div>
-            <div class="lg:col-span-4 lg:text-right">
+            <div class="lg:col-span-4 flex flex-col items-start lg:items-end gap-4">
+              <!-- Small "status dashboard" mockup — what a deployed Zero Trust
+                   rollout actually looks like, not another icon. -->
+              <svg width="200" height="110" viewBox="0 0 200 100" fill="none" aria-hidden="true" class="w-full max-w-[200px]">
+                <rect x="0" y="0" width="200" height="100" rx="10" fill="var(--color-bg-surface)" stroke="var(--color-amber-300)" stroke-width="1.5" />
+                <circle cx="20" cy="24" r="4" fill="var(--color-teal-500)" />
+                <text x="32" y="28" font-family="var(--font-mono)" font-size="11" fill="var(--color-text-default)">Tunnel</text>
+                <circle cx="110" cy="24" r="4" fill="var(--color-teal-500)" />
+                <text x="122" y="28" font-family="var(--font-mono)" font-size="11" fill="var(--color-text-default)">WARP</text>
+                <circle cx="20" cy="58" r="4" fill="var(--color-teal-500)" />
+                <text x="32" y="62" font-family="var(--font-mono)" font-size="11" fill="var(--color-text-default)">Gateway</text>
+                <circle cx="110" cy="58" r="4" fill="var(--color-teal-500)" />
+                <text x="122" y="62" font-family="var(--font-mono)" font-size="11" fill="var(--color-text-default)">Access</text>
+                <rect x="14" y="78" width="172" height="6" rx="3" fill="var(--color-teal-500)" opacity="0.85" />
+              </svg>
               <span class="inline-flex items-center gap-2 font-medium text-sm group-hover:gap-3 transition-all" style="color: var(--color-amber-600)">
                 Explore Zero Trust
                 <span aria-hidden="true">→</span>
@@ -122,6 +225,7 @@ const rest = services.filter((s) => !s.featured);
               class="card group block"
               {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
             >
+              <Icon name={service.icon} size={32} class="mb-3" />
               <h3 class="font-display text-xl font-bold mb-2 group-hover:text-[var(--color-amber-600)] transition" style="color: var(--color-text-primary)">
                 {service.name}
               </h3>
@@ -144,60 +248,80 @@ const rest = services.filter((s) => !s.featured);
   <!-- ============ SECTION 3 · WHY ALLTECH (differentiation + P/P/P) ============ -->
   <section class="py-24 lg:py-32 scroll-mt-20">
     <div class="container-wide">
-      <SegmentHeader index="02" label="Why AllTech" />
+      <SegmentHeader index="03" label="Why clients choose us" />
       <div class="max-w-2xl mb-14">
         <h2 class="text-4xl lg:text-5xl font-bold leading-tight">
           Proactive. Preventative.<br />
           <span style="color: var(--color-amber-400)">Professional.</span>
         </h2>
         <p class="mt-5 text-lg leading-relaxed" style="color: var(--color-text-default)">
-          A lot of small businesses run on one IT guy. When he's out sick, on
-          vacation, or gone, so is your support. AllTech is a full team —
-          so there's always someone who knows your systems.
+          A lot of small businesses run on one IT guy, or split IT and security
+          between two vendors who don't talk to each other. AllTech runs both
+          under one roof — a full team, so there's always someone who knows
+          your systems, and nothing gets lost between vendors.
         </p>
       </div>
 
-      <!-- P / P / P pillars — icons reuse the site's own shape vocabulary
-           (concentric squares + node from the hero motif; the checkmark
-           stroke already used in the list below) rather than a generic
-           icon set. -->
-      <div class="grid md:grid-cols-3 gap-4 mb-12">
-        <div class="card">
-          <svg class="mb-4" width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-            <rect x="6" y="6" width="24" height="24" rx="2" stroke="var(--color-amber-500)" stroke-width="1.5" stroke-dasharray="2 3" />
-            <rect x="12" y="12" width="12" height="12" rx="1.5" stroke="var(--color-amber-500)" stroke-width="1.5" />
-            <circle cx="18" cy="18" r="2" fill="var(--color-amber-500)" />
-          </svg>
-          <h3 class="font-display text-xl font-bold mb-2" style="color: var(--color-text-primary)">Proactive</h3>
-          <p class="text-sm leading-relaxed" style="color: var(--color-text-default)">We monitor, patch, and harden before problems start — not after the call comes in.</p>
-        </div>
-        <div class="card">
-          <svg class="mb-4" width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-            <rect x="5" y="13" width="18" height="18" rx="2" stroke="var(--color-amber-500)" stroke-width="1.5" />
-            <rect x="13" y="5" width="18" height="18" rx="2" stroke="var(--color-amber-500)" stroke-width="1.5" />
-          </svg>
-          <h3 class="font-display text-xl font-bold mb-2" style="color: var(--color-text-primary)">Preventative</h3>
-          <p class="text-sm leading-relaxed" style="color: var(--color-text-default)">Layered security built on real frameworks (CIS, NIST), continually updated to stop threats you haven’t seen yet.</p>
-        </div>
-        <div class="card">
-          <svg class="mb-4" width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-            <rect x="5" y="5" width="26" height="26" rx="2" stroke="var(--color-amber-500)" stroke-width="1.5" />
-            <path d="M11 18l5 5l9 -11" stroke="var(--color-amber-500)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-          <h3 class="font-display text-xl font-bold mb-2" style="color: var(--color-text-primary)">Professional</h3>
-          <p class="text-sm leading-relaxed" style="color: var(--color-text-default)">Documented, accountable, and responsive — a team that shows up, communicates, and follows through.</p>
-        </div>
+      <!-- P / P / P as one connected illustration — this section's visual
+           centerpiece — instead of three small icon-cards repeating
+           Section 01's card pattern. The real descriptive copy lives in the
+           HTML caption row below the (aria-hidden) illustration. -->
+      <div class="mb-8 -mx-2 overflow-x-auto">
+        <svg viewBox="0 0 920 200" fill="none" aria-hidden="true" class="w-full min-w-[720px] h-auto">
+          <defs>
+            <filter id="ppp-shadow" x="-50%" y="-50%" width="220%" height="220%">
+              <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#0a0f1a" flood-opacity="0.08" />
+            </filter>
+          </defs>
+
+          <rect x="0" y="15" width="260" height="170" rx="14" fill="var(--color-bg-surface)" stroke="var(--color-border-default)" stroke-width="1.5" filter="url(#ppp-shadow)" />
+          <rect x="20" y="35" width="36" height="5" rx="2.5" fill="var(--color-amber-400)" />
+          <g transform="translate(102,58)">
+            <rect x="0" y="0" width="56" height="56" rx="8" stroke="var(--color-amber-500)" stroke-width="2" stroke-dasharray="3 4" />
+            <rect x="14" y="14" width="28" height="28" rx="5" stroke="var(--color-amber-500)" stroke-width="2" />
+            <circle cx="28" cy="28" r="4" fill="var(--color-amber-500)" />
+          </g>
+          <text x="130" y="165" text-anchor="middle" font-family="var(--font-display)" font-weight="700" font-size="20" fill="var(--color-text-primary)">Proactive</text>
+
+          <line x1="270" y1="100" x2="312" y2="100" stroke="var(--color-slate-400)" stroke-width="2" />
+          <path d="M306 93l10 7l-10 7" stroke="var(--color-slate-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+
+          <rect x="330" y="15" width="260" height="170" rx="14" fill="var(--color-bg-surface)" stroke="var(--color-border-default)" stroke-width="1.5" filter="url(#ppp-shadow)" />
+          <rect x="350" y="35" width="36" height="5" rx="2.5" fill="var(--color-amber-400)" />
+          <g transform="translate(432,58)">
+            <rect x="2" y="22" width="32" height="32" rx="5" stroke="var(--color-amber-500)" stroke-width="2" />
+            <rect x="22" y="2" width="32" height="32" rx="5" fill="var(--color-bg-surface)" stroke="var(--color-amber-500)" stroke-width="2" />
+          </g>
+          <text x="460" y="165" text-anchor="middle" font-family="var(--font-display)" font-weight="700" font-size="20" fill="var(--color-text-primary)">Preventative</text>
+
+          <line x1="600" y1="100" x2="642" y2="100" stroke="var(--color-slate-400)" stroke-width="2" />
+          <path d="M636 93l10 7l-10 7" stroke="var(--color-slate-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+
+          <rect x="660" y="15" width="260" height="170" rx="14" fill="var(--color-bg-surface)" stroke="var(--color-border-default)" stroke-width="1.5" filter="url(#ppp-shadow)" />
+          <rect x="680" y="35" width="36" height="5" rx="2.5" fill="var(--color-amber-400)" />
+          <g transform="translate(750.9,49.4) scale(2.444)">
+            <path d="M16 3.5L25.5 7.5V14.5C25.5 20.5 21.5 25.6 16 28C10.5 25.6 6.5 20.5 6.5 14.5V7.5Z" fill="var(--color-bg-tint)" stroke="var(--color-amber-500)" stroke-width="0.82" stroke-linejoin="round" />
+            <path d="M12 15.5l2.8 2.8l5.2-6" stroke="var(--color-amber-600)" stroke-width="1.02" stroke-linecap="round" stroke-linejoin="round" />
+          </g>
+          <text x="790" y="165" text-anchor="middle" font-family="var(--font-display)" font-weight="700" font-size="20" fill="var(--color-text-primary)">Professional</text>
+        </svg>
+      </div>
+      <!-- Grid columns mirror the SVG panels' exact proportions (260:70:260:70:260
+           units) via matching percentages + space-between, so captions stay
+           aligned under their panel at every viewport instead of drifting
+           against the illustration's independently-scaled coordinates. -->
+      <div
+        class="grid gap-5 sm:gap-0 mb-14 pb-14 sm:justify-between sm:[grid-template-columns:28.26%_28.26%_28.26%]"
+        style="border-bottom: 1px solid var(--color-border-subtle)"
+      >
+        <p class="text-sm leading-relaxed" style="color: var(--color-text-default)"><strong class="sm:hidden" style="color: var(--color-text-primary)">Proactive — </strong>We monitor, patch, and harden before problems start — not after the call comes in.</p>
+        <p class="text-sm leading-relaxed" style="color: var(--color-text-default)"><strong class="sm:hidden" style="color: var(--color-text-primary)">Preventative — </strong>Layered security mapped to real frameworks (CIS, NIST) — not just antivirus and a firewall.</p>
+        <p class="text-sm leading-relaxed" style="color: var(--color-text-default)"><strong class="sm:hidden" style="color: var(--color-text-primary)">Professional — </strong>Documented, accountable, and responsive — a team that shows up, communicates, and follows through.</p>
       </div>
 
-      <!-- What sets us apart from a one-person shop -->
+      <!-- Why clients choose us — stated plainly. -->
       <div class="grid sm:grid-cols-2 gap-x-10 gap-y-3 max-w-3xl">
-        {[
-          'A full team of engineers — not a single point of failure',
-          'Enterprise tooling: Cloudflare, UniFi, Datto, Microsoft 365',
-          '24/7 emergency response',
-          'Framework-based and refined as new threats emerge',
-          'Local since 2009, on-site when it matters',
-        ].map((point) => (
+        {whyClientsChooseUs.map((point) => (
           <div class="flex items-start gap-2.5">
             <svg class="w-5 h-5 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
               <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -206,29 +330,169 @@ const rest = services.filter((s) => !s.featured);
           </div>
         ))}
       </div>
+
+      <!-- Operational reality — the actual day-to-day this business runs on,
+           so the page reads like practitioners wrote it, not a vendor. -->
+      <div class="mt-16 pt-14" style="border-top: 1px solid var(--color-border-subtle)">
+        <div class="eyebrow mb-5">A normal week looks like</div>
+        <div class="grid sm:grid-cols-2 gap-x-10 gap-y-2.5 max-w-3xl">
+          {aNormalWeek.map((item) => (
+            <div class="flex items-start gap-3">
+              <span class="mt-1.5 w-1.5 h-1.5 rounded-[2px] shrink-0" style="background: var(--color-amber-500)"></span>
+              <span class="leading-snug" style="color: var(--color-text-default)">{item}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- ============ SECTION 4 · FREE ASSESSMENT ============ -->
   <section class="py-24 lg:py-32 scroll-mt-20">
     <div class="container-wide">
-      <SegmentHeader index="03" label="Free assessment" />
-      <div class="max-w-2xl">
-        <h2 class="text-4xl lg:text-5xl font-bold leading-tight">
-          Not sure where your <span style="color: var(--color-amber-400)">gaps</span> are?
-        </h2>
-        <p class="mt-5 text-lg leading-relaxed" style="color: var(--color-text-default)">
-          Take our free security gap assessment — a few quick questions across 12 domains,
-          from backups and patching to firewalls, identity, and endpoints. You'll get a
-          score right away, and we'll follow up to walk through what it means for your business.
-        </p>
-        <div class="mt-8 flex flex-wrap items-center gap-3">
-          <a href="/assessment" class="btn btn-primary">
-            Take the assessment <span aria-hidden="true">→</span>
-          </a>
-          <a href="/contact" class="btn btn-ghost">Talk to an engineer</a>
+      <SegmentHeader index="04" label="Free assessment" />
+      <div class="grid lg:grid-cols-12 gap-10 items-center">
+        <div class="lg:col-span-7">
+          <h2 class="text-4xl lg:text-5xl font-bold leading-tight">
+            Not sure where your <span style="color: var(--color-amber-400)">gaps</span> are?
+          </h2>
+          <p class="mt-5 text-lg leading-relaxed max-w-2xl" style="color: var(--color-text-default)">
+            Take our free security gap assessment — a few quick questions across 12 domains,
+            from backups and patching to firewalls, identity, and endpoints. You'll get a
+            score right away, and we'll follow up to walk through what it means for your business.
+          </p>
+          <div class="mt-8 flex flex-wrap items-center gap-3">
+            <a href="/assessment" class="btn btn-primary">
+              Take the assessment <span aria-hidden="true">→</span>
+            </a>
+            <a href="/contact" class="btn btn-ghost">Talk to an engineer</a>
+          </div>
+        </div>
+
+        <!-- A believable results screenshot, not an abstract gauge glyph:
+             window chrome, a real gauge + score, and per-domain rows so it
+             reads as "here's what you get," not a decorative icon. -->
+        <div class="hidden lg:flex lg:col-span-5 items-center justify-center">
+          <svg width="340" height="300" viewBox="0 0 380 330" fill="none" aria-hidden="true">
+            <defs>
+              <filter id="score-shadow" x="-50%" y="-50%" width="200%" height="200%">
+                <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#0a0f1a" flood-opacity="0.10" />
+              </filter>
+            </defs>
+
+            <rect x="0" y="0" width="380" height="330" rx="14" fill="var(--color-bg-surface)" stroke="var(--color-border-default)" stroke-width="1.5" filter="url(#score-shadow)" />
+            <rect x="0" y="16" width="380" height="32" fill="var(--color-bg-elevated)" />
+            <circle cx="20" cy="32" r="3" fill="var(--color-border-strong)" />
+            <circle cx="32" cy="32" r="3" fill="var(--color-border-strong)" />
+            <circle cx="44" cy="32" r="3" fill="var(--color-border-strong)" />
+            <text x="64" y="36" font-family="var(--font-mono)" font-size="11" fill="var(--color-text-subtle)">Security Gap Assessment</text>
+
+            <path d="M130 140a60 60 0 0 1 120 0" stroke="var(--color-border-default)" stroke-width="14" stroke-linecap="round" />
+            <path d="M130 140a60 60 0 0 1 106-38.6" stroke="var(--color-amber-500)" stroke-width="14" stroke-linecap="round" />
+            <line x1="190" y1="140" x2="225" y2="110" stroke="var(--color-amber-600)" stroke-width="3" stroke-linecap="round" />
+            <circle cx="190" cy="140" r="5" fill="var(--color-amber-600)" />
+            <text x="190" y="176" text-anchor="middle" font-family="var(--font-display)" font-weight="700" font-size="34" fill="var(--color-text-primary)">82%</text>
+            <text x="190" y="195" text-anchor="middle" font-family="var(--font-mono)" font-size="11" letter-spacing="1" fill="var(--color-text-subtle)">YOUR SCORE</text>
+
+            <text x="20" y="229" font-family="var(--font-sans)" font-size="12" fill="var(--color-text-default)">Backups</text>
+            <rect x="110" y="221" width="210" height="6" rx="3" fill="var(--color-border-subtle)" />
+            <rect x="110" y="221" width="190" height="6" rx="3" fill="var(--color-teal-500)" />
+            <circle cx="332" cy="224" r="4" fill="var(--color-teal-500)" />
+
+            <text x="20" y="257" font-family="var(--font-sans)" font-size="12" fill="var(--color-text-default)">Firewall</text>
+            <rect x="110" y="249" width="210" height="6" rx="3" fill="var(--color-border-subtle)" />
+            <rect x="110" y="249" width="170" height="6" rx="3" fill="var(--color-teal-500)" />
+            <circle cx="332" cy="252" r="4" fill="var(--color-teal-500)" />
+
+            <text x="20" y="285" font-family="var(--font-sans)" font-size="12" fill="var(--color-text-default)">Identity</text>
+            <rect x="110" y="277" width="210" height="6" rx="3" fill="var(--color-border-subtle)" />
+            <rect x="110" y="277" width="100" height="6" rx="3" fill="var(--color-amber-500)" />
+            <circle cx="332" cy="280" r="4" fill="var(--color-amber-500)" />
+          </svg>
         </div>
       </div>
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  /* Animated "orbit sweep" behind the primary hero CTA. See the markup in
+     Section 1 for the geometry; the button itself keeps the shared
+     .btn-primary styling so it stays consistent with the rest of the site. */
+  .cta-orbit-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    isolation: isolate;
+    padding: 1.5rem 0;   /* reserves vertical room for the orbits */
+  }
+  .cta-orbit-bg {
+    position: absolute;
+    inset: 50% auto auto 50%;
+    width: 560px;
+    height: 220px;
+    transform: translate(-50%, -50%);
+    z-index: -1;
+    pointer-events: none;
+    overflow: visible;
+  }
+  .cta-orbit-svg { width: 100%; height: 100%; overflow: visible; }
+  .hero-cta { position: relative; z-index: 1; }
+
+  .orbit {
+    fill: none;
+    stroke: rgba(231, 152, 23, 0.42);
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-dasharray: 120 520;   /* one 120-long segment over pathLength 640 */
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+  .orbit-a { animation: ctaOrbitSweep 4.8s linear infinite; }
+  .orbit-b { stroke: rgba(231, 152, 23, 0.30); animation: ctaOrbitSweep 5.6s linear infinite 1.1s; }
+  .orbit-c { stroke: rgba(231, 152, 23, 0.22); animation: ctaOrbitSweep 6.4s linear infinite 2s; }
+
+  .orbit-dot {
+    fill: rgba(244, 156, 9, 0.8);
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .dot-a { animation: ctaDotPulse 4.8s ease-out infinite; }
+  .dot-b { animation: ctaDotPulse 5.6s ease-out infinite 1.1s; }
+  .dot-c { animation: ctaDotPulse 6.4s ease-out infinite 2s; }
+
+  /* Hover accent: thicken the orbit strokes slightly, which transitions
+     smoothly. We deliberately do NOT change animation-duration on hover —
+     re-basing a running animation's duration makes the sweep jump to a
+     different phase mid-loop. */
+  .orbit { transition: stroke-width 0.25s var(--ease-out-soft); }
+  .cta-orbit-wrap:hover .orbit { stroke-width: 2.3; }
+
+  @keyframes ctaOrbitSweep {
+    0%   { stroke-dashoffset: 620; opacity: 0; }
+    12%  { opacity: 0.18; }
+    35%  { opacity: 0.52; }
+    68%  { opacity: 0.26; }
+    100% { stroke-dashoffset: 0; opacity: 0; }
+  }
+  @keyframes ctaDotPulse {
+    0%   { opacity: 0; transform: scale(0.6); }
+    18%  { opacity: 0.85; transform: scale(1); }
+    55%  { opacity: 0.4; transform: scale(1.15); }
+    100% { opacity: 0; transform: scale(0.8); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .orbit, .orbit-dot { animation: none !important; }
+    .orbit { opacity: 0.18; }
+    .orbit-dot { opacity: 0.5; }
+    /* Distribute the three static arc segments evenly around the button
+       (thirds of the pathLength) so the fallback reads as an intentional
+       arc motif rather than three arcs bunched in one corner. */
+    .orbit-a { stroke-dashoffset: 0; }
+    .orbit-b { stroke-dashoffset: 213; }
+    .orbit-c { stroke-dashoffset: 427; }
+  }
+</style>

@@ -59,12 +59,13 @@ export const site = {
 } as const;
 
 // Top-level service catalogue. Each entry maps to /services/<slug>.
+// `icon` matches a name in src/components/Icon.astro's icon kit.
 export const services = [
   {
     slug: "managed-it",
     name: "Managed IT",
     short: "Help desk, monitoring, patching, vendor management — your outsourced IT department.",
-    icon: "wrench",
+    icon: "endpoint",
   },
   {
     slug: "cybersecurity",
@@ -77,32 +78,32 @@ export const services = [
     name: "Cloudflare Zero Trust",
     short:
       "As a Cloudflare Partner we design, deploy, and manage Zero Trust networks — tunnels, WARP, Gateway, Access — for multi-site organizations.",
-    icon: "cloudflare",
+    icon: "gateway",
     featured: true,
   },
   {
     slug: "network-design",
     name: "Network & Infrastructure",
     short: "Business-grade Wi-Fi, switching, and firewalls — plus the full UniFi line: Network, Protect cameras, and Access door entry. Ubiquiti UniFi specialists.",
-    icon: "network",
+    icon: "node",
   },
   {
     slug: "cloud-microsoft-365",
     name: "Microsoft 365 & Cloud",
     short: "M365 tenant setup, migration, Intune, Entra ID, and ongoing administration.",
-    icon: "cloud",
+    icon: "cloud-sync",
   },
   {
     slug: "alltech-top-10",
     name: "AllTech Top 10",
     short: "A pre-selected security stack for small and mid-sized business — the ten controls we deploy first, mapped to leading frameworks and continually refined as threats evolve.",
-    icon: "shield",
+    icon: "stack",
   },
   {
     slug: "utah-data-recovery",
     name: "Utah Data Recovery",
     short: "Professional recovery for failed drives, SSDs, RAID arrays, and NAS systems — local, confidential, and handled in-house.",
-    icon: "database",
+    icon: "disk-recovery",
     // Routes to our dedicated data-recovery site rather than an internal page.
     url: "https://utahdatarecovery.com/",
   },

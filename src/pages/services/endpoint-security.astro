@@ -3,26 +3,49 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
 import { site } from '~/lib/site';
 
 const whatYouGet = [
-  ['Someone Is Watching', 'Every protected device reports security activity to Datto EDR and RocketCyber. Security events are monitored, analyzed, and investigated when they match known attack techniques or suspicious behavior.'],
-  ['Catch Suspicious Behavior Early', "Modern attacks don't always rely on known malware. Datto EDR monitors how systems behave, looking for activity associated with ransomware, credential theft, unauthorized access attempts, and other attack techniques."],
-  ['Real Investigation, Not Just Alerts', 'Security tools can generate thousands of notifications. RocketCyber helps filter noise, correlate events, and focus attention on activity that may require action.'],
-  ['Protection Stays Consistent', 'Security agents are deployed and managed through Datto RMM policies. As devices are added to your environment, protection can be deployed using the same standards across workstations and servers.'],
-  ["See What's Happening", 'Clients receive reporting that shows monitored devices, security activity, alert trends, and areas that may need attention — visibility you can actually use, not pages of raw log data.'],
-  ['Limit the Damage', 'When suspicious activity is identified, response actions may include investigating the affected system, isolating devices, blocking malicious activity, and coordinating remediation efforts.'],
+  ['Someone Is Watching', "Every protected device reports activity to our monitoring platform. Events are reviewed against known attack patterns and unusual behavior — not left to pile up in a log nobody reads."],
+  ['Catch Suspicious Behavior Early', "Modern attacks don't always rely on known malware. We watch how systems behave — activity associated with ransomware, credential theft, and unauthorized access — not just whether a file matches a known virus."],
+  ['Real Investigation, Not Just Alerts', 'Monitoring tools can generate thousands of notifications a day. We filter the noise, correlate related events, and focus on activity that actually needs a person to look at it.'],
+  ['Protection Stays Consistent', 'Monitoring is deployed and managed the same way across your environment, so a laptop set up last week gets the same protection as the server that has been running for years.'],
+  ["See What's Happening", "You get reporting that shows what's protected, what's been flagged, and what needs attention — not a pile of raw logs you'd need a security analyst to decode."],
+  ['Limit the Damage', "When something looks wrong, we investigate the affected system, isolate the device if needed, and work to contain the issue before it spreads to the rest of your network."],
+];
+
+const whatWeInvestigate = [
+  "Malware that a signature-based scanner wouldn't have caught",
+  "A sign-in attempt from a location or device that doesn't match how someone normally works",
+  'Activity consistent with an attacker trying to steal saved credentials',
+  'A link or attachment tied to an active phishing campaign',
+  'Software installed on a device without going through IT',
+  "A remote access tool showing up on a device that shouldn't have one",
+  "PowerShell commands being used in ways that don't match normal admin activity",
+  'A device trying to communicate with an address already known to be malicious',
 ];
 
 const steps = [
-  ['01', 'We Install Protection', 'We deploy Datto EDR and related monitoring tools through our management platform so your desktops, laptops, and servers are reporting security activity.'],
-  ['02', 'The Device Starts Talking', 'Each endpoint records behavioral events and security telemetry. Datto EDR continuously analyzes that activity against known attack techniques and threat intelligence.'],
-  ['03', 'Alerts Are Reviewed', 'Events are automatically prioritized and reviewed. Instead of forwarding every alert, we focus on activity that may represent a real security concern.'],
-  ['04', 'We Take Action', 'If a device shows signs of compromise, we investigate, work to contain the issue, and coordinate next steps with your team.'],
+  ['01', 'Something Gets Flagged', "An unfamiliar process, a login from somewhere it shouldn't be, a file behaving strangely — monitoring catches activity that doesn't fit the normal pattern."],
+  ['02', 'We Review It', "Most flagged activity turns out to be harmless: a software update, an employee on a new device. We look at it before it ever becomes your problem."],
+  ['03', 'We Investigate', "When something doesn't check out, we dig into what happened, what it touched, and whether it's still active."],
+  ['04', 'We Contain It', "If it's real, we isolate the affected device and work to stop it from reaching the rest of your network."],
+  ['05', 'We Remediate', 'We clean up what the incident touched and get the system back to a known-good state.'],
+  ['06', 'We Call You', "You hear it from a person, with a plain explanation of what happened and what we did — not an automated alert you find three days later."],
+];
+
+const inPractice = [
+  ['Constant', 'Devices report activity around the clock, not just during business hours.'],
+  ['Automated first', 'The bulk of that activity is filtered and prioritized automatically — no person could read all of it by hand.'],
+  ['Reviewed by people', "What's left after filtering gets a human look before anything reaches your inbox."],
 ];
 
 const audience = [
-  ['An Employee Working From Home', 'Remote employees often have access to company email, files, and business applications. We deploy monitoring and protection whether the device is in the office or connected from home.'],
-  ['A Manufacturing PC Running Critical Software', 'Production systems and specialty equipment can be difficult to replace when something goes wrong. Endpoint monitoring helps identify suspicious activity before it creates larger operational issues.'],
-  ['A Growing Business Without a Security Team', "Most small businesses don't have someone reviewing alerts all day. We provide the tools, monitoring processes, and response workflows that many organizations cannot justify staffing internally."],
-  ['Organizations Facing Compliance Requirements', 'Cyber insurance carriers, compliance auditors, and business partners increasingly ask about endpoint security controls. EDR provides visibility into device activity and demonstrates that security monitoring is actively managed.'],
+  ['An Employee Working From Home', "Remote employees have access to the same email, files, and business applications as anyone in the office. We monitor and protect the device whether it's on your network or connected from a kitchen table."],
+  ['A Manufacturing PC Running Critical Software', 'Production systems and specialty equipment can be expensive and slow to replace when something goes wrong. Monitoring helps catch suspicious activity before it turns into a line-down problem.'],
+  ['A Multi-Location Business Without IT Staff at Every Site', "Not every office has someone who can tell a real problem from a pop-up ad. Every location gets monitored the same way, whether there's IT staff on-site or not."],
+  ['A Healthcare Office Handling Patient Records', 'Scheduling systems, insurance portals, and patient records carry real regulatory weight if they\'re exposed. We monitor those workstations accordingly.'],
+  ['A Law Firm or Accounting Practice', "Client confidentiality isn't optional in professional services. Endpoint monitoring is part of showing clients — and your malpractice insurer — that you take it seriously."],
+  ['A Growing Business Without a Security Team', "Most small businesses don't have someone reviewing security alerts all day. We provide the monitoring and response most organizations can't justify staffing for internally."],
+  ['A Nonprofit Running Lean', 'Small staff, tight budget, and donor data that still needs protecting. We provide the same monitoring larger organizations pay a full security team for.'],
+  ['Organizations Facing Compliance Requirements', 'Cyber insurance carriers and auditors increasingly ask for proof of endpoint monitoring. We provide the documentation and visibility to answer that question directly.'],
 ];
 
 const related = [
@@ -37,7 +60,7 @@ const contactHref = '/contact?service=Cybersecurity';
 
 <BaseLayout
   title="Endpoint Security & Ransomware Protection"
-  description="Endpoint security and ransomware protection for businesses across Northern Utah. AllTech monitors every managed workstation and server with Datto EDR and RocketCyber, investigates real threats, and helps contain incidents before they spread."
+  description="Endpoint security and ransomware protection for businesses across Northern Utah. AllTech monitors every managed workstation and server, investigates suspicious activity, and helps contain incidents before they spread."
 >
   <!-- Hero -->
   <section class="surface-dark relative overflow-hidden">
@@ -50,9 +73,9 @@ const contactHref = '/contact?service=Cybersecurity';
           <span style="color: var(--color-amber-400);">We watch for the threats.</span>
         </h1>
         <p class="mt-6 text-xl leading-relaxed text-muted">
-          A ransomware attack usually starts on a single laptop. We monitor every managed
-          workstation and server, investigate suspicious activity, and help contain incidents
-          before they spread.
+          A ransomware attack usually starts on one laptop and spreads from there. We keep
+          eyes on every managed workstation and server, catch suspicious activity early, and
+          move fast to contain it before it becomes a bigger problem for your business.
         </p>
         <div class="mt-8 flex flex-wrap gap-3">
           <a href={contactHref} class="btn btn-primary">Schedule an assessment <span aria-hidden="true">→</span></a>
@@ -85,6 +108,10 @@ const contactHref = '/contact?service=Cybersecurity';
         <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
           Monitoring, investigation, and response
         </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Delivered through our monitoring platform (built on Datto EDR and RocketCyber) —
+          deployed and managed by us, not something you have to configure yourself.
+        </p>
       </div>
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {whatYouGet.map(([title, body]) => (
@@ -97,6 +124,31 @@ const contactHref = '/contact?service=Cybersecurity';
     </div>
   </section>
 
+  <!-- What we actually investigate -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">What we actually investigate</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        The activity that gets a second look
+      </h2>
+      <div class="mt-6 space-y-5 text-lg leading-relaxed text-muted">
+        <p>Most of what our monitoring flags turns out to be nothing — a legitimate script, a new device, an update running on schedule. A small percentage of it isn't, and that's what we spend our time on. A few examples of what actually lands on an engineer's desk:</p>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-x-10 gap-y-2.5 mt-8 not-prose">
+        {whatWeInvestigate.map((item) => (
+          <div class="flex items-start gap-3">
+            <span class="mt-1.5 w-1.5 h-1.5 rounded-[2px] shrink-0" style="background: var(--color-amber-500)"></span>
+            <span class="leading-snug text-muted">{item}</span>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 text-lg leading-relaxed text-muted">
+        Most of the time, it's explainable. When it isn't, having eyes on it early is the
+        difference between a contained incident and a much longer, more expensive one.
+      </p>
+    </div>
+  </section>
+
   <!-- Why traditional AV isn't enough -->
   <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
     <div class="container-prose">
@@ -105,9 +157,9 @@ const contactHref = '/contact?service=Cybersecurity';
         Why traditional antivirus isn't enough
       </h2>
       <div class="mt-6 space-y-5 text-lg leading-relaxed text-muted">
-        <p>Traditional antivirus is designed to identify <em>known</em> threats. The problem is that attackers constantly change their tools and techniques.</p>
-        <p>Datto EDR doesn't just look for known malware — it analyzes how a device behaves. If a process starts encrypting files, attempts to gather credentials, or launches suspicious commands, the activity can be flagged even when no known virus signature exists.</p>
-        <p>This helps identify threats earlier and gives security teams more opportunities to contain an incident before it disrupts business operations.</p>
+        <p>Traditional antivirus is built to catch <em>known</em> threats — it checks a file against a list of signatures for viruses that have already been identified. That still matters, and we keep it running. But attackers change their tools constantly, and a lot of modern attacks don't use anything that shows up on that list.</p>
+        <p>What matters more is behavior: does a process suddenly start encrypting files, harvesting saved credentials, or launching commands it has no business running? Watching for that — instead of only checking files against a known-bad list — is what catches an attack while it's still small enough to contain.</p>
+        <p>The goal isn't a tool that promises to stop everything. It's visibility early enough that we still have real options before an incident becomes a business problem.</p>
       </div>
     </div>
   </section>
@@ -118,10 +170,10 @@ const contactHref = '/contact?service=Cybersecurity';
       <div class="max-w-2xl mb-12">
         <div class="eyebrow mb-4">How it works</div>
         <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
-          From install to action
+          What happens when something looks suspicious
         </h2>
       </div>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {steps.map(([n, title, body]) => (
           <div class="card">
             <div class="font-display text-2xl font-bold mb-2" style="color: var(--color-amber-500);">{n}</div>
@@ -137,28 +189,27 @@ const contactHref = '/contact?service=Cybersecurity';
   <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
     <div class="container-wide">
       <div class="max-w-2xl mb-10">
-        <div class="eyebrow mb-4">By the numbers</div>
+        <div class="eyebrow mb-4">In practice</div>
         <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
-          What endpoint monitoring actually looks like
+          What monitoring looks like in practice
         </h2>
         <p class="mt-4 text-muted leading-relaxed">
-          Security monitoring generates an enormous amount of data. In a recent reporting period:
+          Most of what monitoring picks up is normal — a legitimate software update, an IT
+          script running on schedule, an employee logging in from a new laptop. Across a
+          fleet of devices, there's more of that activity than any person could review by hand.
         </p>
       </div>
       <div class="grid sm:grid-cols-3 gap-4">
-        {[
-          ['805M+', 'Endpoint events analyzed across monitored systems'],
-          ['37,000+', 'Events that required additional analysis'],
-          ['Hundreds', 'Alerts investigated and prioritized'],
-        ].map(([stat, label]) => (
+        {inPractice.map(([label, body]) => (
           <div class="card">
-            <div class="font-display text-4xl font-bold mb-2" style="color: var(--color-amber-500);">{stat}</div>
-            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{label}</p>
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{label}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
           </div>
         ))}
       </div>
       <p class="mt-8 text-muted leading-relaxed max-w-2xl">
-        Without monitoring and analysis, important signals can easily be buried in normal system activity.
+        Our job is separating that normal noise from the handful of events that actually
+        need a person to look at them — and making sure those don't get buried.
       </p>
     </div>
   </section>
@@ -191,18 +242,11 @@ const contactHref = '/contact?service=Cybersecurity';
         What we don't do
       </h2>
       <div class="mt-6 space-y-5 text-lg leading-relaxed text-muted">
-        <p>We don't claim software alone stops every attack.</p>
-        <p>Endpoint security works best when it's combined with patch management, backups, security awareness training, and a defined incident response process.</p>
-        <p>Our goal is to reduce risk, identify suspicious activity sooner, and respond faster when something happens.</p>
+        <p>We don't claim software alone stops every attack, and we're not going to pretend it does to make a sale.</p>
+        <p>Endpoint monitoring is one layer. It works best alongside patch management (fewer holes to exploit), immutable backups (so a bad day doesn't become a business-ending one), security awareness training (fewer threats ever reach a device), and identity protections like multi-factor authentication (so a stolen password isn't enough to get in).</p>
+        <p>We also believe in having an incident response plan before you need one — who gets called, what gets isolated, and how you communicate with your team and customers if something happens.</p>
+        <p>Our goal isn't to promise you'll never have an incident. It's to reduce the odds, catch it early when we can, and know exactly what to do when we can't.</p>
       </div>
-
-      <!-- Client testimonial (placeholder) -->
-      <blockquote class="mt-12 border-l-4 pl-6 py-2" style="border-color: var(--color-amber-400);">
-        <p class="text-xl lg:text-2xl font-display leading-relaxed" style="color: var(--color-text-primary);">
-          [CLIENT QUOTE — replace with a real customer testimonial before publishing.]
-        </p>
-        <footer class="mt-3 text-sm" style="color: var(--color-text-subtle);">— Client name, role &amp; company</footer>
-      </blockquote>
     </div>
   </section>
 

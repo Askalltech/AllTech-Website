@@ -24,7 +24,11 @@ const clients = [
 ];
 ---
 
-<section class="py-12 border-t" style="background-color: var(--color-bg-page); border-color: var(--color-border-subtle)">
+<!-- This strip sits OUTSIDE <main> (between it and the footer), so the
+     page-wide dot grid layered inside <main> doesn't reach it. It carries
+     its own copy of the same ambient layer so the motif continues
+     seamlessly instead of cutting off at the section border. --><section class="relative isolate py-12 border-t" style="border-color: var(--color-border-subtle)">
+  <div class="absolute inset-0 -z-10 bg-dot-grid"></div>
   <p class="text-center eyebrow mb-10">Trusted by dozens of businesses</p>
   <div class="marquee" aria-label="Businesses we serve">
     <ul class="marquee-group">
@@ -74,16 +78,10 @@ const clients = [
     width: auto;
     max-width: 190px;
     object-fit: contain;
-    filter: grayscale(1);
-    opacity: 0.72;
-    transition: filter 0.2s var(--ease-out-soft), opacity 0.2s var(--ease-out-soft);
+    transition: opacity 0.2s var(--ease-out-soft);
   }
   @media (min-width: 1024px) {
     .client-logo { height: 4.5rem; }  /* 72px desktop — bigger so small logos read */
-  }
-  .client-logo:hover {
-    filter: grayscale(0);
-    opacity: 1;
   }
   @keyframes client-marquee {
     to { transform: translateX(calc(-100% - var(--gap))); }

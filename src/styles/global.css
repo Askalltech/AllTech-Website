@@ -41,6 +41,19 @@
   --color-warning: #c46d00;
   --color-danger:  #dc2626;
 
+  /* ----- SCALE: illustration-only secondary hues -----
+     Reserved for the icon/illustration system (src/components/Icon.astro)
+     and larger composed scenes. NOT used in UI chrome — buttons, links, and
+     borders stay amber-only so the palette stays controlled. Muted/desaturated
+     on purpose so they sit quietly next to amber instead of competing with it.
+     teal = connectivity/"online" status. slate = neutral hardware/infrastructure. */
+  --color-teal-400:  #6fc4b6;
+  --color-teal-500:  #4fb8a8;
+  --color-teal-600:  #2d7d70;
+  --color-slate-400: #8b9bb4;
+  --color-slate-500: #6f81a0;
+  --color-slate-600: #5a6b85;
+
   /* ----- SEMANTIC: surfaces (light-first) ----- */
   --color-bg-page:     #f7f9fc;
   --color-bg-surface:  #ffffff;

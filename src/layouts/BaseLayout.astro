@@ -23,9 +23,11 @@ const { title, description, image, noindex, canonical } = Astro.props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
-    <link rel="icon" type="image/webp" href="/logo.webp" />
-    <link rel="apple-touch-icon" href="/logo.webp" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Favicon: the AllTech logo, square-padded from /public/logo.webp.
+         (The old generic favicon.svg — dark square + amber dot — was listed
+         last, so browsers preferred it over the real logo.) -->
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <!-- Fonts — preconnect for fast load -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
