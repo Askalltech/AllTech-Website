@@ -1,0 +1,349 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+// Section 2b — stats band. Real figures from AllTech's own Cloudflare Email
+// Security report (26 mailboxes, Jun 27 – Jul 27, 2026). Aggregated and
+// anonymized per the source's do-not-publish guidance.
+const stats = [
+  ['15,592', 'Messages scanned', 'About 500 a day across 26 mailboxes'],
+  ['793', 'Real attacks stopped', 'Malicious, spoofed, or suspicious — roughly one per person per day'],
+  ['642', 'Confirmed malicious', 'Scams, credential theft, brand impersonation'],
+  ['204', 'Impersonation attempts', 'Someone posing as one of our own people'],
+];
+
+const whatYouGet = [
+  ['Caught Before Delivery', 'Mail is inspected before it reaches the mailbox, not quarantined after someone has already seen it in their inbox. Phishing, malware, and spoofed senders get stopped at the door.'],
+  ['Built for the Targeted Stuff', 'Commodity spam is the easy part. What we’re actually watching for is the message written specifically for your business: a lookalike domain, a display name matching your CFO, a payment request timed to the end of the month.'],
+  ['Links and Attachments Checked', 'Attachments are analyzed rather than pattern-matched, and links are evaluated at click time — because a URL that’s clean on delivery isn’t always clean an hour later.'],
+  ['Your Domain, Used Only by You', 'SPF, DKIM, and DMARC configured properly so your domain can’t be used to impersonate you to your own customers and vendors — and so your legitimate mail actually lands.'],
+  ['A Look Inside the Mailbox', 'Mailbox security audits through Exchange Online PowerShell: hidden forwarding rules, legacy authentication still enabled, sign-ins that don’t match how someone works, permissions nobody remembers granting.'],
+  ['Someone Who Answers', 'When a message gets through and someone clicks, you call a local engineer who already knows your tenant — not a support queue that starts by asking what your domain is.'],
+];
+
+const whatWeCatch = [
+  'A vendor invoice you were expecting, with the banking details quietly changed',
+  'A short, urgent request from a lookalike domain one character off from your own',
+  'A payroll email asking to update an employee’s direct deposit before Friday',
+  'A Microsoft 365 sign-in page that looks exactly right, hosted somewhere it shouldn’t be',
+  'A shared-file notification pointing at a credential harvesting form',
+  'A reply inserted into a real conversation already in progress',
+  'An attachment that passed inspection on delivery and turned malicious afterward',
+  'A QR code inside a PDF, placed there to route around link scanning',
+  'A forwarding rule sending copies of finance mail to an outside address',
+];
+
+const steps = [
+  ['01', 'We Look at What You Have Now', 'Your tenant, your current filtering, your SPF and DKIM records, and what’s already reaching your team. Most environments have at least one gap nobody knew about.'],
+  ['02', 'Filtering Goes in Front', 'Email Security is deployed ahead of Microsoft 365 or Google Workspace. No mailbox migration, no change to how your team sends and receives mail.'],
+  ['03', 'Messages Get Analyzed', 'Sender reputation, domain age and similarity, attachment behavior, link destinations, and how the message compares to normal traffic for your organization.'],
+  ['04', 'We Harden the Mailbox Behind It', 'Authentication records, legacy protocols, forwarding rules, mailbox permissions, and MFA coverage — the things that decide how bad it gets if one message lands.'],
+  ['05', 'We Tune It', 'False positives get corrected. Delivery problems get fixed. Rules get adjusted as your business changes vendors, opens locations, and hires people.'],
+  ['06', 'We Respond When One Gets Through', 'Someone clicks eventually. We reset the account, kill active sessions, look for what was changed, and tell you in plain language what happened.'],
+];
+
+const inPractice = [
+  ['60%', 'went straight through', 'Ordinary business mail, delivered without anyone touching it. A filter that’s constantly interfering with real work isn’t tuned — it’s just loud.'],
+  ['35%', 'was spam and bulk', 'Marketing, newsletters, and commodity spam. Handled automatically, no one’s day interrupted, and not something we’d dress up as a security win.'],
+  ['5%', 'was actually trying something', '793 messages that were malicious, spoofed, or impersonating one of our people. That’s the part worth paying for.'],
+];
+
+const audience = [
+  ['A Business That Moves Money by Email', 'Title work, construction draws, escrow, large vendor payments. If wiring instructions ever travel by email, you’re a target worth researching first.'],
+  ['A Finance or AP Team', 'Invoice fraud works because the invoice looks real and the timing is right. Filtering plus a verification habit is what breaks it.'],
+  ['An Owner Who Gets Impersonated', 'Names and titles are public. So is your email format. In our own numbers, a single mailbox absorbed 40% of all malicious mail sent to the company — attackers research who’s worth pretending to be, and who’s worth writing to.'],
+  ['A Law Firm or Accounting Practice', 'Client confidentiality isn’t optional, and a compromised mailbox exposes years of correspondence at once.'],
+  ['A Company on Microsoft 365 With Default Settings', 'Defaults are a starting point, not a configuration. Legacy authentication, unrestricted forwarding, and missing DMARC are common and quietly expensive.'],
+  ['A Business That’s Already Been Hit', 'Once an account has been compromised, the mailbox needs an actual review — not just a password reset and a hope that it’s over.'],
+  ['An Organization With Compliance or Insurance Requirements', 'Cyber insurance applications increasingly ask about email filtering and MFA. Answering honestly is easier when it’s already in place.'],
+  ['A Nonprofit or Municipality Running Lean', 'Donor records, resident data, and public email addresses, with no one on staff whose job is watching for this.'],
+];
+
+const related = [
+  ['Endpoint Security & Ransomware Protection', 'Most malicious attachments still have to execute somewhere. Endpoint monitoring catches what happens after a click.', '/services/endpoint-security'],
+  ['Managed SOC', 'Suspicious sign-ins and mailbox changes are more useful when someone is watching them around the clock.', '/services/cybersecurity#soc'],
+  ['Cloudflare Zero Trust', 'Email Security is one component of a full SASE deployment alongside Access, Gateway, and Tunnel.', '/services/cloudflare-zero-trust#email'],
+  ['Microsoft 365 & Entra ID', 'MFA, conditional access, and tenant configuration are where email security either holds or falls apart.', '/services/cloud-microsoft-365#intune'],
+];
+
+const contactHref = '/contact?service=Cybersecurity';
+---
+
+<BaseLayout
+  title="Email Security & Phishing Protection"
+  description="Email security for businesses across Northern Utah. AllTech filters phishing, business email compromise, and malware in front of Microsoft 365 and Google Workspace."
+>
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">Email Security &amp; Phishing Protection</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          Most attacks don't break in.<br />
+          <span style="color: var(--color-amber-400);">They arrive in the inbox.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">
+          Phishing, business email compromise, and malicious attachments are how the majority
+          of security incidents start. We filter them in front of Microsoft 365 and Google
+          Workspace, audit the mailboxes behind them, and stay reachable when something
+          convincing gets through — so a well-written email doesn't turn into a wire transfer.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Schedule an email security review <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- The problem -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">The problem</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        The inbox is the front door
+      </h2>
+      <div class="mt-6 space-y-5 text-lg leading-relaxed text-muted">
+        <p>Most attacks on a business don't start with someone breaking through a firewall. They start with a message that looks completely ordinary — an invoice from a vendor you actually use, a shared file notification, a short note from the owner asking someone in accounting to take care of something quickly.</p>
+        <p>The dangerous ones often have no malware in them at all. No attachment to scan, no link to check. Just a believable request from a name your team recognizes, sent from a domain that's one character off. Filters built to catch spam and known-bad files have very little to say about a message like that.</p>
+        <p>AllTech puts real filtering in front of your mail, hardens the tenant behind it, and reviews what's actually reaching your people — so the messages designed to look normal get caught before someone acts on one.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- By the numbers — measured on our own mail -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">Measured on our own mail</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What this actually stops
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          These aren't a vendor's case study or an industry average. They're 31 days of our own
+          inbound mail — 26 AllTech mailboxes, June 27 to July 27, 2026, straight out of the
+          Cloudflare Email Security report we'd hand any client.
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {stats.map(([figure, label, sub]) => (
+          <div class="card">
+            <div class="font-display text-4xl font-bold mb-2" style="color: var(--color-amber-500);">{figure}</div>
+            <div class="font-semibold mb-1" style="color: var(--color-text-primary);">{label}</div>
+            <p class="text-sm leading-relaxed text-muted">{sub}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 text-muted leading-relaxed max-w-3xl">
+        Another 5,494 messages were filtered as spam or bulk marketing. We don't count those as
+        attacks, because they aren't. And roughly 60% of everything scanned was ordinary business
+        mail that went straight through untouched, which is how a properly tuned filter should
+        behave. The 793 above are the messages that were actually trying something.
+      </p>
+      <p class="mt-5 text-lg leading-relaxed max-w-3xl" style="color: var(--color-text-primary);">
+        We run this on our own company first. If we're going to put it in front of your mail,
+        you should be able to see what it does to ours.
+      </p>
+    </div>
+  </section>
+
+  <!-- What you get -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">What you get</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Filtering, hardening, and a person to call
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Delivered through Cloudflare Email Security in front of Microsoft 365 or Google
+          Workspace — deployed and tuned by us, either as part of a Zero Trust rollout or as a
+          standalone layer.
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {whatYouGet.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- What we actually catch -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">What we actually catch</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        The messages that get stopped
+      </h2>
+      <div class="mt-6 space-y-5 text-lg leading-relaxed text-muted">
+        <p>Most of what arrives is legitimate business mail, and most of what's filtered is ordinary spam nobody would have fallen for. The messages worth talking about are the ones written to be believed. A few examples of what that looks like:</p>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-x-10 gap-y-2.5 mt-8 not-prose">
+        {whatWeCatch.map((item) => (
+          <div class="flex items-start gap-3">
+            <span class="mt-1.5 w-1.5 h-1.5 rounded-[2px] shrink-0" style="background: var(--color-amber-500)"></span>
+            <span class="leading-snug text-muted">{item}</span>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 text-lg leading-relaxed text-muted">
+        Any one of these can be explained away in the moment. That's the point of them. In a
+        single recent month on our own mail, filtering stopped 642 confirmed malicious messages,
+        204 impersonation attempts, and 115 spoofed senders before delivery. Catching them at
+        the door — or noticing the mailbox rule an hour after it appears — is the difference
+        between a near miss and a wire you can't get back.
+      </p>
+    </div>
+  </section>
+
+  <!-- Beyond the spam filter -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">Beyond the spam filter</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Why the built-in filter isn't the whole answer
+      </h2>
+      <div class="mt-6 space-y-5 text-lg leading-relaxed text-muted">
+        <p>Microsoft 365 and Google Workspace both include filtering, and it does real work. Bulk spam, known malware, and mail from senders with a bad reputation get handled without anyone thinking about it. We keep all of that running.</p>
+        <p>The gap is in the attacks built to look ordinary. A message with no attachment, no link, and no malware — sent from a domain registered two days ago, matching the display name of someone the recipient trusts — doesn't look like a threat to a filter tuned for known-bad content. It looks like email.</p>
+        <p>We can put a number on that from our own mail. Of the 642 malicious messages caught in a recent 31-day window, the report found 108 with a malicious link and just 6 with a malicious attachment. The rest carried no link, no attachment, and no known-bad file — just words, from a name someone recognized.</p>
+        <p>The threat types line up with that. The most common was plain scam content, followed by identity deception and brand impersonation — attacks that work on the reader, not the machine. Over the same month, 204 messages were flagged specifically as impersonation attempts against people on our own staff, about seven a day. Content scanning doesn't catch those. What catches them is knowing who normally emails your organization, from where, and what a message from them usually looks like.</p>
+        <p>There's a second gap inbound filtering can't close at all. Once credentials are stolen, the attacker is sending from a real mailbox on a trusted domain, and inbound filtering has no opinion about them. That's why email security has to include what's behind the mailbox: multi-factor authentication, conditional access, and someone regularly checking for the forwarding rules and sign-in patterns that show an account has already been taken.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">How it works</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          From setup to the message that gets through
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {steps.map(([n, title, body]) => (
+          <div class="card">
+            <div class="font-display text-2xl font-bold mb-2" style="color: var(--color-amber-500);">{n}</div>
+            <h3 class="font-display text-base font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- In practice -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">In practice</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What this looks like day to day
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Your team keeps using Outlook exactly the way they did before. The difference is what
+          never arrives. Across 26 of our own mailboxes over 31 days, about 500 messages a day
+          came in. They split like this:
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-3 gap-4">
+        {inPractice.map(([pct, label, body]) => (
+          <div class="card">
+            <div class="font-display text-4xl font-bold mb-1" style="color: var(--color-amber-500);">{pct}</div>
+            <div class="font-semibold mb-2" style="color: var(--color-text-primary);">{label}</div>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 text-muted leading-relaxed max-w-3xl">
+        Spread across 26 people, that's about one real attempt per person per day — every one
+        of them handled before anyone had to make a judgment call in the middle of a busy
+        afternoon.
+      </p>
+    </div>
+  </section>
+
+  <!-- Who this is for -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Who this is for</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Built for real environments
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        {audience.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Honest expectations -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">Honest expectations</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        What we don't do
+      </h2>
+      <div class="mt-6 space-y-5 text-lg leading-relaxed text-muted">
+        <p>We don't claim to stop every phishing email. Nobody can, and a vendor who tells you otherwise is selling something.</p>
+        <p>Filtering is one layer. It works best alongside multi-factor authentication (so a stolen password isn't enough), conditional access (so sign-ins from places your team doesn't work get blocked), security awareness training (so the ones that land get reported instead of clicked), and endpoint monitoring (so an attachment that opens doesn't get far).</p>
+        <p>The single highest-value thing isn't technical at all: a rule that no change to banking or payment details is ever accepted by email alone. Someone calls a known number and confirms it out loud. That one habit stops the most expensive attacks we see.</p>
+        <p>Our goal isn't a promise that nothing gets through. It's fewer attempts reaching your team, a harder target behind the mailbox, and a fast, honest response the day something does.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Related services -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Related services</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Email security works best in layers
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        {related.map(([title, body, href]) => (
+          <a href={href} class="card group block">
+            <h3 class="font-display text-lg font-bold mb-2 group-hover:text-[var(--color-amber-600)] transition" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+            <span class="mt-3 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">Learn more <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="surface-dark py-16 lg:py-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Find out what's actually reaching your inbox.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          We'll review your Microsoft 365 or Google Workspace tenant, check your authentication
+          records and mailbox rules, and show you what current filtering is and isn't catching.
+          Plain findings, no pressure.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Schedule an email security review <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
