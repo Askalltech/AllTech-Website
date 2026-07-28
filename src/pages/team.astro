@@ -2,35 +2,163 @@
 import BaseLayout from '~/layouts/BaseLayout.astro';
 
 /**
- * Our Team.
+ * Our Team — roster in the shadcnblocks "team11" pattern.
  *
- * Currently a blank page — no employees are listed yet. When real people are
- * added, this renders a condensed roster: a row of name buttons, and clicking
- * a name reveals that person's photo + bio (the click-to-reveal pattern seen
- * under "Support from people who know you" on nextmeters.com).
+ * A dense bordered grid of people (2 cols → 3 → 4). Each tile shows photo,
+ * name, and role. On md+ screens, hovering (or keyboard-focusing) a tile
+ * raises a highlighted overlay card with an amber accent line and reveals a
+ * two-line preview of the bio. The overlay is absolutely positioned, so
+ * neighbouring tiles never shift.
  *
- * To add someone, drop an object into `team` below and put their photo in
- * /public/team/ (e.g. "/team/jane-doe.jpg"). The interaction wires up
- * automatically.
+ * Every tile is a link to that person's FULL bio, rendered in a section
+ * below the grid. Real bios run several paragraphs — far too much to expand
+ * inside a hover card without running off the viewport — so the tile is the
+ * index and the section below is the content. That also means the full text
+ * is always in the DOM for search engines and screen readers, and every
+ * person has a shareable URL (#bio-their-name).
+ *
+ * Below md the grid degrades to a plain scannable list with the preview
+ * always visible — no hover required on touch.
+ *
+ * TO ADD SOMEONE: drop an object into `team` below. `photo` is optional —
+ * without one, a monogram tile of their initials is shown instead, so names
+ * and bios can go live before headshots are ready. Photos live in
+ * /public/team/ (e.g. "/team/jane-doe.jpg").
  */
 interface Member {
   name: string;
   role: string;
-  photo: string; // path under /public, e.g. "/team/jane-doe.jpg"
-  bio: string;
-  funnyBlurb?: string; // a lighthearted one-liner shown under the bio
+  /**
+   * Paragraphs. The FIRST one is the preview — it's clamped to two lines on
+   * the resting card, so write it so the opening sentence stands alone.
+   * Everything after it appears only once "Show more" is pressed.
+   */
+  bio: string[];
+  tagline?: string;    // short moniker shown under the role, e.g. "The Network Nomad"
+  photo?: string;      // optional; falls back to an initials monogram
+  funnyBlurb?: string; // a lighthearted one-liner closing out the expanded bio
 }
 
+// ROSTER. Rick is real; the rest are placeholders — replace them as bios and
+// headshots come in. `photo` is optional, so names and bios can go live before
+// the photography does.
 const team: Member[] = [
-  // Example shape (uncomment and fill in once headshots + bios are ready):
-  // {
-  //   name: 'Jane Doe',
-  //   role: 'Lead Network Engineer',
-  //   photo: '/team/jane-doe.jpg',
-  //   bio: 'Short bio — background, focus areas, and what Jane handles for clients.',
-  //   funnyBlurb: 'Will reorganize your patch panel and your snack drawer.',
-  // },
+  {
+    name: 'Rick Sherwood',
+    role: 'Network Engineer',
+    tagline: 'The Network Nomad',
+    bio: [
+      'Rick is a seasoned Network Engineer at AllTech who has officially traded the high seas for high-speed fiber optics. A veteran of the U.S. Navy — where he spent six years as an Electronics Technician across three different ships — Rick\u2019s career path has been anything but a straight line. After wrapping up his service in 2001, he headed to college in San Diego. Following his studies, he moved to Arizona, where he promptly fainted from the heat and woke up five years later just in time to pack his bags and move to Utah.',
+      'He survived a 12-year stint at an ISP before finally finding a professional home at AllTech, a place where he\u2019s happy to put down permanent roots for the long haul. When he isn\u2019t deep in firewall configurations or optimizing Linux servers, he\u2019s likely busy tending to his real-world passion: extreme hot sauce. A true heat-seeker, Rick brews his own artisanal batches, subjecting friends and colleagues alike to his latest fiery concoctions.',
+      'Outside of the kitchen, Rick maintains a strictly \u201Clook, don\u2019t touch\u201D policy regarding his other two loves: fast cars and motorcycles. It turns out that Rick is remarkably good at making things go fast, but the local police were even better at making him pay for it. Faced with the choice between a pristine driving record and a need for speed, he decided his wallet was much happier keeping both feet firmly on the ground.',
+    ],
+  },
+  {
+    name: 'Team Member 02',
+    role: 'Owner / Principal',
+    bio: [
+      'Placeholder bio. The first paragraph is the preview, clamped to two lines on the resting card, so it should stand on its own.',
+      'Placeholder second paragraph. This only appears once Show more is pressed, which is where the longer background, career history, and personal detail belong.',
+    ],
+    funnyBlurb: 'Placeholder one-liner goes here.',
+  },
+  {
+    name: 'Team Member 03',
+    role: 'Lead Network Engineer',
+    bio: [
+      'Placeholder bio. The first paragraph is the preview, clamped to two lines on the resting card, so it should stand on its own.',
+      'Placeholder second paragraph. This only appears once Show more is pressed, which is where the longer background, career history, and personal detail belong.',
+    ],
+    funnyBlurb: 'Placeholder one-liner goes here.',
+  },
+  {
+    name: 'Team Member 04',
+    role: 'Cybersecurity Specialist',
+    bio: [
+      'Placeholder bio. The first paragraph is the preview, clamped to two lines on the resting card, so it should stand on its own.',
+      'Placeholder second paragraph. This only appears once Show more is pressed, which is where the longer background, career history, and personal detail belong.',
+    ],
+  },
+  {
+    name: 'Team Member 05',
+    role: 'SOC Analyst',
+    bio: [
+      'Placeholder bio. The first paragraph is the preview, clamped to two lines on the resting card, so it should stand on its own.',
+      'Placeholder second paragraph. This only appears once Show more is pressed, which is where the longer background, career history, and personal detail belong.',
+    ],
+    funnyBlurb: 'Placeholder one-liner goes here.',
+  },
+  {
+    name: 'Team Member 06',
+    role: 'Systems Administrator',
+    bio: [
+      'Placeholder bio. The first paragraph is the preview, clamped to two lines on the resting card, so it should stand on its own.',
+      'Placeholder second paragraph. This only appears once Show more is pressed, which is where the longer background, career history, and personal detail belong.',
+    ],
+  },
+  {
+    name: 'Team Member 07',
+    role: 'Help Desk Technician',
+    bio: [
+      'Placeholder bio. The first paragraph is the preview, clamped to two lines on the resting card, so it should stand on its own.',
+      'Placeholder second paragraph. This only appears once Show more is pressed, which is where the longer background, career history, and personal detail belong.',
+    ],
+    funnyBlurb: 'Placeholder one-liner goes here.',
+  },
+  {
+    name: 'Team Member 08',
+    role: 'Cloud & Microsoft 365 Administrator',
+    bio: [
+      'Placeholder bio. The first paragraph is the preview, clamped to two lines on the resting card, so it should stand on its own.',
+      'Placeholder second paragraph. This only appears once Show more is pressed, which is where the longer background, career history, and personal detail belong.',
+    ],
+  },
+  {
+    name: 'Team Member 09',
+    role: 'Field Service Technician',
+    bio: [
+      'Placeholder bio. The first paragraph is the preview, clamped to two lines on the resting card, so it should stand on its own.',
+      'Placeholder second paragraph. This only appears once Show more is pressed, which is where the longer background, career history, and personal detail belong.',
+    ],
+  },
+  {
+    name: 'Team Member 10',
+    role: 'Backup & Recovery Engineer',
+    bio: [
+      'Placeholder bio. The first paragraph is the preview, clamped to two lines on the resting card, so it should stand on its own.',
+      'Placeholder second paragraph. This only appears once Show more is pressed, which is where the longer background, career history, and personal detail belong.',
+    ],
+    funnyBlurb: 'Placeholder one-liner goes here.',
+  },
+  {
+    name: 'Team Member 11',
+    role: 'Low-Voltage Installer',
+    bio: [
+      'Placeholder bio. The first paragraph is the preview, clamped to two lines on the resting card, so it should stand on its own.',
+      'Placeholder second paragraph. This only appears once Show more is pressed, which is where the longer background, career history, and personal detail belong.',
+    ],
+  },
+  {
+    name: 'Team Member 12',
+    role: 'Operations Manager',
+    bio: [
+      'Placeholder bio. The first paragraph is the preview, clamped to two lines on the resting card, so it should stand on its own.',
+      'Placeholder second paragraph. This only appears once Show more is pressed, which is where the longer background, career history, and personal detail belong.',
+    ],
+    funnyBlurb: 'Placeholder one-liner goes here.',
+  },
 ];
+
+const slugify = (name: string) =>
+  name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+const initials = (name: string) =>
+  name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase() ?? '')
+    .join('');
 ---
 
 <BaseLayout
@@ -51,9 +179,9 @@ const team: Member[] = [
     </div>
   </section>
 
-  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
-    <div class="container-wide">
-      {team.length === 0 ? (
+  {team.length === 0 ? (
+    <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+      <div class="container-wide">
         <div class="max-w-xl">
           <h2 class="font-display text-2xl font-bold mb-3" style="color: var(--color-text-primary);">
             Team profiles are coming soon.
@@ -64,84 +192,319 @@ const team: Member[] = [
           </p>
           <a href="/contact" class="btn btn-primary mt-6">Get in touch</a>
         </div>
-      ) : (
-        <div id="team-roster">
-          <p class="eyebrow mb-4">Select a name</p>
-          <div class="flex flex-wrap gap-2" role="tablist" aria-label="Team members">
-            {team.map((m, i) => (
-              <button
-                type="button"
-                class="team-name btn btn-ghost"
-                data-index={i}
-                role="tab"
-                aria-controls={`member-${i}`}
-                aria-selected={i === 0 ? 'true' : 'false'}
-              >
-                {m.name}
-              </button>
-            ))}
+      </div>
+    </section>
+  ) : (
+    <>
+      <!-- The roster grid — an index into the bios below. -->
+      <section id="top-of-team" class="surface-dark py-16 lg:py-20 scroll-mt-24" style="border-top: 1px solid var(--color-line-faint);">
+        <div class="container-wide">
+          <div class="max-w-2xl mb-10">
+            <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+              Who you'll actually talk to
+            </h2>
+            <p class="mt-4 text-muted leading-relaxed">
+              Hover for a preview, or pick someone to jump to their full bio.
+            </p>
           </div>
 
-          <div class="mt-8">
-            {team.map((m, i) => (
-              <div
-                id={`member-${i}`}
-                class="team-panel card max-w-2xl"
-                data-index={i}
-                role="tabpanel"
-                hidden={i !== 0}
-              >
-                <div class="flex flex-col sm:flex-row gap-6 items-start">
-                  <img
-                    src={m.photo}
-                    alt={m.name}
-                    class="w-28 h-28 rounded-full object-cover shrink-0"
-                    loading="lazy"
-                  />
-                  <div>
-                    <h2 class="font-display text-xl font-bold" style="color: var(--color-text-primary);">{m.name}</h2>
-                    <div class="text-sm font-medium mb-3" style="color: var(--color-amber-600);">{m.role}</div>
-                    <p class="text-muted leading-relaxed">{m.bio}</p>
-                    {m.funnyBlurb && (
-                      <p class="mt-3 text-sm italic" style="color: var(--color-amber-600);">“{m.funnyBlurb}”</p>
-                    )}
+          <ul class="team-grid" role="list">
+            {team.map((m) => (
+              <li class="team-cell">
+                <a class="team-inner" href={`#bio-${slugify(m.name)}`}>
+                  <span class="team-accent" aria-hidden="true"></span>
+
+                  {m.photo ? (
+                    <img src={m.photo} alt="" class="team-photo" loading="lazy" />
+                  ) : (
+                    <span class="team-monogram" aria-hidden="true">{initials(m.name)}</span>
+                  )}
+
+                  <h3 class="font-display text-lg font-bold mt-4" style="color: var(--color-text-primary);">
+                    {m.name}
+                  </h3>
+                  <p class="text-sm font-medium" style="color: var(--color-amber-600);">{m.role}</p>
+                  {m.tagline && (
+                    <p class="text-xs italic mt-0.5" style="color: var(--color-text-subtle);">{m.tagline}</p>
+                  )}
+
+                  <div class="team-reveal">
+                    <div>
+                      <p class="team-bio text-sm leading-relaxed mt-3" style="color: var(--color-text-default);">{m.bio[0]}</p>
+                      <span class="team-more">Read full bio <span aria-hidden="true">↓</span></span>
+                    </div>
                   </div>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <!-- Full bios. One block per person, anchored so the tiles above can
+           link straight to them. -->
+      <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+        <div class="container-wide">
+          <div class="max-w-2xl mb-12">
+            <div class="eyebrow mb-4">The long version</div>
+            <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+              Full bios
+            </h2>
+          </div>
+
+          <div class="team-bios">
+            {team.map((m) => (
+              <article id={`bio-${slugify(m.name)}`} class="team-bio-block">
+                <div class="team-bio-aside">
+                  {m.photo ? (
+                    <img src={m.photo} alt={m.name} class="team-bio-photo" loading="lazy" />
+                  ) : (
+                    <span class="team-bio-monogram" aria-hidden="true">{initials(m.name)}</span>
+                  )}
                 </div>
-              </div>
+
+                <div class="team-bio-body">
+                  <h3 class="font-display text-2xl font-bold" style="color: var(--color-text-primary);">{m.name}</h3>
+                  <p class="text-sm font-medium mt-1" style="color: var(--color-amber-600);">{m.role}</p>
+                  {m.tagline && (
+                    <p class="text-sm italic" style="color: var(--color-text-subtle);">{m.tagline}</p>
+                  )}
+
+                  <div class="mt-5 space-y-4 leading-relaxed" style="color: var(--color-text-default);">
+                    {m.bio.map((para) => <p>{para}</p>)}
+                  </div>
+
+                  {m.funnyBlurb && (
+                    <p class="mt-4 italic" style="color: var(--color-amber-600);">“{m.funnyBlurb}”</p>
+                  )}
+
+                  <a href="#top-of-team" class="team-backlink">
+                    <span aria-hidden="true">↑</span> Back to the team
+                  </a>
+                </div>
+              </article>
             ))}
           </div>
         </div>
-      )}
-    </div>
-  </section>
+      </section>
+    </>
+  )}
 </BaseLayout>
 
 <style>
-  .team-name[aria-selected="true"] {
+  /* Dense bordered grid. Cell borders are drawn with a shared 1px gap so the
+     grid reads as one ruled table rather than separate boxes. */
+  .team-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--color-border-subtle);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  @media (min-width: 768px) {
+    .team-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (min-width: 1024px) {
+    .team-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+
+  .team-cell {
+    position: relative;
+    background: var(--color-bg-page);
+    min-height: 100%;
+  }
+
+  .team-inner {
+    display: block;
+    padding: 1.75rem 1.5rem;
+    height: 100%;
+    background: var(--color-bg-page);
+    text-decoration: none;
+    transition:
+      background-color 0.2s var(--ease-out-soft),
+      box-shadow 0.2s var(--ease-out-soft);
+  }
+
+  /* The amber accent line that appears with the raised card. */
+  .team-accent {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 3px;
+    width: 100%;
+    transform: scaleX(0);
+    transform-origin: left;
+    background: linear-gradient(
+      90deg,
+      var(--color-amber-400),
+      var(--color-amber-500) 55%,
+      var(--color-teal-400)
+    );
+    transition: transform 0.25s var(--ease-out-soft);
+  }
+
+  .team-photo,
+  .team-monogram {
+    display: block;
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 10px;
+    object-fit: cover;
+  }
+  .team-monogram {
+    display: grid;
+    place-items: center;
+    background: var(--color-bg-tint);
+    border: 1px solid var(--color-border-default);
+    color: var(--color-amber-600);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.35rem;
+    letter-spacing: 0.02em;
+  }
+
+  /* The preview is clamped to two lines — the full text lives below. */
+  .team-bio {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+
+  .team-more {
+    display: inline-block;
+    margin-top: 0.6rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-amber-600);
+  }
+
+  /* Mobile / touch: the preview is simply always visible — a scannable list. */
+  .team-reveal { display: block; }
+
+  @media (min-width: 768px) {
+    /* Desktop: the card is absolutely positioned in BOTH states, and the cell
+       reserves its own height. That's what keeps neighbours perfectly still —
+       if the card only went absolute on hover, its cell would collapse and
+       reflow the whole grid. At rest the card fills the cell (inset: 0); when
+       active it releases its bottom edge so it can grow downward. */
+    .team-cell { min-height: 15rem; }
+    .team-inner {
+      position: absolute;
+      inset: 0;
+      height: auto;
+    }
+
+    .team-reveal {
+      display: grid;
+      grid-template-rows: 0fr;
+      opacity: 0;
+      transition:
+        grid-template-rows 0.25s var(--ease-out-soft),
+        opacity 0.2s var(--ease-out-soft);
+    }
+    .team-reveal > * { overflow: hidden; }
+
+    .team-cell:hover .team-inner,
+    .team-cell:focus-within .team-inner {
+      inset: 0 0 auto 0;
+      z-index: 20;
+      background: var(--color-bg-surface);
+      border-radius: 12px;
+      box-shadow:
+        0 18px 40px -12px rgba(10, 15, 26, 0.18),
+        0 0 0 1px var(--color-border-default);
+    }
+    .team-cell:hover .team-reveal,
+    .team-cell:focus-within .team-reveal {
+      grid-template-rows: 1fr;
+      opacity: 1;
+    }
+    .team-cell:hover .team-accent,
+    .team-cell:focus-within .team-accent {
+      transform: scaleX(1);
+    }
+    .team-cell:focus-within .team-inner {
+      box-shadow:
+        0 18px 40px -12px rgba(10, 15, 26, 0.18),
+        0 0 0 2px var(--color-amber-400);
+    }
+  }
+
+  /* ---- Full bios ---- */
+  .team-bios {
+    display: grid;
+    gap: 0;
+  }
+  .team-bio-block {
+    display: grid;
+    gap: 1.5rem 2.5rem;
+    padding: 2.5rem 0;
+    border-top: 1px solid var(--color-border-subtle);
+    /* Clears the sticky header when a tile links here. */
+    scroll-margin-top: 6rem;
+  }
+  .team-bio-block:first-child { border-top: 0; padding-top: 0; }
+  @media (min-width: 768px) {
+    .team-bio-block { grid-template-columns: 10rem minmax(0, 1fr); }
+  }
+
+  .team-bio-photo,
+  .team-bio-monogram {
+    display: block;
+    width: 8rem;
+    height: 8rem;
+    border-radius: 14px;
+    object-fit: cover;
+  }
+  .team-bio-monogram {
+    display: grid;
+    place-items: center;
+    background: var(--color-bg-tint);
+    border: 1px solid var(--color-border-default);
+    color: var(--color-amber-600);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 2.25rem;
+  }
+
+  .team-bio-body { max-width: 65ch; }
+
+  .team-backlink {
+    display: inline-block;
+    margin-top: 1.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-amber-600);
+  }
+  .team-backlink:hover { text-decoration: underline; }
+
+  /* A tile linked to a bio flashes the accent briefly so it's obvious where
+     the jump landed. */
+  .team-bio-block:target .team-bio-body { position: relative; }
+  .team-bio-block:target .team-bio-body::before {
+    content: "";
+    position: absolute;
+    left: -1.25rem;
+    top: 0.25rem;
+    bottom: 0.25rem;
+    width: 3px;
+    border-radius: 2px;
     background: var(--color-amber-400);
-    color: var(--color-ink-950);
-    border-color: var(--color-amber-400);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .team-inner,
+    .team-reveal,
+    .team-accent {
+      transition: none;
+    }
+    html { scroll-behavior: auto; }
   }
 </style>
-
-<script>
-  // Click-to-reveal roster: a name button shows that member's photo + bio.
-  const roster = document.getElementById('team-roster');
-  if (roster) {
-    const buttons = Array.from(roster.querySelectorAll<HTMLButtonElement>('.team-name'));
-    const panels = Array.from(roster.querySelectorAll<HTMLElement>('.team-panel'));
-
-    const activate = (index: number) => {
-      buttons.forEach((b) =>
-        b.setAttribute('aria-selected', b.dataset.index === String(index) ? 'true' : 'false'),
-      );
-      panels.forEach((p) => {
-        p.hidden = p.dataset.index !== String(index);
-      });
-    };
-
-    buttons.forEach((b) =>
-      b.addEventListener('click', () => activate(Number(b.dataset.index))),
-    );
-  }
-</script>
