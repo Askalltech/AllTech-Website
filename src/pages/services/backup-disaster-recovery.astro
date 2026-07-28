@@ -1,0 +1,418 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * Unlike the endpoint / email / network / SOC pages, every figure here is
+ * THIRD-PARTY and dated, not AllTech's own measurement. Each one is
+ * attributed inline. Replace Section 4 the moment restore-test logs exist —
+ * one first-party number ("N restore tests, X succeeded first attempt,
+ * median time to restore a file server was H hours") beats everything here.
+ *
+ * Deliberately NOT on this page, per the copy's verification notes:
+ * the FEMA "40% never reopen" claim (unsupported, contradicted by CRS),
+ * "$9,000 per minute" (no methodology), the "Gartner" data-loss claim (no
+ * traceable document), Veeam's backup-targeting percentage (three
+ * conflicting figures across reports), and Sophos's ransom demand/payment
+ * pair (median payment exceeds median demand in the blog summary).
+ *
+ * Never add: a specific RTO figure, "guaranteed recovery", a recoverable-
+ * data percentage, or a restore-test success rate — none have a measured
+ * basis yet and each becomes a contractual expectation on a website.
+ */
+
+// Section 4 visual — the confidence gap. Two bars, one measure (percent),
+// so a single hue and direct labels; length carries the argument. Note the
+// two figures come from different populations (all respondents vs. those
+// actually hit), which the body text makes explicit.
+const confidenceGap = [
+  ['Said they were confident they could recover', '90%', 90],
+  ['Actually recovered their data after ransomware', 'Fewer than 1 in 3', 28],
+];
+
+const whatYouGet = [
+  ['Backups that run where you work', 'Servers, workstations, virtual machines, and Microsoft 365. On-premises, cloud, or both. If it holds data your business needs on Monday, it gets a retention policy and someone’s name against it.'],
+  ['An immutable copy', 'At least one copy that cannot be altered or deleted, including by an administrator account an attacker has taken over. This is the specific control that decides whether a ransomware incident is an outage or a negotiation.'],
+  ['Scheduled restore testing', 'We restore from your backups on a recurring schedule and document the result. Not a checksum. An actual restore, verified, with the time it took written down.'],
+  ['Defined RTO and RPO, in writing', 'How much data you can afford to lose, and how long you can afford to be down. Those two numbers drive every design decision, and most businesses have never been asked either question.'],
+  ['A recovery plan a human can follow', 'Documented order of operations, dependencies, credentials location, and who calls whom. Kept offline, because the plan stored on the encrypted file server is not a plan.'],
+  ['Monitoring and reporting you can read', 'Failed jobs get chased the day they fail. You get a monthly summary in plain language, including the restore test result.'],
+];
+
+const findings = [
+  ['Encryption is going up, not down', 'Sophos’s State of Ransomware 2026, based on 2,158 organizations across 17 countries that were hit in the previous twelve months, found 56% of attacks succeeded in encrypting data — up from 50% the year before.'],
+  ['Small businesses are losing ground', 'In the same report, only 34% of organizations with 100 to 250 employees stopped an attack before encryption or extortion. At organizations of 3,001 to 5,000 employees, 46% did. The gap is twelve points, and it is widening.'],
+  ['Backups are the thing that ends it', 'Backup-based recovery rose to 66% of encrypted-data cases in 2026, up twelve percentage points in a year. Forty-eight percent of encrypted victims paid the ransom. The organizations that recovered from backup were the ones that had a choice.'],
+  ['When it goes wrong, it’s expensive', 'Average recovery cost across the Sophos 2026 sample was $1.7 million per incident, up 11% year over year — and that figure excludes any ransom paid.'],
+  ['Attackers go after the backups first', 'Sophos’s dedicated research on backup compromise (2024 survey data) found 94% of organizations hit by ransomware said attackers attempted to compromise their backups during the attack. Where those attempts succeeded, median ransom demands were roughly double and total recovery costs ran about eight times higher. Backups are not incidental to a ransomware attack. They are a target inside it.'],
+];
+
+// Native Microsoft 365 retention. The 93-day SharePoint/OneDrive figure is
+// Microsoft's published documentation. The Exchange Online figures are
+// correct as DEFAULTS but are tenant-configurable — verify against a live
+// tenant before quoting them to a specific client.
+const m365Retention = [
+  ['SharePoint and OneDrive', '93 days in the recycle bin, then permanent deletion'],
+  ['Exchange Online deleted items', '14 days by default, configurable to 30'],
+  ['Departed user mailbox', 'Deleted 30 days after the license is removed'],
+];
+
+const steps = [
+  ['1', 'Find out what you have', 'Inventory of servers, endpoints, cloud workloads, and SaaS data. What’s protected, what isn’t, and what everyone assumed was covered. This is usually the part that surprises people.'],
+  ['2', 'Set the two numbers', 'RPO is how far back you’d be restoring from, meaning how much work gets redone. RTO is how long you’re down. Both are business decisions with cost attached, not IT decisions. We ask; you decide.'],
+  ['3', 'Build to 3-2-1-1-0', 'Three copies of the data, on two types of media, one off-site, one immutable, and zero errors on the last verified restore.'],
+  ['4', 'Restore it before you need to', 'We run scheduled restores and record what came back and how long it took. If a restore fails, that is a finding to fix now, on a normal Tuesday, rather than a discovery to make during an incident.'],
+  ['5', 'Write the plan down and keep it offline', 'Recovery order, dependencies, contacts, credentials location. Printed and stored where an encrypted network can’t reach it.'],
+];
+
+const audience = [
+  ['Businesses running line-of-business servers', 'ERP, practice management, accounting, a file server everyone maps a drive to. These are the systems where an outage stops billable work.'],
+  ['Anyone who moved to Microsoft 365 and stopped thinking about backup', 'The move was probably correct. The assumption that came with it usually isn’t.'],
+  ['Regulated and contract-bound businesses', 'HIPAA, CMMC, PCI, cyber insurance applications, and client security questionnaires all ask about backup and tested recovery. Several now ask for the date of your last restore test. Having an answer is the difference between a renewal and a re-underwrite.'],
+  ['Businesses that have already had a scare', 'A drive failure, a deleted folder, a phishing incident that could have gone worse. The scare is the cheapest information you will ever get about your recovery posture.'],
+  ['Businesses with one person who knows how it all works', 'Backup and recovery is where key-person risk becomes company risk.'],
+];
+
+const limits = [
+  ['It doesn’t prevent the attack', 'Backup is the last layer, not the first. It determines what a bad day costs, not whether you have one. Sophos’s 2026 data found malicious email and phishing together accounted for half of all ransomware incidents, and 79% of attacks started with an identity-based approach — which is where prevention lives.'],
+  ['It doesn’t undo data theft', 'If an attacker copied your data before encrypting it, restoring clean systems doesn’t unpublish anything. A clean restore removes their leverage over your operations. It does not remove their leverage over your reputation. Those are separate problems and we won’t pretend otherwise.'],
+  ['It isn’t instant', 'Restoring a file takes minutes. Restoring a server takes hours. Restoring an environment after a full compromise takes longer than that, because the systems have to be verified clean before they go back on the network. Anyone quoting you a recovery time before they’ve seen your environment is guessing.'],
+  ['You will lose something', 'Everything between your last good backup and the incident is gone. That interval is your RPO. It is a number you choose and pay for, and the honest conversation is about how much it’s worth, not about pretending it’s zero.'],
+  ['We can’t promise a number until we’ve tested yours', 'We’ll tell you what we measured, on your equipment, after we’ve run it.'],
+];
+
+const faqs = [
+  ['Do we still need backup if we’re all in the cloud?', 'Yes, and this is the most common misunderstanding we correct. Microsoft and Google protect the platform’s availability. Your data inside it is your responsibility, with a native recovery window measured in weeks, not years.'],
+  ['How often do you test restores?', 'On a defined schedule agreed up front, with the result documented either way. If you’re asking because your current provider doesn’t, that’s the answer to your real question.'],
+  ['Can ransomware reach our backups?', 'It tries. Sophos found 94% of ransomware victims said attackers attempted to compromise their backups during the attack (2024 survey data). This is why at least one copy has to be immutable, meaning it can’t be deleted or altered even by a compromised administrator account.'],
+  ['How long will we be down?', 'It depends on what failed and what you’re restoring. We won’t quote a number before we’ve inventoried your environment and run a real restore. After that, we’ll give you a measured figure rather than a marketing one.'],
+  ['What’s the difference between backup and disaster recovery?', 'Backup is the copy. Disaster recovery is the plan, the order of operations, and the tested ability to bring a business back. Plenty of companies buy the first and assume they got the second.'],
+  ['We already have a backup product. Do we need to switch?', 'Often not. Owning a backup product and having tested recovery are different things, and the gap is usually process rather than software. We’ll tell you if what you have is fine.'],
+  ['Do you handle Macs and Linux servers?', 'Yes.'],
+  ['What does this cost?', 'It scales with how much data you have, how far back you need to go, and how fast you need to be back. The RTO and RPO conversation happens before the pricing conversation, because it’s what sets the price.'],
+];
+
+const related = [
+  ['Endpoint Security & Managed EDR', 'Backups decide what the bad day costs. Endpoint security decides how often you have one.', '/services/endpoint-security'],
+  ['Email Security & Phishing Protection', 'Malicious email and phishing accounted for half of all ransomware incidents in Sophos’s 2026 data.', '/services/email-security'],
+  ['Managed SOC', 'Detecting an intrusion before encryption starts is what keeps a backup from being needed at all.', '/services/managed-soc'],
+  ['Microsoft 365 & Entra ID', 'Tenant configuration, retention policy, and admin access control are where Microsoft 365 data is either protected or quietly exposed.', '/services/cloud-microsoft-365'],
+];
+
+// Must exactly match a checkbox value in ContactForm.tsx or the parameter
+// silently does nothing.
+const contactHref = '/contact?service=Backup%20%26%20Disaster%20Recovery';
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(([question, answer]) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer },
+  })),
+};
+---
+
+<BaseLayout
+  title="Backup & Disaster Recovery"
+  description="Backup is only worth what it restores. AllTech builds and tests backup and disaster recovery for Northern Utah businesses. Book a restore test review."
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">Backup &amp; Disaster Recovery</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          Backup and <span style="color: var(--color-amber-400);">disaster recovery</span>
+        </h1>
+        <p class="mt-6 font-display text-2xl lg:text-3xl font-semibold leading-snug" style="color: var(--color-text-primary);">
+          Most businesses have backups. Far fewer have proof those backups restore.
+        </p>
+        <p class="mt-5 text-xl leading-relaxed text-muted">
+          A backup that has never been restored is a hypothesis, not a safety net. We design backup
+          and disaster recovery for small and mid-sized businesses in Northern Utah, run the restores
+          on a schedule, and send you the results whether they went well or not.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Schedule a backup and recovery review <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- The problem -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">The problem</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        The gap is not backup. It's recovery.
+      </h2>
+      <div class="mt-6 space-y-5 text-lg leading-relaxed text-muted">
+        <p>Ask a business owner whether they're backed up and almost everyone says yes. Something is running. There's a console somewhere. Green checkmarks appear.</p>
+        <p>Ask when someone last restored a server from that backup and watched it boot, and the answer changes.</p>
+        <p>That gap has now been measured. In Veeam's Data Trust and Resilience Report 2026, a survey of more than 900 IT, security, and risk leaders, 90% said they were confident in their ability to recover from a cyber incident. Among organizations that were actually hit by ransomware, fewer than one in three fully recovered their data. Confidence and proof turned out to be two different things.</p>
+      </div>
+
+      <figure class="mt-10 mb-0 mx-0 not-prose">
+        <div class="grid gap-5">
+          {confidenceGap.map(([label, value, pct]) => (
+            <div>
+              <div class="flex items-baseline justify-between gap-4 mb-2">
+                <span class="font-semibold" style="color: var(--color-text-primary);">{label}</span>
+                <span class="font-mono text-sm shrink-0" style="color: var(--color-text-default);">{value}</span>
+              </div>
+              <div class="h-2.5 w-full rounded-full overflow-hidden" style="background: var(--color-border-subtle);">
+                <div class="h-full rounded-full" style={`width: ${pct}%; background: var(--color-amber-500);`}></div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <figcaption class="mt-5 text-sm" style="color: var(--color-text-subtle);">
+          Veeam, Data Trust and Resilience Report 2026 (900+ IT, security, and risk leaders).
+          Confidence is across all respondents; recovery is among those actually hit by ransomware.
+        </figcaption>
+      </figure>
+
+      <p class="mt-8 text-lg leading-relaxed text-muted">
+        The uncomfortable part is that nobody in that 90% thought they were wrong. They had backups.
+        The backups reported success. The problem surfaced on the one day it couldn't be fixed.
+      </p>
+    </div>
+  </section>
+
+  <!-- What you get -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">What's included</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What we actually deliver
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {whatYouGet.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- What the data says -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">The evidence</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What the public data actually shows
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Every figure in this section comes from a published, dated, third-party report. None of it
+          is our own measurement, and we've noted the source for each so you can check it.
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {findings.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 text-sm leading-relaxed max-w-3xl" style="color: var(--color-text-subtle);">
+        Sources: Sophos, <em>State of Ransomware 2026</em> (2,158 respondents, 17 countries);
+        Sophos, <em>The Impact of Compromised Backups on Ransomware Outcomes</em> (2024 survey data);
+        Veeam, <em>Data Trust and Resilience Report 2026</em> (900+ respondents). Figures from
+        published third-party research, current as of July 2026.
+      </p>
+    </div>
+  </section>
+
+  <!-- The Microsoft 365 assumption -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">The common gap</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Microsoft is not backing up your Microsoft 365 data
+      </h2>
+      <div class="mt-6 space-y-5 text-lg leading-relaxed text-muted">
+        <p>This is the single most common gap we find, and it isn't a criticism of Microsoft. It's how the service is designed and documented.</p>
+        <p>Microsoft replicates your data across data centers so the service stays available. Replication is not backup. A file that gets deleted replicates as deleted. A file that gets encrypted by ransomware syncing through OneDrive replicates as encrypted.</p>
+        <p>What you get natively is a short recovery window, not an archive:</p>
+      </div>
+
+      <div class="overflow-x-auto -mx-2 px-2 mt-8 not-prose">
+        <table class="w-full min-w-[460px] text-sm border-collapse">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--color-border-default);">
+              <th class="text-left font-semibold py-3 pr-4" style="color: var(--color-text-primary);">Workload</th>
+              <th class="text-left font-semibold py-3 pl-4" style="color: var(--color-text-primary);">Native window</th>
+            </tr>
+          </thead>
+          <tbody>
+            {m365Retention.map(([workload, window]) => (
+              <tr style="border-bottom: 1px solid var(--color-border-subtle);">
+                <td class="py-3 pr-4 leading-snug font-medium" style="color: var(--color-text-primary);">{workload}</td>
+                <td class="py-3 pl-4 leading-snug" style="color: var(--color-text-default);">{window}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-8 space-y-5 text-lg leading-relaxed text-muted">
+        <p>The SharePoint figure is Microsoft's own published documentation, not a vendor claim. After the 93-day window closes, the data is gone, including for Microsoft support.</p>
+        <p>That window is fine for the intern who deleted a folder on Tuesday. It is not fine for a finance-department mailbox nobody opened for four months, a former employee's OneDrive that turns out to have held the only copy of something, or a compliance request that reaches back a year.</p>
+      </div>
+
+      <p class="mt-8 text-sm" style="color: var(--color-text-subtle);">
+        Reference: <a
+          href="https://learn.microsoft.com/en-us/compliance/assurance/assurance-sharepoint-onedrive-data-deletion"
+          target="_blank"
+          rel="noopener noreferrer"
+          style="color: var(--color-amber-600);"
+        >Microsoft Learn — Microsoft 365 SharePoint data deletion <span aria-hidden="true">↗</span></a>.
+        Exchange Online figures are tenant defaults and can be changed per tenant.
+      </p>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Getting started</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          How we set it up
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {steps.map(([n, title, body]) => (
+          <div class="card">
+            <div class="font-display text-2xl font-bold mb-2" style="color: var(--color-amber-500);">{n}</div>
+            <h3 class="font-display text-base font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 text-sm leading-relaxed max-w-3xl" style="color: var(--color-text-subtle);">
+        Step 3 is the working version of federal guidance: CISA's <a
+          href="https://www.cisa.gov/stopransomware/ransomware-guide"
+          target="_blank"
+          rel="noopener noreferrer"
+          style="color: var(--color-amber-600);"
+        >#StopRansomware Guide <span aria-hidden="true">↗</span></a> recommends offline, encrypted
+        backups with regular testing of availability and integrity.
+      </p>
+    </div>
+  </section>
+
+  <!-- Who this is for -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Fit</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Who this is for
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {audience.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Honest expectations -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Honest expectations</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What backup does not do
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Worth saying plainly, because the industry usually doesn't.
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {limits.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">FAQ</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Common questions
+      </h2>
+      <div class="mt-8 space-y-6 not-prose">
+        {faqs.map(([q, a]) => (
+          <div>
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{q}</h3>
+            <p class="leading-relaxed text-muted">{a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Related services -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Related services</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Backup is the last layer, not the only one
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        {related.map(([title, body, href]) => (
+          <a href={href} class="card group block">
+            <h3 class="font-display text-lg font-bold mb-2 group-hover:text-[var(--color-amber-600)] transition" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+            <span class="mt-3 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">Learn more <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="surface-dark py-16 lg:py-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Find out whether your backups actually restore.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          We'll inventory what's being protected, check whether any copy is immutable, review your
+          Microsoft 365 retention settings, and pull a real restore so you can see how long it takes.
+          You get the findings whether they're good or bad. Plain findings, no pressure.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Schedule a backup and recovery review <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

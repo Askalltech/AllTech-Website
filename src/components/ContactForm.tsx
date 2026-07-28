@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -10,6 +10,7 @@ const services = [
   'Cloudflare Zero Trust',
   'Network & Infrastructure',
   'Microsoft 365 / Cloud',
+  'Backup & Disaster Recovery',
   'Utah Data Recovery',
   'Other',
 ];
@@ -37,6 +38,26 @@ const labelInlineStyle: React.CSSProperties = {
 export default function ContactForm({ defaultService, turnstileSiteKey }: Props) {
   const [status, setStatus] = useState<Status>('idle');
   const [errorMsg, setErrorMsg] = useState<string>('');
+
+  // Which service checkboxes are ticked. Seeded from the `defaultService`
+  // prop, then re-read from the URL on mount.
+  //
+  // The URL read is the part that actually does the work: the contact page is
+  // prerendered (output: 'static'), so `Astro.url.searchParams` is empty at
+  // build time and the prop always arrives undefined. Without this effect the
+  // `?service=` deep links on every service page silently do nothing.
+  const [checkedServices, setCheckedServices] = useState<string[]>(
+    defaultService ? [defaultService] : [],
+  );
+
+  useEffect(() => {
+    const fromUrl = new URLSearchParams(window.location.search).get('service');
+    if (!fromUrl) return;
+    // Only honor values that match a real option, so a stale or mistyped
+    // link can't leave the form in a state the user didn't choose.
+    const match = services.find((s) => s.toLowerCase() === fromUrl.toLowerCase());
+    if (match) setCheckedServices((prev) => (prev.includes(match) ? prev : [...prev, match]));
+  }, []);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -155,7 +176,12 @@ export default function ContactForm({ defaultService, turnstileSiteKey }: Props)
                 type="checkbox"
                 name="services"
                 value={s}
-                defaultChecked={defaultService === s}
+                checked={checkedServices.includes(s)}
+                onChange={(e) =>
+                  setCheckedServices((prev) =>
+                    e.target.checked ? [...prev, s] : prev.filter((v) => v !== s),
+                  )
+                }
                 className="h-4 w-4 rounded"
                 style={{ accentColor: 'var(--color-amber-500)' }}
               />
