@@ -11,6 +11,7 @@ const services = [
   'Network & Infrastructure',
   'Microsoft 365 / Cloud',
   'Backup & Disaster Recovery',
+  'Penetration Testing',
   'Utah Data Recovery',
   'Other',
 ];
