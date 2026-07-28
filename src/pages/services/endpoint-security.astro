@@ -2,119 +2,150 @@
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { site } from '~/lib/site';
 
-const whatYouGet = [
-  ['Someone Is Watching', "Every protected device reports activity to our monitoring platform. Events are reviewed against known attack patterns and unusual behavior — not left to pile up in a log nobody reads."],
-  ['Catch Suspicious Behavior Early', "Modern attacks don't always rely on known malware. We watch how systems behave — activity associated with ransomware, credential theft, and unauthorized access — not just whether a file matches a known virus."],
-  ['Real Investigation, Not Just Alerts', 'Monitoring tools can generate thousands of notifications a day. We filter the noise, correlate related events, and focus on activity that actually needs a person to look at it.'],
-  ['Protection Stays Consistent', 'Monitoring is deployed and managed the same way across your environment, so a laptop set up last week gets the same protection as the server that has been running for years.'],
-  ["See What's Happening", "You get reporting that shows what's protected, what's been flagged, and what needs attention — not a pile of raw logs you'd need a security analyst to decode."],
-  ['Limit the Damage', "When something looks wrong, we investigate the affected system, isolate the device if needed, and work to contain the issue before it spreads to the rest of your network."],
+// Figures throughout are from AllTech's Datto EDR Executive Threat Report and
+// RocketCyber Managed SOC report, 06/01/2026–07/01/2026, fleet-wide. Every
+// machine name, account, client, and IP from the source reports has been
+// removed — machines are referred to generically on purpose. Refresh quarterly.
+const REPORT_PERIOD = 'June 1 – July 1, 2026';
+
+const layers = [
+  ['Managed EDR', 'Datto EDR runs on every workstation, laptop, and server. It records process behavior continuously and maps what it sees to MITRE ATT&CK — the same framework incident responders use — so a detection arrives with context, not just a filename.'],
+  ['Managed antivirus', 'Datto AV and SentinelOne handle the known-bad: commodity malware, malicious documents, exploit attempts. Real-time and scheduled scanning, centrally managed, with detections reported up rather than dismissed by whoever happens to be sitting at the machine.'],
+  ['DNS filtering', 'Datto DNS Secure blocks connections to malicious and unwanted destinations before they’re made. It’s also the layer that quietly tells us when a machine is trying to reach somewhere it shouldn’t — often the first sign of an unwanted browser extension or bundled adware.'],
+  ['24/7 SOC review', 'Detections go to RocketCyber’s security operations center, staffed around the clock, not to a dashboard nobody opens. Endpoints can be isolated from the network remotely while an incident is being worked, so a compromised laptop stops being everyone’s problem within minutes.'],
+  ['Monthly reporting', 'You get a plain-language report every month: what was seen, what was escalated, what turned out to be nothing, and what’s still open. No portal login required.'],
 ];
 
-const whatWeInvestigate = [
-  "Malware that a signature-based scanner wouldn't have caught",
-  "A sign-in attempt from a location or device that doesn't match how someone normally works",
-  'Activity consistent with an attacker trying to steal saved credentials',
-  'A link or attachment tied to an active phishing campaign',
-  'Software installed on a device without going through IT',
-  "A remote access tool showing up on a device that shouldn't have one",
-  "PowerShell commands being used in ways that don't match normal admin activity",
-  'A device trying to communicate with an address already known to be malicious',
+// Section 4 — the two-stage funnel. Presented as two separate pipelines on
+// purpose: the EDR telemetry count and the SOC log count measure different
+// things and must never be added together.
+const machineLayer = [
+  ['374,319,329', 'events recorded', 'Roughly 9,800 per machine per day — every process start, every network connection, every file written. Nobody looks at this layer. It exists so that when something does happen, the history is already there.'],
+  ['10,224', 'pulled for behavioral analysis', 'Three-thousandths of one percent. These matched known attack patterns — the tools and sequences that show up in real intrusions.'],
+  ['324 / 47', 'flagged possibly malicious / rated critical', 'Still not incidents. Candidates.'],
 ];
 
-const steps = [
-  ['01', 'Something Gets Flagged', "An unfamiliar process, a login from somewhere it shouldn't be, a file behaving strangely — monitoring catches activity that doesn't fit the normal pattern."],
-  ['02', 'We Review It', "Most flagged activity turns out to be harmless: a software update, an employee on a new device. We look at it before it ever becomes your problem."],
-  ['03', 'We Investigate', "When something doesn't check out, we dig into what happened, what it touched, and whether it's still active."],
-  ['04', 'We Contain It', "If it's real, we isolate the affected device and work to stop it from reaching the rest of your network."],
-  ['05', 'We Remediate', 'We clean up what the incident touched and get the system back to a known-good state.'],
-  ['06', 'We Call You', "You hear it from a person, with a plain explanation of what happened and what we did — not an automated alert you find three days later."],
+const humanLayer = [
+  ['1,220,546', 'logs and events triaged by the SOC', 'Endpoint, cloud, and network telemetry, correlated across sources rather than judged one machine at a time.'],
+  ['63', 'security incidents opened', 'About one every twelve hours. Each one meant an analyst decided the activity warranted a real investigation.'],
+  ['39 / 24 / 0', 'resolved / closed as normal / left open', 'Every incident opened during the month was worked to a conclusion.'],
 ];
 
-const inPractice = [
-  ['Constant', 'Devices report activity around the clock, not just during business hours.'],
-  ['Automated first', 'The bulk of that activity is filtered and prioritized automatically — no person could read all of it by hand.'],
-  ['Reviewed by people', "What's left after filtering gets a human look before anything reaches your inbox."],
+const detections = [
+  ['A utility that deletes backup snapshots', 'Windows includes a tool for managing shadow copies — the snapshots that let you restore a file you overwrote. It has real administrative uses. It is also, almost universally, the first thing ransomware runs, because encrypted files aren’t leverage if you can just roll them back. It fired on hundreds of machines last month. All of them were benign. The next one is the reason we watch it.'],
+  ['A command-line download tool', '`curl` ships with Windows and macOS and is used constantly by legitimate software. It’s also how an attacker who already has a foothold pulls down the rest of their toolkit. Most of last month’s command-and-control detections traced back to it — concentrated on a handful of machines, which is exactly the pattern that says “a script doing its job” rather than “an intrusion spreading.”'],
+  ['A core Windows service process', '`svchost.exe` runs half of Windows. It’s also the most commonly impersonated process name in malware, because a fake one hides in a list of forty real ones.'],
+  ['Bulk file deletion on Linux servers', 'Either housekeeping or cleanup after something you’d rather not know about. The difference is entirely in what preceded it.'],
 ];
 
-const audience = [
-  ['An Employee Working From Home', "Remote employees have access to the same email, files, and business applications as anyone in the office. We monitor and protect the device whether it's on your network or connected from a kitchen table."],
-  ['A Manufacturing PC Running Critical Software', 'Production systems and specialty equipment can be expensive and slow to replace when something goes wrong. Monitoring helps catch suspicious activity before it turns into a line-down problem.'],
-  ['A Multi-Location Business Without IT Staff at Every Site', "Not every office has someone who can tell a real problem from a pop-up ad. Every location gets monitored the same way, whether there's IT staff on-site or not."],
-  ['A Healthcare Office Handling Patient Records', 'Scheduling systems, insurance portals, and patient records carry real regulatory weight if they\'re exposed. We monitor those workstations accordingly.'],
-  ['A Law Firm or Accounting Practice', "Client confidentiality isn't optional in professional services. Endpoint monitoring is part of showing clients — and your malpractice insurer — that you take it seriously."],
-  ['A Growing Business Without a Security Team', "Most small businesses don't have someone reviewing security alerts all day. We provide the monitoring and response most organizations can't justify staffing for internally."],
-  ['A Nonprofit Running Lean', 'Small staff, tight budget, and donor data that still needs protecting. We provide the same monitoring larger organizations pay a full security team for.'],
-  ['Organizations Facing Compliance Requirements', 'Cyber insurance carriers and auditors increasingly ask for proof of endpoint monitoring. We provide the documentation and visibility to answer that question directly.'],
+const escalations = [
+  ['Remote access software installing itself', 'A remote-desktop service appeared on a managed workstation. Sometimes that’s a technician. Sometimes it’s how an attacker keeps a way back in after the original hole is closed. Either way it gets a call, because the two look identical in a log.'],
+  ['New local accounts appearing on workstations', 'A dozen machines had new local user accounts created. Most were routine setup. Creating a local account is also one of the oldest persistence techniques there is, which is why nobody gets to assume.'],
+  ['A user added to a privileged group on a domain controller', 'Someone gained rights they didn’t have that morning. The SOC called the client the same day rather than emailing a ticket.'],
+  ['Fake installers blocked mid-download', 'Two files disguised as PDF setup programs were caught and mitigated on a workstation before they ran. This is the ordinary shape of a real attack — not sophisticated, just convincing enough at 4:30 on a Friday.'],
+  ['PowerShell used to hide activity', 'One machine ran PowerShell in a pattern that matched a known defense-evasion technique. Investigated, resolved, no compromise.'],
+  ['Cloud sign-ins that didn’t fit', 'Sign-ins from anonymized IP addresses, from unfamiliar locations, and one session token that behaved anomalously — the technique that lets an attacker skip multi-factor authentication entirely.'],
+];
+
+const deployment = [
+  ['1', 'Inventory', 'We find out what you actually have. In most environments that includes at least a few machines nobody remembered — an old server, a laptop that left with someone, a workstation on a bench.'],
+  ['2', 'Agent rollout', 'Agents deploy remotely and quietly. No reboots for most machines, no downtime, no change to how anyone works.'],
+  ['3', 'Baseline and tuning', 'The first two weeks are noisy on purpose. Your line-of-business software does things that look strange out of context, and we’d rather learn what normal is than suppress detections blind.'],
+  ['4', 'Ongoing monitoring', 'The SOC triages detections as they arrive, 24/7. You hear from us when something needs you, and once a month either way.'],
+];
+
+const fit = [
+  'You have more than about ten computers and no one whose full-time job is watching them',
+  'You’re carrying cyber insurance that asks whether you have EDR, and you’re not certain of the honest answer',
+  'You handle regulated data — patient records, financial records, CJIS, or CMMC-scoped work',
+  'You’ve already had one incident and would prefer not to have the conversation twice',
+  'You have antivirus and a growing suspicion that it isn’t the same thing as security',
+];
+
+const faqs = [
+  ['Is this different from the antivirus we already have?', 'Yes, and you want both. Antivirus identifies files it recognizes as malicious. EDR watches what programs do, which is the only way to catch an attacker using software that’s already installed and signed by Microsoft. We run both because they fail in different places.'],
+  ['Will it slow down our computers?', 'The agent is lightweight and most people never notice it’s there. If a specific application does conflict, we tune around it rather than turning protection off.'],
+  ['What happens when something is found?', 'The SOC triages it first — most detections are explainable within minutes. If it isn’t, the machine can be isolated from the network remotely while we investigate, and you get a call, not a ticket.'],
+  ['Does this protect Macs and Linux servers?', 'Yes. Windows, macOS, and Linux are all covered, which matters more than it used to now that a meaningful share of most fleets isn’t Windows.'],
+  ['Can it stop ransomware?', 'It can detect and interrupt the behavior that precedes encryption, which is the realistic version of that promise. Anyone selling a product that makes ransomware impossible is selling you something. Endpoint security is one layer; tested backups are the other, and we’d rather you have both.'],
+  ['What if we already have an EDR product?', 'Plenty of businesses own one and nobody reads the alerts. If that’s the situation, say so — the conversation is about who’s watching it, not about replacing what you bought.'],
 ];
 
 const related = [
-  ['Managed Detection & Response (MDR)', 'Endpoint alerts become more valuable when combined with security analysts, threat intelligence, and incident investigation workflows.', '/services/cybersecurity#soc'],
-  ['Security Awareness Training', 'Many attacks begin with phishing emails or user mistakes. Training helps reduce the number of threats that ever reach the endpoint.', '/services/cybersecurity'],
-  ['Vulnerability Management', 'Identifying missing patches and known weaknesses reduces opportunities for attackers and strengthens endpoint protection.', '/services/cybersecurity'],
-  ['Zero Trust Network Access (ZTNA)', 'Secure remote access reduces reliance on traditional VPNs and helps control access to internal systems.', '/services/cloudflare-zero-trust'],
+  ['Email Security & Phishing Protection', 'Most endpoint compromises start with a message. Filtering catches it before the click.', '/services/email-security'],
+  ['Managed SOC', 'Detections are only useful if someone reads them at 3 a.m. Last month that was 63 investigations.', '/services/cybersecurity#soc'],
+  ['Microsoft 365 & Entra ID', 'Device compliance, conditional access, and Intune policy are where endpoint security either holds or gets bypassed.', '/services/cloud-microsoft-365'],
 ];
 
 const contactHref = '/contact?service=Cybersecurity';
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(([question, answer]) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer },
+  })),
+};
 ---
 
 <BaseLayout
-  title="Endpoint Security & Ransomware Protection"
-  description="Endpoint security and ransomware protection for businesses across Northern Utah. AllTech monitors every managed workstation and server, investigates suspicious activity, and helps contain incidents before they spread."
+  title="Endpoint Security & Managed EDR"
+  description="Endpoint security for businesses across Northern Utah. AllTech runs managed EDR, antivirus, and DNS filtering on every workstation and server, with a 24/7 SOC reviewing the alerts."
 >
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+
   <!-- Hero -->
   <section class="surface-dark relative overflow-hidden">
     <div class="glow-amber" style="top: -200px; right: -100px;"></div>
     <div class="relative container-wide py-16 lg:py-20">
       <div class="max-w-3xl">
-        <div class="eyebrow mb-4">Endpoint Security &amp; Ransomware Protection</div>
+        <div class="eyebrow mb-4">Endpoint Security &amp; Managed EDR</div>
         <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
-          Your employees work.<br />
-          <span style="color: var(--color-amber-400);">We watch for the threats.</span>
+          Antivirus tells you what it blocked.<br />
+          <span style="color: var(--color-amber-400);">It doesn't tell you what happened.</span>
         </h1>
         <p class="mt-6 text-xl leading-relaxed text-muted">
-          A ransomware attack usually starts on one laptop and spreads from there. We keep
-          eyes on every managed workstation and server, catch suspicious activity early, and
-          move fast to contain it before it becomes a bigger problem for your business.
+          Attacks that matter rarely arrive as a file your antivirus recognizes. They arrive as
+          ordinary Windows tools, used the wrong way, at 2 a.m. AllTech runs endpoint detection and
+          response on every machine you own, watches the behavior instead of just the file, and has
+          a 24/7 security operations center that actually reads what comes back.
         </p>
         <div class="mt-8 flex flex-wrap gap-3">
-          <a href={contactHref} class="btn btn-primary">Schedule an assessment <span aria-hidden="true">→</span></a>
+          <a href={contactHref} class="btn btn-primary">Schedule an endpoint security review <span aria-hidden="true">→</span></a>
           <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Most security problems start on a device -->
+  <!-- The problem -->
   <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
     <div class="container-prose">
       <div class="eyebrow mb-4">The problem</div>
       <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
-        Most security problems start on a device
+        The tools they use are already on your computer
       </h2>
       <div class="mt-6 space-y-5 text-lg leading-relaxed text-muted">
-        <p>The laptop in accounting, the warehouse PC running production software, or the employee working from home are often the first targets in a cyberattack.</p>
-        <p>When those devices aren't monitored, malicious activity can go unnoticed until files are encrypted, accounts are compromised, or operations stop.</p>
-        <p>AllTech deploys endpoint monitoring across your managed devices and reviews the alerts that matter — so your team isn't left sorting through security notifications on its own.</p>
+        <p>Ransomware operators stopped bringing their own software years ago. There's no reason to. Every Windows machine ships with everything they need — a utility to delete backup snapshots, a utility to download files from the internet, a scripting engine that can run anything. Signature-based antivirus has no opinion about a legitimate Microsoft tool doing exactly what it was designed to do.</p>
+        <p>The problem isn't that these tools run. They run constantly, for entirely normal reasons. The problem is that nothing about the file tells you which time was normal. Only the behavior does: what launched it, what it did next, whether it happened on one machine or forty at once.</p>
+        <p>That distinction is the whole job. Endpoint detection and response records the behavior on every endpoint, flags the patterns that look like an attack in progress, and puts the result in front of someone who can tell the difference between a backup script and the first ten minutes of a ransomware deployment.</p>
       </div>
     </div>
   </section>
 
-  <!-- What you get -->
+  <!-- What's included -->
   <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
     <div class="container-wide">
       <div class="max-w-2xl mb-12">
-        <div class="eyebrow mb-4">What you get</div>
+        <div class="eyebrow mb-4">What's included</div>
         <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
-          Monitoring, investigation, and response
+          Four layers on every machine
         </h2>
-        <p class="mt-4 text-muted leading-relaxed">
-          Delivered through our monitoring platform (built on Datto EDR and RocketCyber) —
-          deployed and managed by us, not something you have to configure yourself.
-        </p>
       </div>
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {whatYouGet.map(([title, body]) => (
+        {layers.map(([title, body]) => (
           <div class="card">
             <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
             <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
@@ -124,57 +155,146 @@ const contactHref = '/contact?service=Cybersecurity';
     </div>
   </section>
 
-  <!-- What we actually investigate -->
+  <!-- In practice — the two-stage funnel -->
   <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
-    <div class="container-prose">
-      <div class="eyebrow mb-4">What we actually investigate</div>
-      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
-        The activity that gets a second look
-      </h2>
-      <div class="mt-6 space-y-5 text-lg leading-relaxed text-muted">
-        <p>Most of what our monitoring flags turns out to be nothing — a legitimate script, a new device, an update running on schedule. A small percentage of it isn't, and that's what we spend our time on. A few examples of what actually lands on an engineer's desk:</p>
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">In practice</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What a month of endpoint security actually looks like
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Between June 1 and July 1, 2026, across nearly 1,300 endpoints, 44 firewalls, and more
+          than 800 Microsoft 365 accounts, here's what the layers actually did.
+        </p>
       </div>
-      <div class="grid sm:grid-cols-2 gap-x-10 gap-y-2.5 mt-8 not-prose">
-        {whatWeInvestigate.map((item) => (
-          <div class="flex items-start gap-3">
-            <span class="mt-1.5 w-1.5 h-1.5 rounded-[2px] shrink-0" style="background: var(--color-amber-500)"></span>
-            <span class="leading-snug text-muted">{item}</span>
+
+      <div class="mb-4 font-mono text-xs uppercase tracking-[0.18em]" style="color: var(--color-amber-600);">The machine layer</div>
+      <div class="grid sm:grid-cols-3 gap-4">
+        {machineLayer.map(([figure, label, body]) => (
+          <div class="card">
+            <div class="font-display text-3xl font-bold mb-1" style="color: var(--color-amber-500);">{figure}</div>
+            <div class="font-semibold mb-2" style="color: var(--color-text-primary);">{label}</div>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
           </div>
         ))}
       </div>
-      <p class="mt-8 text-lg leading-relaxed text-muted">
-        Most of the time, it's explainable. When it isn't, having eyes on it early is the
-        difference between a contained incident and a much longer, more expensive one.
+
+      <div class="mt-10 mb-4 font-mono text-xs uppercase tracking-[0.18em]" style="color: var(--color-amber-600);">The human layer</div>
+      <div class="grid sm:grid-cols-3 gap-4">
+        {humanLayer.map(([figure, label, body]) => (
+          <div class="card">
+            <div class="font-display text-3xl font-bold mb-1" style="color: var(--color-amber-500);">{figure}</div>
+            <div class="font-semibold mb-2" style="color: var(--color-text-primary);">{label}</div>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+
+      <p class="mt-8 text-lg leading-relaxed text-muted max-w-3xl">
+        Two numbers matter in that list. Zero ransomware detections across the fleet, and zero
+        incidents still sitting open at the end of the month. The second one is the harder of the
+        two, and it's the one that tells you whether anybody is actually reading the alerts.
+      </p>
+      <p class="mt-6 text-sm" style="color: var(--color-text-subtle);">
+        Figures from AllTech's Datto EDR and RocketCyber SOC reporting, {REPORT_PERIOD}.
+        The two event totals measure different pipelines and are not additive.
       </p>
     </div>
   </section>
 
-  <!-- Why traditional AV isn't enough -->
-  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
-    <div class="container-prose">
-      <div class="eyebrow mb-4">Beyond antivirus</div>
-      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
-        Why traditional antivirus isn't enough
-      </h2>
-      <div class="mt-6 space-y-5 text-lg leading-relaxed text-muted">
-        <p>Traditional antivirus is built to catch <em>known</em> threats — it checks a file against a list of signatures for viruses that have already been identified. That still matters, and we keep it running. But attackers change their tools constantly, and a lot of modern attacks don't use anything that shows up on that list.</p>
-        <p>What matters more is behavior: does a process suddenly start encrypting files, harvesting saved credentials, or launching commands it has no business running? Watching for that — instead of only checking files against a known-bad list — is what catches an attack while it's still small enough to contain.</p>
-        <p>The goal isn't a tool that promises to stop everything. It's visibility early enough that we still have real options before an incident becomes a business problem.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- How it works -->
+  <!-- Real detections -->
   <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
     <div class="container-wide">
       <div class="max-w-2xl mb-12">
-        <div class="eyebrow mb-4">How it works</div>
+        <div class="eyebrow mb-4">Real detections</div>
         <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
-          What happens when something looks suspicious
+          The top five detections last month were all legitimate software
         </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Not malware. Not a single one. Here's what the platform flagged most often, and why:
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        {detections.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 text-lg leading-relaxed text-muted max-w-3xl">
+        A platform that only alerted on definite malware would have been silent all month. A
+        platform that alerts on all of this and hands you the list is just a different kind of
+        useless. The work is in between: knowing that a shadow-copy command on the backup server at
+        1 a.m. is the job, and the same command on a front-desk laptop at 1 a.m. is a phone call.
+      </p>
+    </div>
+  </section>
+
+  <!-- Escalations -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Escalations</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The 63 incidents, in plain English
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Six things accounted for most of what an analyst investigated last month:
+        </p>
       </div>
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {steps.map(([n, title, body]) => (
+        {escalations.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 text-lg leading-relaxed text-muted max-w-3xl">
+        Twenty-four of the 63 turned out to be normal activity once someone looked. That's not a
+        failure rate — it's the job working correctly. The alternative is a system tuned quiet
+        enough to never bother you, which is also quiet enough to miss the one that mattered.
+      </p>
+    </div>
+  </section>
+
+  <!-- The part most people get wrong -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">Worth knowing</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Half of last month's incidents didn't start on an endpoint
+      </h2>
+      <div class="mt-6 space-y-5 text-lg leading-relaxed text-muted">
+        <p>Just over half of the incidents opened last month — 50.8% — originated in the cloud: Microsoft 365 sign-ins, risk detections, and account activity that no agent on a laptop would ever see. The rest came from endpoint and network detections.</p>
+        <p>That's worth saying on a page selling endpoint security. Protecting the devices is necessary and it is not sufficient. An attacker with a stolen session token never touches a managed machine. The laptop is clean, the antivirus is green, and the account is being used by someone else entirely.</p>
+        <p>Endpoint security is one layer. It's a layer we'd argue is non-negotiable, and it's a layer that doesn't work alone.</p>
+        <p class="text-base">
+          <a href="/services/email-security" class="font-medium" style="color: var(--color-amber-600);">Email Security &amp; Phishing Protection</a>
+          and
+          <a href="/services/cloud-microsoft-365" class="font-medium" style="color: var(--color-amber-600);">Microsoft 365 &amp; Entra ID</a>
+          cover the other half.
+        </p>
+      </div>
+      <p class="mt-8 text-sm" style="color: var(--color-text-subtle);">
+        Figures from AllTech's Datto EDR and RocketCyber SOC reporting, {REPORT_PERIOD}.
+      </p>
+    </div>
+  </section>
+
+  <!-- Deployment -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Getting started</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Deployment
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {deployment.map(([n, title, body]) => (
           <div class="card">
             <div class="font-display text-2xl font-bold mb-2" style="color: var(--color-amber-500);">{n}</div>
             <h3 class="font-display text-base font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
@@ -185,67 +305,40 @@ const contactHref = '/contact?service=Cybersecurity';
     </div>
   </section>
 
-  <!-- What monitoring actually looks like (stats) -->
-  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
-    <div class="container-wide">
-      <div class="max-w-2xl mb-10">
-        <div class="eyebrow mb-4">In practice</div>
-        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
-          What monitoring looks like in practice
-        </h2>
-        <p class="mt-4 text-muted leading-relaxed">
-          Most of what monitoring picks up is normal — a legitimate software update, an IT
-          script running on schedule, an employee logging in from a new laptop. Across a
-          fleet of devices, there's more of that activity than any person could review by hand.
-        </p>
-      </div>
-      <div class="grid sm:grid-cols-3 gap-4">
-        {inPractice.map(([label, body]) => (
-          <div class="card">
-            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{label}</h3>
-            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
-          </div>
-        ))}
-      </div>
-      <p class="mt-8 text-muted leading-relaxed max-w-2xl">
-        Our job is separating that normal noise from the handful of events that actually
-        need a person to look at them — and making sure those don't get buried.
-      </p>
-    </div>
-  </section>
-
-  <!-- Who this is for -->
-  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
-    <div class="container-wide">
-      <div class="max-w-2xl mb-12">
-        <div class="eyebrow mb-4">Who this is for</div>
-        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
-          Built for real environments
-        </h2>
-      </div>
-      <div class="grid sm:grid-cols-2 gap-4">
-        {audience.map(([title, body]) => (
-          <div class="card">
-            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
-            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <!-- What we don't do -->
+  <!-- Fit -->
   <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
     <div class="container-prose">
-      <div class="eyebrow mb-4">Honest expectations</div>
+      <div class="eyebrow mb-4">Fit</div>
       <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
-        What we don't do
+        This is the right fit if
       </h2>
-      <div class="mt-6 space-y-5 text-lg leading-relaxed text-muted">
-        <p>We don't claim software alone stops every attack, and we're not going to pretend it does to make a sale.</p>
-        <p>Endpoint monitoring is one layer. It works best alongside patch management (fewer holes to exploit), immutable backups (so a bad day doesn't become a business-ending one), security awareness training (fewer threats ever reach a device), and identity protections like multi-factor authentication (so a stolen password isn't enough to get in).</p>
-        <p>We also believe in having an incident response plan before you need one — who gets called, what gets isolated, and how you communicate with your team and customers if something happens.</p>
-        <p>Our goal isn't to promise you'll never have an incident. It's to reduce the odds, catch it early when we can, and know exactly what to do when we can't.</p>
+      <div class="mt-8 grid gap-3 not-prose">
+        {fit.map((item) => (
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="leading-snug text-muted">{item}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">FAQ</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Common questions
+      </h2>
+      <div class="mt-8 space-y-6 not-prose">
+        {faqs.map(([q, a]) => (
+          <div>
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{q}</h3>
+            <p class="leading-relaxed text-muted">{a}</p>
+          </div>
+        ))}
       </div>
     </div>
   </section>
@@ -259,7 +352,7 @@ const contactHref = '/contact?service=Cybersecurity';
           Endpoint security works best in layers
         </h2>
       </div>
-      <div class="grid sm:grid-cols-2 gap-4">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {related.map(([title, body, href]) => (
           <a href={href} class="card group block">
             <h3 class="font-display text-lg font-bold mb-2 group-hover:text-[var(--color-amber-600)] transition" style="color: var(--color-text-primary);">{title}</h3>
@@ -276,14 +369,15 @@ const contactHref = '/contact?service=Cybersecurity';
     <div class="container-wide">
       <div class="max-w-3xl">
         <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
-          Know which devices are protected — <span style="color: var(--color-amber-400);">and which aren't</span>.
+          Find out what's actually running on your machines.
         </h2>
         <p class="mt-5 text-lg leading-relaxed text-muted">
-          We'll review your workstations, laptops, servers, and existing security tools, identify
-          coverage gaps, and provide practical recommendations that fit your business.
+          We'll inventory your endpoints, check what protection is installed and whether it's
+          reporting to anyone, and show you what a month of behavior data on your network actually
+          contains. Plain findings, no pressure.
         </p>
         <div class="mt-8 flex flex-wrap gap-3">
-          <a href={contactHref} class="btn btn-primary">Schedule an endpoint security assessment <span aria-hidden="true">→</span></a>
+          <a href={contactHref} class="btn btn-primary">Schedule an endpoint security review <span aria-hidden="true">→</span></a>
           <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
         </div>
       </div>
