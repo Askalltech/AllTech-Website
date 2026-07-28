@@ -1,0 +1,324 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * THE THIRD SOURCE VIGNETTE IS DELIBERATELY NOT BUILT.
+ *
+ * The copy's third "in the field" story (a fake runtime installer across a
+ * fleet of machines) came from a March 2026 debrief that was still marked
+ * ONGOING REMEDIATION, for a named client whose logo appears in the
+ * site-wide footer marquee. "A Northern Utah food manufacturer, N machines"
+ * plus that logo wall is a two-step lookup, not de-identification. The same
+ * debrief also records an attacker active DURING the investigation and an
+ * industrial-protocol component on one host — publishing how it was detected
+ * would tell a live attacker what we see, and hinting at ICS exposure at an
+ * identifiable manufacturer is its own category of risk.
+ *
+ * The copy's author recommended cutting it and noted the remaining two
+ * vignettes carry the argument. They do. To use it: get written permission
+ * and run it as a named case study on /case-studies, after remediation is
+ * confirmed closed.
+ *
+ * NEVER put on this page (from the source debriefs' scrub list): client org
+ * names, client domains, user mailboxes, hostnames, usernames or profile
+ * paths, internal IP ranges, AllTech's own remote-access instance GUID, or
+ * any attacker infrastructure (C2 domains, IPs, file hashes).
+ *
+ * NEVER claim a response-time or detection-speed figure. The documented
+ * incidents vary widely and one ran ~2 weeks from infection to detection.
+ * Section 5 turns that dwell-time reality into the argument instead.
+ */
+
+const whatYouGet = [
+  ['Immediate containment', 'We isolate affected systems from the network while keeping them powered on and intact. The attacker loses access; the evidence stays where it is.'],
+  ['Account lockdown', 'Compromised accounts get password resets, revoked sessions, and re-enrolled multi-factor authentication. Attackers hold onto stolen sessions long after a password changes — revoking them is what actually ends the access.'],
+  ['Hunting the persistence', 'Removing the malware is the easy part. We go after what it left behind: scheduled tasks, registry run keys, rogue services, mailbox rules, and remote-access agents installed to survive a cleanup.'],
+  ['Scope, not guesswork', 'We determine which systems were touched, which accounts were used, what data was reachable, and whether it spread to cloud storage or other locations — instead of assuming it was just the one PC.'],
+  ['Surgical remediation', 'Where we can, we remove exactly what’s malicious and leave the rest running. Reimaging is sometimes the right call, but it shouldn’t be the automatic one — a production machine you can’t rebuild quickly deserves the more careful approach.'],
+  ['A written debrief', 'You get a document: timeline, what was found, what we did, what’s still open, and what to change so it doesn’t happen again. It’s the thing your insurer, your attorney, and your board will ask for.'],
+];
+
+const vignettes = [
+  ['The mailbox rule nobody could see', 'A compromised Microsoft 365 account. The attacker didn’t send obvious spam — they created an inbox rule that quietly moved every message mentioning the company’s accounting software into a folder nobody opens. The point wasn’t the mailbox. It was to hide the payment-redirection conversation from the one person who’d have noticed it. We found it while investigating malware on the same user’s workstation, removed the rules, revoked every active session, and recommended a 90-day review of the account’s financial activity.'],
+  ['Legitimate software, doing illegitimate things', 'A remote-access agent — the same category of tool IT departments use every day — was installed on a workstation and pointed at a server the attacker controlled, running with full system privileges. The loader that installed it was a renamed copy of a standard Windows program, so nothing on disk looked obviously wrong. No automated alert caught it. An engineer doing a routine review of security tool exclusions did. The host was isolated the same day, and a scripted cleanup removed the rogue service, the scheduled task, and the registry keys it used to restart itself.'],
+];
+
+const steps = [
+  ['01', 'We answer', 'You get an engineer, not a ticket confirmation. First questions: what are you seeing, what’s still running, and what shouldn’t be touched yet.'],
+  ['02', 'We contain', 'Affected systems get isolated from the network and accounts get locked down. Isolated, not wiped — we keep the machine intact so we can still find out what happened.'],
+  ['03', 'We investigate', 'We work out how it got in, what it ran, where it spread, and whether it’s still active. That includes the parts people forget: cloud storage that synced the file, other devices on the same account, and mailboxes.'],
+  ['04', 'We eradicate', 'Malicious files, rogue services, scheduled tasks, registry keys, mailbox rules, and any remote-access agent that isn’t supposed to be there. All of it, verified afterward — not just the file that triggered the alert.'],
+  ['05', 'We restore', 'Systems come back to a known-good state and back onto the network, with the credentials that were exposed treated as compromised and rotated.'],
+  ['06', 'We debrief', 'A written report and a conversation. What happened, what we did, what’s still open, and the specific changes that would have prevented it or caught it sooner.'],
+];
+
+const deliverable = [
+  ['Timeline', 'What happened, when, in order.'],
+  ['Findings', 'What was on the systems and what it was built to do.'],
+  ['Impact', 'Which accounts, which data, and what to assume was exposed.'],
+  ['Actions taken', 'Every containment and remediation step, on the record.'],
+  ['What’s still open', 'The honest part: what we couldn’t determine, and what needs follow-up.'],
+];
+
+const audience = [
+  ['A business that just found something', 'Odd emails, a strange login alert, a machine acting wrong. You don’t need to be a client and you don’t need to be sure it’s real. Call before you start deleting things.'],
+  ['A company whose money went to the wrong account', 'Business email compromise is the quietest and most expensive incident we handle. There’s a narrow window where the payment can still be recalled, and it closes fast.'],
+  ['A manufacturer that can’t stop the line', 'Containment doesn’t have to mean shutting down production. We isolate what has to be isolated and work around what can’t be, deliberately.'],
+  ['A healthcare or professional services office', 'Patient records and client files carry notification obligations if they’re exposed. Determining what was actually reachable — rather than assuming the worst — changes what you’re legally required to do.'],
+  ['A business whose insurer is asking questions', 'Cyber policies increasingly require documented response procedures and a written incident record. We produce both.'],
+  ['An organization with no IT staff on-site', 'Multi-location businesses and small offices where nobody local can tell a real incident from a pop-up. We assess it remotely and come on-site when hands on hardware is what’s needed.'],
+  ['A company that already cleaned it up', 'Ran a scan, deleted the file, moved on — and something still feels wrong. Usually because the persistence is still there. We’ll verify it’s actually gone.'],
+  ['A business that wants a plan before an incident', 'The cheapest hour of incident response is the one spent before anything happens: who gets called, what gets isolated, where the backups are, and who talks to customers.'],
+];
+
+const related = [
+  ['Managed SOC', '24/7 monitoring and human review. The faster something is caught, the smaller the response.', '/services/managed-soc'],
+  ['Endpoint Security & Managed EDR', 'EDR on every managed device. It’s what gives us visibility and the ability to isolate a machine in minutes.', '/services/endpoint-security'],
+  ['Backup & Disaster Recovery', 'Tested, immutable backups are what make ransomware a bad week instead of a closed business.', '/services/backup-disaster-recovery'],
+  ['Email Security & Phishing Protection', 'Most incidents start in a mailbox. Filtering ahead of Microsoft 365 stops a lot of them before delivery.', '/services/email-security'],
+];
+
+// Must match a ContactForm checkbox value exactly or the deep link is inert.
+const contactHref = '/contact?service=Incident%20Response';
+---
+
+<BaseLayout
+  title="Incident Response & Breach Containment"
+  description="Incident response for Northern Utah businesses. AllTech contains active intrusions, removes attacker persistence, and tells you exactly what happened."
+>
+  <!-- Hero. This is the one page on the site where the PHONE is the primary
+       button — someone landing here mid-incident is not filling out a form. -->
+  <section class="surface-dark relative overflow-hidden">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">Incident Response &amp; Breach Containment</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          You've been breached.<br />
+          <span style="color: var(--color-amber-400);">Now what?</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">
+          Someone's in your email, a server is encrypting itself, or a tool you've never heard of is
+          running as an administrator. We stop the bleeding, find out how far it went, and tell you
+          in plain language what happened — the same engineers, whether you're a client or you found
+          us in an emergency.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={`tel:${site.phoneE164}`} class="btn btn-primary font-mono">Call now — {site.phone}</a>
+          <a href={contactHref} class="btn btn-ghost">Talk about an IR plan <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- The problem -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">The problem</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        The worst time to figure out who to call
+      </h2>
+      <div class="mt-6 space-y-5 text-lg leading-relaxed text-muted">
+        <p>Most businesses discover their incident response plan doesn't exist at the exact moment they need it. The bookkeeper notices an invoice was paid to the wrong account. A workstation starts behaving strangely. Someone gets a call from a customer asking about an email nobody sent.</p>
+        <p>What happens in the next few hours decides how much this costs. Pull the wrong plug and you destroy the evidence you need. Wipe the machine and you lose the answer to <em>how did they get in</em> — which means it happens again. Do nothing and the attacker keeps working, because they usually still have access.</p>
+        <p>AllTech responds to active incidents: contain it, understand it, remove it, and document it. If we already manage your environment, we're often the ones who find it first.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- What you get -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">What you get</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Containment, investigation, and a straight answer
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Handled by our own engineers using the tools we already run — endpoint detection, remote
+          management, and network monitoring — not a subcontracted forensics firm you've never
+          spoken to.
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {whatYouGet.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- In the field -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">In the field</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Patterns we see over and over
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">All identifying details removed.</p>
+      </div>
+      <div class="grid lg:grid-cols-2 gap-4">
+        {vignettes.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-xl font-bold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+      <div class="mt-10 max-w-3xl border-l-4 pl-6 py-2" style="border-color: var(--color-amber-400);">
+        <p class="text-xl lg:text-2xl font-display leading-relaxed" style="color: var(--color-text-primary);">
+          In both cases, the thing that caught it was a person or a behavior rule — not a signature.
+          Nothing here was a virus a scanner had a name for.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Detection isn't response -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">The uncomfortable part</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Why finding it is only the first hour
+      </h2>
+      <div class="mt-6 space-y-5 text-lg leading-relaxed text-muted">
+        <p>Security tools generate alerts. That's the beginning of the work, not the end of it. An alert tells you something happened on one machine at one moment. It doesn't tell you whether the attacker still has access, what else they touched, which credentials they took, or what they left behind to get back in.</p>
+        <p>That gap is where incidents get expensive. Malware gets quarantined and everyone relaxes — while the remote-access tool it installed keeps running, the mailbox rule keeps hiding emails, and the scheduled task reinstalls the payload overnight.</p>
+        <p>It's also why speed matters more than it seems. Attackers commonly sit in an environment for days or weeks before anyone notices, and every one of those days is more accounts, more credentials, and more places to hide. The goal of response isn't just removal. It's removing every way back in, and knowing you did.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">How it works</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What happens when you call us
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {steps.map(([n, title, body]) => (
+          <div class="card">
+            <div class="font-display text-2xl font-bold mb-2" style="color: var(--color-amber-500);">{n}</div>
+            <h3 class="font-display text-base font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- The deliverable -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">The deliverable</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        An incident nobody documented is an incident that repeats
+      </h2>
+      <p class="mt-6 text-lg leading-relaxed text-muted">
+        Every response ends with a written debrief, and it isn't a form letter. It contains a
+        timeline with real timestamps, the technical findings, the business impact in plain terms,
+        every remediation action taken, and the recommendations that follow from what we actually
+        found — not a generic security checklist.
+      </p>
+
+      <div class="mt-8 grid gap-3 not-prose">
+        {deliverable.map(([title, body]) => (
+          <div class="flex items-start gap-4 py-3" style="border-bottom: 1px solid var(--color-border-subtle);">
+            <span class="font-semibold shrink-0 w-40" style="color: var(--color-text-primary);">{title}</span>
+            <span class="leading-snug text-muted">{body}</span>
+          </div>
+        ))}
+      </div>
+
+      <p class="mt-8 text-lg leading-relaxed text-muted">
+        This is also the document that gets requested later, and usually at a bad moment: by a cyber
+        insurance carrier processing a claim, by an attorney assessing notification obligations, or
+        by a customer's security team asking what happened to their data.
+      </p>
+    </div>
+  </section>
+
+  <!-- Who this is for -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Who this is for</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Built for real situations
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {audience.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-base font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Honest expectations -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">Honest expectations</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        What we don't promise
+      </h2>
+      <div class="mt-6 space-y-5 text-lg leading-relaxed text-muted">
+        <p>We don't promise your data wasn't taken. In most incidents, proving a negative isn't possible with the evidence available, and any firm that tells you otherwise on day one is guessing. What we can do is establish what was reachable and what the malware was built to do, and tell you which assumptions are safe.</p>
+        <p>We don't promise a fixed recovery time. It depends on how long the attacker had, how many systems were involved, and whether your backups are usable — and we'd rather tell you that than quote a number we invent to win the call.</p>
+        <p>We're not a law firm and we're not your insurer. We'll document what happened accurately enough for both, and we'll tell you when it's time to involve them, but breach notification is a legal determination and we don't make it for you.</p>
+        <p>And we'd rather you never need this page. Response is the most expensive layer of security there is. Monitoring, patching, backups you've actually tested, multi-factor authentication, and training are all cheaper than the day you call us — which is why we spend most of our time on those instead.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Related services -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Related services</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The layers that make this call less likely
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        {related.map(([title, body, href]) => (
+          <a href={href} class="card group block">
+            <h3 class="font-display text-lg font-bold mb-2 group-hover:text-[var(--color-amber-600)] transition" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+            <span class="mt-3 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">Learn more <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="surface-dark py-16 lg:py-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          If something's happening right now, call. <span style="color: var(--color-amber-400);">Don't email.</span>
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          If it's not urgent, let's build the plan before you need it — who gets called, what gets
+          isolated, and how you keep the business running while we work.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={`tel:${site.phoneE164}`} class="btn btn-primary font-mono">{site.phone}</a>
+          <a href={contactHref} class="btn btn-ghost">Build an incident response plan <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
