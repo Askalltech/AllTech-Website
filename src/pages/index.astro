@@ -97,7 +97,7 @@ const aNormalWeek = [
           When you call, you get the same engineers who built your network — not a ticket queue.
         </p>
 
-        <div class="mt-9">
+        <div class="mt-9 flex flex-wrap items-center gap-3">
           <span class="cta-orbit-wrap">
             <!-- Animated gold "orbit sweep" behind the primary CTA: three
                  concentric ellipses whose dash segment sweeps around on a
@@ -121,6 +121,17 @@ const aNormalWeek = [
               <span aria-hidden="true">→</span>
             </a>
           </span>
+
+          <!-- Existing-client entry point: the client portal is a separate
+               system on its own domain, so this opens in a new tab. -->
+          <a
+            href="https://askalltech.itclientportal.com/ClientPortal/Login.aspx"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-ghost"
+          >
+            Submit a ticket <span aria-hidden="true">↗</span>
+          </a>
         </div>
 
         <div class="mt-14 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
