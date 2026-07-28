@@ -1,0 +1,369 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * SECTIONS 5 AND 6 OF THE SOURCE COPY ARE DELIBERATELY NOT BUILT HERE.
+ *
+ * They present findings from a specific client's confidential penetration
+ * test reports (five paired assessments: 36 high/critical internal vs zero
+ * external, 18 -> 14 trend, the 11 -> 14 regression). Three reasons they
+ * are held:
+ *
+ *  1. Those reports carry AllTech's OWN non-disclosure clause — contents are
+ *     organization-confidential and not disclosed without written permission.
+ *  2. De-identification does not survive this site. The copy proposed
+ *     "a manufacturing client" in Northern Utah, but the client logo marquee
+ *     in BaseLayout renders on EVERY page — including this one — and names a
+ *     Northern Utah food manufacturer. Sector + region + engagement history
+ *     next to that strip identifies them.
+ *  3. The most recent internal assessment reported critical and high findings
+ *     whose remediation status is unconfirmed. A public page describing a
+ *     narrowly-identifiable local business with live critical internal
+ *     findings is targeting information, not a case study.
+ *
+ * To publish them: get written client permission and name them properly (a
+ * named case study is worth more anyway), AFTER the findings are remediated.
+ * Do not restore them de-identified while that logo strip is on the page.
+ *
+ * Also never add here: a catch/success rate, "we find X per engagement",
+ * any CVE / protocol / hostname detail from a real report, the specific
+ * tooling used, or compliance language (PCI, SOC 2) the testing isn't
+ * scoped to meet.
+ */
+
+const comparison = [
+  [
+    'Perspective',
+    'An attacker on the public internet who has never touched your network',
+    'An attacker who is already inside — a phished user, a contractor laptop, a compromised printer',
+  ],
+  [
+    'Question it answers',
+    'Can someone break in from outside?',
+    'Once someone is in, how far do they get?',
+  ],
+  [
+    'What we assess',
+    'Public-facing hosts, web and mail services, SSL/TLS configuration, exposed directories and services, information about your business that’s publicly discoverable',
+    'Credentials and password practices, protocol security, system configuration, outbound filtering, lateral movement between systems',
+  ],
+  [
+    'Typical exposure',
+    'Small and shrinking — most businesses have very little truly exposed',
+    'Large and persistent — the internal network was built for convenience, not for hostility',
+  ],
+];
+
+const rootCauses = [
+  ['Password deficiencies', 'Weak, shared, reused, or still-default credentials. This is the most common finding and the most consequential one, because a working password does not look like an attack in any log. It looks like a login. Access to one system usually becomes access to several, and from there to documents nobody intended to share.'],
+  ['Insecure protocols', 'Communication protocols that send data — including credentials — in cleartext. They are almost never turned on deliberately. They’re enabled by default on something, or left behind by a device that was replaced years ago, and they quietly broadcast to anyone listening on the same network.'],
+  ['Configuration deficiencies', 'Systems and services deployed without a hardening baseline. Some of these are only exploitable in narrow circumstances, which is exactly why they survive audit after audit. The impact when they are exploitable is not narrow at all.'],
+  ['Egress filtering deficiencies', 'Firewalls that carefully control what comes in and barely look at what goes out. This is how an attacker establishes a channel back to themselves, and it’s how data leaves. Most outbound rules were written to make something work on a deadline, and never revisited.'],
+];
+
+const engagement = [
+  ['1', 'Scope of work, agreed in writing first', 'Before anything runs, we define which systems are in scope, which assessment phases we’ll perform, and what “safe to exploit” means in your environment. You sign it. Nothing outside it gets touched.'],
+  ['2', 'Discovery', 'We find what’s actually there. This routinely surfaces more systems than the scope listed — the scope describes what you think you have, discovery describes what you have.'],
+  ['3', 'Enumeration', 'Services, versions, configurations, exposed directories, protocol support, certificate and TLS posture. For external tests this also includes what’s publicly discoverable about your business through search engines and social media — the reconnaissance an attacker does before touching anything you own.'],
+  ['4', 'Controlled exploitation', 'We attempt the attack. Only exploits judged safe for a production environment are executed, and the intent is validation, not disruption — proving a vulnerability is real rather than theoretical.'],
+  ['5', 'Severity ranking and rollup', 'Every finding gets a severity. Findings then get grouped into root-cause categories so remediation is four workstreams instead of thirty tickets.'],
+  ['6', 'Remediation roadmap', 'Specific strategies per root cause, written for the people who have to implement them. Where it applies, we map to recognized baselines such as the NIST standards.'],
+  ['7', 'Retest', 'We run it again and compare. You get trend data across every assessment, not a standalone PDF.'],
+];
+
+const limits = [
+  ['It’s a point in time', 'A clean result describes the systems in scope, on the day tested, in the configuration they were in. A firewall change on Thursday can undo a Tuesday result.'],
+  ['It’s bounded by scope', 'We test what we agreed to test. Systems outside the scope were not assessed, and “not assessed” is not the same as “secure.”'],
+  ['Zero findings is not zero risk', 'Third-party services, vendor dependencies, and configuration drift are all live risk that a network penetration test doesn’t measure.'],
+  ['It doesn’t test your people', 'Credential theft through phishing bypasses most of what a network assessment covers. That’s a separate assessment, and for most businesses it’s the more likely entry point.'],
+  ['It is not compliance by itself', 'It’s evidence you can hand to an auditor, an insurer, or a customer. It isn’t a certification.'],
+];
+
+const audience = [
+  ['Businesses that have never been tested', 'If nobody has ever tried to break in on purpose, the first internal assessment is the most informative thing you’ll do this year.'],
+  ['Businesses whose customers or insurers are asking', 'Contracts, cyber insurance applications, and vendor security reviews increasingly require assessment evidence.'],
+  ['Businesses that have grown faster than their network', 'New sites, new systems, new integrations, and a firewall configuration that has been added to but never audited.'],
+  ['Businesses that already run security tooling', 'EDR, email filtering, and monitoring are worth having. A penetration test is how you find out what they miss.'],
+];
+
+const faqs = [
+  ['Will testing take our systems down?', 'The scope defines what’s safe to run before anything starts, and we only execute exploits judged safe for a production environment. Denial-of-service testing is excluded unless you specifically ask for it and we plan a window for it.'],
+  ['How long does it take?', 'Fieldwork for a small to mid-sized network is typically a few days. Scoping happens before, reporting happens after. The scoping conversation is where the timeline for your environment gets set.'],
+  ['What do we get at the end?', 'An executive summary written for people who don’t work in IT, a technical report with every finding and its severity, a root-cause rollup, and a remediation roadmap. If it’s not your first test, you also get trend data comparing this assessment to previous ones.'],
+  ['How often should we do this?', 'For most businesses, annually as a baseline, plus a retest after significant remediation or a material change to the network. Higher-risk or regulated environments warrant more frequent testing.'],
+  ['Can you fix what you find?', 'Yes, and we’ll be direct about the tension in that: the party finding the problems also sells the fix. The findings are severity-ranked and evidence-backed so you can hand the report to anyone — including another provider — and the report stands on its own.'],
+  ['Do you need internal access to run the internal test?', 'Yes. An internal assessment simulates an attacker who already has a foothold, so it starts from a position inside your network. How that access is provided is part of scoping.'],
+];
+
+const related = [
+  ['Managed SOC', 'The monitoring that catches an attack in progress. Testing finds the door; monitoring notices someone walking through it.', '/services/managed-soc'],
+  ['Network Detection & Response', 'Visibility into what’s actually moving across your network, including the outbound traffic egress filtering is supposed to control.', '/services/network-detection'],
+  ['Endpoint Security & Managed EDR', 'The control layer on the workstations and servers an internal assessment moves between.', '/services/endpoint-security'],
+  ['Email Security & Phishing Protection', 'Phishing is the most common way an attacker earns the internal position an internal penetration test simulates.', '/services/email-security'],
+];
+
+// Must match a checkbox value in ContactForm.tsx exactly, or the deep link
+// does nothing.
+const contactHref = '/contact?service=Penetration%20Testing';
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(([question, answer]) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer },
+  })),
+};
+---
+
+<BaseLayout
+  title="Penetration Testing for Northern Utah Businesses"
+  description="Internal and external penetration testing that finds what scanners miss. AllTech tests your network the way an attacker would, then retests to prove it's fixed."
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">Penetration Testing</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          A scan tells you what might be wrong.<br />
+          <span style="color: var(--color-amber-400);">A test tells you what an attacker can do about it.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">
+          We test your network the way someone attacking it would — from the public internet and from
+          inside your own walls. You get a severity-ranked list of what we found, a remediation
+          roadmap grouped by root cause, and a retest that proves the fixes held.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Schedule a scoping call <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- The problem -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">The problem</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Scanners find issues. Attackers find paths.
+      </h2>
+      <div class="mt-6 space-y-5 text-lg leading-relaxed text-muted">
+        <p>Most businesses have some form of vulnerability scanning running. It produces a list. The list is long, mostly informational, and nobody has time to read it.</p>
+        <p>That list has a specific blind spot: it evaluates findings one at a time. A scanner does not know that the shared password on a printer is also the password on a file server, or that a legacy protocol nobody remembers enabling is quietly handing out credentials to anything that asks.</p>
+        <p>An attacker does not work through a list. They chain findings together — a weak credential here, a cleartext protocol there — until the chain reaches something worth stealing. Individually, each link looks like a medium. Together they're a domain compromise.</p>
+        <p>Penetration testing is what closes that gap. Instead of listing what's exposed, we attempt the attack and document how far it gets.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Two tests -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">Two assessments</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          External and internal are not the same assessment
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          These get sold as one product and they answer completely different questions. We run them
+          as two separate engagements because the results almost never look alike.
+        </p>
+      </div>
+
+      <div class="overflow-x-auto -mx-2 px-2">
+        <table class="w-full min-w-[720px] text-sm border-collapse">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--color-border-default);">
+              <th class="w-[18%] py-3 pr-4"></th>
+              <th class="text-left font-semibold py-3 px-4 w-[41%]" style="color: var(--color-text-primary);">External penetration test</th>
+              <th class="text-left font-semibold py-3 pl-4 w-[41%]" style="color: var(--color-text-primary);">Internal penetration test</th>
+            </tr>
+          </thead>
+          <tbody>
+            {comparison.map(([label, external, internal]) => (
+              <tr style="border-bottom: 1px solid var(--color-border-subtle);">
+                <th scope="row" class="text-left align-top py-4 pr-4 font-semibold leading-snug" style="color: var(--color-text-primary);">{label}</th>
+                <td class="align-top py-4 px-4 leading-relaxed" style="color: var(--color-text-default);">{external}</td>
+                <td class="align-top py-4 pl-4 leading-relaxed" style="color: var(--color-text-default);">{internal}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-10 max-w-3xl border-l-4 pl-6 py-2" style="border-color: var(--color-amber-400);">
+        <p class="text-xl lg:text-2xl font-display leading-relaxed" style="color: var(--color-text-primary);">
+          If you only buy one, buy the internal test. The external perimeter is the part most
+          businesses have already gotten right. The internal network is the part nobody has ever
+          tested.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Root causes -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">What we find</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Four root causes account for most of it
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Every finding in a report is a symptom. When we group them by cause, internal assessments
+          come back to the same four issues almost every time.
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        {rootCauses.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 text-lg leading-relaxed text-muted max-w-3xl">
+        Grouping findings this way matters more than the count. Fixing thirty individual findings is
+        a project nobody finishes. Fixing four root causes closes most of the thirty and prevents the
+        next batch.
+      </p>
+    </div>
+  </section>
+
+  <!-- How the engagement runs -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">The engagement</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What actually happens
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {engagement.map(([n, title, body]) => (
+          <div class="card">
+            <div class="font-display text-2xl font-bold mb-2" style="color: var(--color-amber-500);">{n}</div>
+            <h3 class="font-display text-base font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Honest limits -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Honest limits</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What a penetration test is not
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          A clean external report is a real result and it's worth having. It is also narrower than it
+          sounds, and any provider who lets you believe otherwise is selling you something.
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {limits.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 text-lg leading-relaxed text-muted max-w-3xl">
+        We put this on the page because the alternative is a client believing a clean report means
+        they're finished. That belief is more dangerous than the findings.
+      </p>
+    </div>
+  </section>
+
+  <!-- Who this is for -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Fit</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Who this is for
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        {audience.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">FAQ</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Common questions
+      </h2>
+      <div class="mt-8 space-y-6 not-prose">
+        {faqs.map(([q, a]) => (
+          <div>
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{q}</h3>
+            <p class="leading-relaxed text-muted">{a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Related services -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Related services</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Testing finds it. These are what fix and watch it.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        {related.map(([title, body, href]) => (
+          <a href={href} class="card group block">
+            <h3 class="font-display text-lg font-bold mb-2 group-hover:text-[var(--color-amber-600)] transition" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+            <span class="mt-3 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">Learn more <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="surface-dark py-16 lg:py-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Find out what's actually reachable
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          The scoping conversation costs nothing and is useful on its own — it will tell you which
+          assessment you actually need and what it would cover.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Schedule a scoping call <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+        <p class="mt-6 text-sm" style="color: var(--color-text-subtle);">
+          Ask for Mason Hyatt, Cybersecurity Specialist.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

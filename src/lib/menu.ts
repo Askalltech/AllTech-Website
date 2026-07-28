@@ -35,7 +35,7 @@ export const menuCategories: MenuCategory[] = [
       { title: 'Email Security',      description: 'Stop phishing, BEC, malware before delivery', href: '/services/email-security' },
       { title: 'Network Detection (NDR)', description: 'AI anomaly-based network threat detection',  href: '/services/network-detection' },
       { title: 'Managed SOC',         description: '24/7 monitoring & response',                  href: '/services/managed-soc' },
-      { title: 'Penetration Testing', description: 'External, internal, web-app testing',         href: '/services/cybersecurity#pentest' },
+      { title: 'Penetration Testing', description: 'External, internal, web-app testing',         href: '/services/penetration-testing' },
       { title: 'Incident Response',   description: 'Active intrusion containment & forensics',    href: '/services/cybersecurity#ir' },
     ],
   },
