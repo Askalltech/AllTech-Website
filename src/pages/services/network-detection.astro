@@ -1,0 +1,549 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * Figures are from AllTech network monitoring, June 1 – July 1, 2026.
+ *
+ * PRIVACY: the source reports describe a single client deployment. Per the
+ * copy's data-verification notes, the network's topology fingerprint (device
+ * count, subnet count, traffic volume) is identifiable to a local reader even
+ * without names, so those specifics are deliberately NOT published here. The
+ * outcome funnel below carries the argument without describing the network.
+ * Do not add device/subnet/TB counts without written client permission.
+ *
+ * Every figure on this page is NETWORK-derived. Only Darktrace/NETWORK is
+ * subscribed on the source deployment — nothing here may be presented as
+ * endpoint, cloud, or identity coverage.
+ *
+ * Raw event totals are not stable to the last digit across exports, so the
+ * count is published rounded. MITRE per-tactic counts are never summed.
+ */
+const REPORT_PERIOD = 'June 1 – July 1, 2026';
+
+const included = [
+  ['Full traffic visibility', 'Physical and virtual sensors sit on your core switching, capturing every conversation on the network — machine to internet, and machine to machine. East-west traffic is the half most tools never see, and it is where lateral movement lives.'],
+  ['Behavioral baselining', 'Darktrace builds a pattern of life for every device and credential on the network — where it talks, how often, how much, at what hours. Detection is based on departure from that baseline, not on a list of known-bad addresses. New attacker infrastructure has no reputation to check.'],
+  ['Automated investigation', 'Every alert gets investigated automatically before a human ever sees it: related events pulled together, timeline assembled, verdict rendered. Last month that process ran 657 times and concluded 620 of them were nothing. Your team never saw those.'],
+  ['Autonomous response', 'When the platform is confident, it acts — blocking the specific connection or holding the device to its normal behavior, without waiting for someone to answer a page. Last month the average time from first anomalous packet to action was 47 seconds.'],
+  ['Monthly reporting', 'A plain-language report every month: what was seen, what was investigated, what was acted on, what turned out to be nothing. No portal login required.'],
+];
+
+const funnel = [
+  ['~908M', 'events observed', 'Every connection, every DNS lookup, every file transfer, every login. Nobody looks at this layer. It exists so that when something does happen, the history is already there.'],
+  ['220', 'alerts', 'Behavior that departed from the baseline enough to be worth a second look. One alert for every 4.1 million events.'],
+  ['23', 'incidents', 'Alerts that survived automated investigation and correlation — grouped into coherent stories rather than delivered as disconnected pings.'],
+  ['4', 'critical incidents', 'About one per week. These are the ones a person worked.'],
+];
+
+const topModels = [
+  ['Internal data transfer on a device that had never done it before', '19', '19'],
+  ['Agent beacon — long interval', '18', '5'],
+  ['Agent beacon — medium interval', '15', '4'],
+  ['Repeating connections over four days', '12', '5'],
+  ['Connection to a suspicious domain', '11', '7'],
+  ['New admin credentials used on a workstation', '10', '9'],
+  ['Server making a rare external connection', '10', '4'],
+  ['Algorithmically generated domain beacon', '9', '1'],
+  ['Agent beacon — short interval', '6', '1'],
+  ['New admin credentials used on a server', '5', '5'],
+];
+
+const actions = [
+  ['3', 'A device generating an unusual volume of alerts — blocked'],
+  ['2', 'A device sending a large volume of data out of the network — blocked'],
+  ['1', 'A device transferring large volumes over SMB after already deviating from normal — blocked'],
+  ['1', 'A server behaving anomalously with a very high-confidence alert — blocked'],
+  ['1', 'A device transferring large volumes of data internally — blocked'],
+];
+
+const compliance = [
+  ['Remote management tool running on a server', '143', '49'],
+  ['DNS over HTTPS / TLS', '11', '4'],
+  ['Beaconing to a rare generative AI service', '11', '2'],
+  ['Connection to a tunnelling service', '8', '3'],
+  ['Anomalous upload to a generative AI service', '3', '3'],
+  ['Cleartext LDAP authentication', '2', '1'],
+  ['Unencrypted credential sent over HTTP', '2', '2'],
+  ['SSH to a rare external destination', '1', '1'],
+  ['Default credential in use', '1', '1'],
+];
+
+const phases = [
+  ['Establish foothold', '19', '51%'],
+  ['Exfiltration and impact', '14', '38%'],
+  ['Lateral movement', '2', '5%'],
+  ['Internal reconnaissance', '2', '5%'],
+  ['Initial infection', '0', '—'],
+  ['Privilege escalation', '0', '—'],
+];
+
+const strongFit = [
+  'More than about 50 devices, or multiple subnets and VLANs',
+  'Servers, virtualization, or a domain controller on premises',
+  'Manufacturing, warehouse, or facility equipment on the network that can’t run an endpoint agent',
+  'Regulatory or contractual obligations — CMMC, HIPAA, cyber insurance questionnaires that ask about network monitoring',
+  'A site-to-site VPN, remote access, or vendors who connect in',
+];
+
+const weakFit = [
+  'You’re a small office of fully cloud-based laptops with no on-premises server. Endpoint and email security cover more of your real risk for less money, and we’ll tell you that.',
+  'You have no one — internal or contracted — who will act on what it finds. A detection nobody reads is an expense, not a control.',
+];
+
+const steps = [
+  ['1', 'Assessment', 'We look at your switching, your subnets, and where traffic actually flows. Most networks have at least one segment nobody has looked at in years.'],
+  ['2', 'Sensor placement', 'Physical or virtual sensors on your core switching, fed by SPAN or TAP. Passive — nothing is inline, nothing goes down if a sensor does.'],
+  ['3', 'Learning period', 'Roughly two weeks of watching before detection tightens. The system has to know what your Tuesday looks like before it can tell you this Tuesday is wrong.'],
+  ['4', 'Response tuning', 'We decide together what the platform is allowed to do on its own and what waits for a human. Our recommendation is autonomous for everything it’s confident about — the 47 seconds above only exists because nothing waits for approval.'],
+  ['5', 'Ongoing', 'Alerts are investigated, incidents are escalated to you with context, and you get a monthly report.'],
+];
+
+const faqs = [
+  ['Is this the same thing as a firewall?', 'No. A firewall enforces a policy at a boundary. NDR observes behavior everywhere, including traffic that never crosses a boundary. Machine-to-machine traffic inside your own network doesn’t touch the firewall at all, and that’s where lateral movement happens.'],
+  ['We already have endpoint protection. Isn’t this redundant?', 'They overlap by design and fail in different places. Endpoint agents can be disabled, and plenty of things on your network can’t run one — printers, cameras, PLCs, badge readers, the machine on the production floor running an operating system nobody supports anymore. The network sees those. The endpoint agent never will.'],
+  ['Can it see inside encrypted traffic?', 'Mostly not, and it doesn’t need to. Who is talking to whom, how often, in what volume, at what hour, on what schedule — all of that is visible without decrypting anything, and it’s what the detections are built on. A beacon is recognizable by its rhythm.'],
+  ['Will it slow down our network?', 'No. Sensors receive a copy of traffic from a mirror port. They aren’t in the path. If a sensor fails, you lose visibility, not connectivity.'],
+  ['What if it blocks something legitimate?', 'It can, and the honest answer is that the number last month was zero cleared actions out of eight — but zero is a month, not a guarantee. Actions are targeted at the specific connection rather than the whole device, and any of them can be cleared in seconds.'],
+  ['Do we need to buy hardware?', 'Usually one appliance and one or two virtual sensors, sized to your traffic. We’ll tell you which during the assessment.'],
+  ['Will it work with our OT or manufacturing equipment?', 'That’s one of the better reasons to have it. Passive monitoring is often the only form of security tooling that industrial equipment tolerates.'],
+];
+
+const related = [
+  ['Endpoint Security & Managed EDR', 'The network sees the beacon. The endpoint sees what started it.', '/services/endpoint-security'],
+  ['Email Security & Phishing Protection', 'Zero initial infections showed up on the network last month because that phase happens in the inbox.', '/services/email-security'],
+  ['Managed SOC', 'Detection is only worth what the response is worth. 657 investigations last month, 620 closed without escalation.', '/services/cybersecurity#soc'],
+];
+
+const contactHref = '/contact?service=Cybersecurity';
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(([question, answer]) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer },
+  })),
+};
+---
+
+<BaseLayout
+  title="Network Detection & Response (NDR)"
+  description="Network detection and response for Northern Utah businesses. AllTech watches internal and outbound traffic and catches command-and-control your firewall allows."
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="grid lg:grid-cols-12 gap-10 items-center">
+        <div class="lg:col-span-8">
+          <div class="eyebrow mb-4">Network Detection &amp; Response</div>
+          <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+            Your firewall knows what it let through.<br />
+            <span style="color: var(--color-amber-400);">It has no idea what happened next.</span>
+          </h1>
+          <p class="mt-6 text-xl leading-relaxed text-muted">
+            A firewall makes one decision, once, at the edge. Everything an attacker does afterward
+            — the check-in to a control server, the sweep of your file shares, the slow copy of a
+            folder out the door — happens on traffic the firewall already approved. AllTech puts
+            sensors inside the network, learns what normal looks like for each machine, and acts on
+            the traffic that stops matching.
+          </p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href={contactHref} class="btn btn-primary">Schedule a network assessment <span aria-hidden="true">→</span></a>
+            <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+          </div>
+        </div>
+
+        <!-- The 47-second figure is the strongest asset on the page; it earns
+             hero placement visually even though the hero copy doesn't state it. -->
+        <div class="lg:col-span-4">
+          <div class="card">
+            <div class="font-display text-6xl font-bold leading-none" style="color: var(--color-amber-500);">47<span class="text-3xl">s</span></div>
+            <div class="mt-3 font-semibold" style="color: var(--color-text-primary);">Average time to autonomous action</div>
+            <p class="mt-2 text-sm leading-relaxed" style="color: var(--color-text-default);">
+              From the first anomalous packet to the connection being blocked — with no one waiting
+              on a human to approve it.
+            </p>
+            <p class="mt-3 text-xs" style="color: var(--color-text-subtle);">
+              AllTech network monitoring, {REPORT_PERIOD}.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- The problem -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">The problem</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Attackers don't break through the firewall. They use the connection you already allow.
+      </h2>
+      <div class="mt-6 space-y-5 text-lg leading-relaxed text-muted">
+        <p>Port 443 has to be open. Your staff need HTTPS, your line-of-business apps need HTTPS, your backup agent needs HTTPS. So does malware. Once something is running on a machine inside your network, its first job is to phone home — and it does that over an encrypted outbound connection to a host that has no reputation problem yet, on the one port you cannot close.</p>
+        <p>Your firewall sees a permitted connection to a permitted port. It is not wrong. It is answering a different question than the one that matters.</p>
+        <p>The question that matters is behavioral: has this machine ever talked to that destination before? Does it check in every 47 seconds like clockwork, the way a human never does? Did a workstation that has never touched the file server suddenly enumerate all of it? Is a server that normally sends 40 megabytes a day sending 40 gigabytes tonight?</p>
+        <p>Answering that requires a baseline of every device on the network and a system watching for departures from it. That is what network detection and response is.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- What's included -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">What's included</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Sensors inside the network, not just at the edge
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {included.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- In practice — the funnel -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">In practice</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What a month of network monitoring actually looks like
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Between June 1 and July 1, 2026, on one client network we monitor, the platform recorded
+          roughly 908 million events — about 350 every second, all month, without a break. Here is
+          what happened to them.
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {funnel.map(([figure, label, body]) => (
+          <div class="card">
+            <div class="font-display text-3xl font-bold mb-1" style="color: var(--color-amber-500);">{figure}</div>
+            <div class="font-semibold mb-2" style="color: var(--color-text-primary);">{label}</div>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 text-lg leading-relaxed text-muted max-w-3xl">
+        Sixteen of the twenty-three incidents — and three of the four critical ones — were command
+        and control: a machine inside the network talking to something outside it in a way it never
+        had before. That is not an edge problem. There is no edge left to catch it at.
+      </p>
+    </div>
+  </section>
+
+  <!-- The pattern -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">The pattern</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Half of what we caught was something already inside, checking in
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          The ten models that fired most often last month were not exotic. Ranked by volume:
+        </p>
+      </div>
+
+      <div class="overflow-x-auto -mx-2 px-2">
+        <table class="w-full min-w-[520px] text-sm border-collapse">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--color-border-default);">
+              <th class="text-left font-semibold py-3 pr-4" style="color: var(--color-text-primary);">What fired</th>
+              <th class="text-right font-semibold py-3 px-4 whitespace-nowrap" style="color: var(--color-text-primary);">Alerts</th>
+              <th class="text-right font-semibold py-3 pl-4 whitespace-nowrap" style="color: var(--color-text-primary);">Devices</th>
+            </tr>
+          </thead>
+          <tbody>
+            {topModels.map(([what, alerts, devices]) => (
+              <tr style="border-bottom: 1px solid var(--color-border-subtle);">
+                <td class="py-3 pr-4 leading-snug" style="color: var(--color-text-default);">{what}</td>
+                <td class="py-3 px-4 text-right font-mono" style="color: var(--color-amber-600);">{alerts}</td>
+                <td class="py-3 pl-4 text-right font-mono" style="color: var(--color-text-muted);">{devices}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-8 space-y-5 text-lg leading-relaxed text-muted max-w-3xl">
+        <p>Sixty of those alerts — more than half the top ten — describe the same behavior at different speeds: something on the network establishing and maintaining a connection to a host outside it on a schedule. Some of that is legitimate software doing exactly what it was designed to do. Remote management agents beacon. Backup clients beacon. Telemetry beacons.</p>
+        <p>That is precisely the point. The beacon is not what tells you it is malicious. The baseline is: which machine, to where, since when, and does it match what that machine has always done. A tool that only knows “beaconing is suspicious” generates 60 tickets. A tool that knows what every device on that network normally does generates 23 incidents, and four of them matter.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Response -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">Response</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Eight actions, five devices, no phone calls
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Detection is the easy half. Last month the platform took 8 autonomous actions across
+          5 devices:
+        </p>
+      </div>
+
+      <div class="grid gap-2.5 max-w-3xl mb-10">
+        {actions.map(([n, body]) => (
+          <div class="flex items-start gap-4">
+            <span class="font-display text-xl font-bold shrink-0 w-6 text-right" style="color: var(--color-amber-500);">{n}</span>
+            <span class="leading-snug text-muted">{body}</span>
+          </div>
+        ))}
+      </div>
+
+      <div class="grid sm:grid-cols-3 gap-4">
+        <div class="card">
+          <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">All eight were autonomous</h3>
+          <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">Zero required a human to approve them first. Nobody had to be awake.</p>
+        </div>
+        <div class="card">
+          <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">The average delay was 47 seconds</h3>
+          <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">From the platform first observing the behavior to acting on it. The industry's own benchmark for a fast human SOC is measured in minutes, and the realistic number for most small businesses — where the “SOC” is whoever checks email in the morning — is measured in hours.</p>
+        </div>
+        <div class="card">
+          <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">Zero were cleared</h3>
+          <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">When an operator reviews an action and concludes the behavior was actually benign, they clear it and the block comes off. That happened zero times in thirty days. Eight actions, eight of them justified on review.</p>
+        </div>
+      </div>
+
+      <p class="mt-8 text-lg leading-relaxed text-muted max-w-3xl">
+        Every action was surgical — the specific connection or the specific device held to its own
+        normal behavior. Nothing was quarantined off the network wholesale, and nobody lost a
+        working day to a false positive.
+      </p>
+    </div>
+  </section>
+
+  <!-- The other 182 -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">What else it found</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Nothing was attacking. Here's what we learned anyway.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Alongside the 220 security alerts, the platform raised 182 policy and compliance alerts —
+          things that aren't attacks but that a business would want to know are happening on its
+          network. None of them triggered a response action. None became an incident. All of them
+          are the kind of thing that never surfaces until someone is looking.
+        </p>
+      </div>
+
+      <div class="overflow-x-auto -mx-2 px-2">
+        <table class="w-full min-w-[520px] text-sm border-collapse">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--color-border-default);">
+              <th class="text-left font-semibold py-3 pr-4" style="color: var(--color-text-primary);">What it found</th>
+              <th class="text-right font-semibold py-3 px-4 whitespace-nowrap" style="color: var(--color-text-primary);">Alerts</th>
+              <th class="text-right font-semibold py-3 pl-4 whitespace-nowrap" style="color: var(--color-text-primary);">Devices</th>
+            </tr>
+          </thead>
+          <tbody>
+            {compliance.map(([what, alerts, devices]) => (
+              <tr style="border-bottom: 1px solid var(--color-border-subtle);">
+                <td class="py-3 pr-4 leading-snug" style="color: var(--color-text-default);">{what}</td>
+                <td class="py-3 px-4 text-right font-mono" style="color: var(--color-amber-600);">{alerts}</td>
+                <td class="py-3 pl-4 text-right font-mono" style="color: var(--color-text-muted);">{devices}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-10 grid sm:grid-cols-2 gap-4">
+        <div class="card">
+          <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">Remote management software on 49 devices</h3>
+          <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">Most of it is ours — the tools we use to administer the environment, doing exactly what they're supposed to. That's the point. The value isn't in flagging remote access; it's in having the complete list. Unauthorized remote management software is one of the most common ways an attacker keeps a foothold after the initial break-in, and it is invisible precisely because it looks like IT doing its job. You cannot notice the one that doesn't belong until you know all the ones that do.</p>
+        </div>
+        <div class="card">
+          <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">DNS over HTTPS on four devices</h3>
+          <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">DNS filtering works by seeing your DNS queries. Encrypted DNS routes them around it. Four devices were doing that — usually a browser default rather than anything deliberate, and always worth correcting, because it silently disables a control you're paying for.</p>
+        </div>
+        <div class="card">
+          <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">Fourteen alerts about generative AI</h3>
+          <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">Devices beaconing to and uploading data to AI services the network had rarely or never seen before. We have no opinion about whether your staff should use AI tools. We do think you should know which tools, from which machines, and how much is going up.</p>
+        </div>
+        <div class="card">
+          <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">Credentials in the clear</h3>
+          <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">Four alerts covering LDAP authentication and a credential sent over plain HTTP. Small numbers, unglamorous, and the sort of thing that turns a single compromised workstation into a domain-wide problem.</p>
+        </div>
+      </div>
+
+      <p class="mt-8 text-lg leading-relaxed text-muted max-w-3xl">
+        Not one of these was an attack. Every one of them is a decision someone should get to make
+        deliberately rather than by default.
+      </p>
+    </div>
+  </section>
+
+  <!-- Honest limits -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">Honest limits</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        The network never sees the first move
+      </h2>
+      <p class="mt-6 text-lg leading-relaxed text-muted">
+        The platform classifies each thing it finds by which phase of an attack it would correspond
+        to. Last month, out of 37 events:
+      </p>
+
+      <div class="mt-8 grid gap-2.5 not-prose">
+        {phases.map(([phase, count, pct]) => (
+          <div class="flex items-baseline gap-4 py-2" style="border-bottom: 1px solid var(--color-border-subtle);">
+            <span class="font-display text-xl font-bold w-8 shrink-0 text-right" style={`color: ${count === '0' ? 'var(--color-text-subtle)' : 'var(--color-amber-500)'};`}>{count}</span>
+            <span class="flex-1 leading-snug" style="color: var(--color-text-default);">{phase}</span>
+            <span class="font-mono text-sm shrink-0" style="color: var(--color-text-subtle);">{pct}</span>
+          </div>
+        ))}
+      </div>
+
+      <div class="mt-8 space-y-5 text-lg leading-relaxed text-muted">
+        <p>Zero initial infections. Not because none occurred — because network monitoring is structurally incapable of seeing that moment. The click on the link happens in a browser. The macro runs in Word. The credential gets typed into a convincing fake login page. None of that generates a network event that looks any different from the ten thousand ordinary ones around it.</p>
+        <p>Network detection picks the story up at step two, when whatever got in starts reaching out. That is genuinely valuable — most attacks are quiet for days or weeks between the foothold and the damage, and that gap is where they get caught. But it is a layer, not a solution. <a href="/services/email-security" class="font-medium" style="color: var(--color-amber-600);">Email filtering</a> is what addresses the click. <a href="/services/endpoint-security" class="font-medium" style="color: var(--color-amber-600);">Endpoint detection</a> is what addresses the macro. If a vendor tells you their network product covers the whole chain, they are describing a product that does not exist.</p>
+      </div>
+
+      <p class="mt-8 text-sm" style="color: var(--color-text-subtle);">
+        Figures from AllTech network monitoring, {REPORT_PERIOD}. All figures are network-derived.
+      </p>
+    </div>
+  </section>
+
+  <!-- Fit -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Fit</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Where NDR earns its cost, and where it doesn't
+        </h2>
+      </div>
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div>
+          <h3 class="font-display text-lg font-bold mb-4" style="color: var(--color-text-primary);">It's a strong fit if you have</h3>
+          <div class="grid gap-3">
+            {strongFit.map((item) => (
+              <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span class="leading-snug text-muted">{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <h3 class="font-display text-lg font-bold mb-4" style="color: var(--color-text-primary);">It's a weaker fit if</h3>
+          <div class="grid gap-3">
+            {weakFit.map((item) => (
+              <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M5 10h10" stroke="var(--color-slate-400)" stroke-width="2" stroke-linecap="round" />
+                </svg>
+                <span class="leading-snug text-muted">{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Getting started -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Getting started</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          From install to baseline
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {steps.map(([n, title, body]) => (
+          <div class="card">
+            <div class="font-display text-2xl font-bold mb-2" style="color: var(--color-amber-500);">{n}</div>
+            <h3 class="font-display text-base font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">FAQ</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Common questions
+      </h2>
+      <div class="mt-8 space-y-6 not-prose">
+        {faqs.map(([q, a]) => (
+          <div>
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{q}</h3>
+            <p class="leading-relaxed text-muted">{a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Related services -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Related services</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Network detection works best in layers
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {related.map(([title, body, href]) => (
+          <a href={href} class="card group block">
+            <h3 class="font-display text-lg font-bold mb-2 group-hover:text-[var(--color-amber-600)] transition" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+            <span class="mt-3 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">Learn more <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="surface-dark py-16 lg:py-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Find out what's already talking on your network.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          We'll map your network, place sensors, and show you what two weeks of your own traffic
+          actually contains — every device, every destination, every schedule. Most businesses find
+          at least one machine reaching somewhere nobody authorized. Plain findings, no pressure.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Schedule a network assessment <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

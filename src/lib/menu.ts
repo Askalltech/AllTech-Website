@@ -33,7 +33,7 @@ export const menuCategories: MenuCategory[] = [
     tiles: [
       { title: 'Endpoint Security',   description: 'EDR & ransomware protection',                href: '/services/endpoint-security' },
       { title: 'Email Security',      description: 'Stop phishing, BEC, malware before delivery', href: '/services/email-security' },
-      { title: 'Network Detection (NDR)', description: 'AI anomaly-based network threat detection',  href: '/services/cybersecurity#ndr' },
+      { title: 'Network Detection (NDR)', description: 'AI anomaly-based network threat detection',  href: '/services/network-detection' },
       { title: 'Managed SOC',         description: '24/7 monitoring & response',                  href: '/services/cybersecurity#soc' },
       { title: 'Penetration Testing', description: 'External, internal, web-app testing',         href: '/services/cybersecurity#pentest' },
       { title: 'Incident Response',   description: 'Active intrusion containment & forensics',    href: '/services/cybersecurity#ir' },
