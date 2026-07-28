@@ -1,0 +1,431 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * Figures are from AllTech SOC monitoring, June 1 – July 1, 2026.
+ *
+ * FRAMING: every figure here is an AGGREGATE across all monitored
+ * environments, never a single client's month. One client accounts for a
+ * large share of the 63 incidents; a typical monitored client saw two or
+ * three. Do not reframe these as "a typical client's month."
+ *
+ * PRIVACY: the source incident export names client organizations, client
+ * email addresses, internal IPs, and hostnames containing surnames. None of
+ * it appears here, and no screenshot of that export may ever illustrate this
+ * page — build a mock queue with fabricated rows if a visual is wanted.
+ *
+ * CLAIMS: the 39 "resolved" incidents were worked to closure, NOT confirmed
+ * attacks. Never let that drift into "39 attacks stopped."
+ *
+ * Asset counts are phrased as "more than 1,200" so they stay compatible with
+ * the endpoint page's "nearly 1,300 endpoints" — those count different things
+ * (SOC agents vs EDR/AV hosts) and the two pages get read side by side.
+ */
+const REPORT_PERIOD = 'June 1 – July 1, 2026';
+
+const feeds = [
+  ['Endpoint event logs', 'The Windows security log on every workstation and server — account creation, group membership changes, service installation, logon activity. This is the layer that catches an attacker who already has valid credentials and isn’t running anything a scanner would flag.'],
+  ['EDR and antivirus telemetry', 'Behavioral detections and malware mitigations from the endpoint agents, escalated into the same queue as everything else rather than sitting in a separate console.'],
+  ['Microsoft 365 sign-in analysis', 'Where the login came from, whether the location fits the account’s history, and whether the pattern matches credential stuffing or a legitimate trip.'],
+  ['Microsoft 365 risk detections', 'Microsoft’s own identity risk signals — anonymous IP address use, unfamiliar sign-in properties, anomalous token activity — pulled in and triaged rather than left in a portal.'],
+  ['Microsoft 365 audit logs', 'Mailbox rule changes, role assignments, permission grants. The quiet post-compromise activity that never generates a failed login.'],
+  ['Firewall and network telemetry', 'Perimeter activity correlated against what the endpoints and cloud accounts were doing at the same time.'],
+  ['Advanced breach detection', 'Correlation rules that fire on a sequence of events rather than any single one, catching the patterns that look ordinary in isolation.'],
+];
+
+const funnel = [
+  ['1,220,546', 'logs and events triaged', 'Roughly 40,000 a day, collected across every monitored environment and reviewed in a single queue.'],
+  ['63', 'incidents raised', 'About two a day. Roughly 19,000 log entries behind every incident that reached a human as a real question.'],
+  ['39 / 24', 'investigated / tuned out', 'Thirty-nine worked to closure. Twenty-four closed as expected activity and tuned so the same benign pattern wouldn’t raise a second one.'],
+  ['0', 'still open at month end', 'Every incident raised in the period was closed within the period.'],
+];
+
+// Section 7 — incident origin. Single series (incident count) split by origin,
+// so one hue and direct labels; no legend, no categorical cycling. Bars are
+// scaled to share-of-total, which is what makes the 7.9% land.
+const origins = [
+  ['Cloud identity', 'Microsoft 365 sign-ins, risk detections, role changes', 32, 50.8],
+  ['Endpoint event logs', 'Account creation, group changes, service installs', 26, 41.3],
+  ['Antivirus and EDR detections', 'The layer most businesses think of as “security”', 5, 7.9],
+];
+
+const escalations = [
+  ['A remote access tool installed itself as a service', 'A managed machine logged a new service installation for a commercial remote-support application. Legitimate software, widely used, and also one of the most common tools in active intrusions — attackers install it because it looks like IT. Escalated, traced back to who installed it and why, closed.'],
+  ['Malware mitigated on two machines the same day', 'Two separate endpoints, two installer files masquerading as PDF utilities, both stopped by the agent before execution. The tool did its job. The SOC’s job was confirming nothing else on those machines had changed first.'],
+  ['A phishing PDF caught on a workstation, with follow-up', 'The attachment was blocked. The investigation was about the four related events behind it and whether anyone else had received the same message.'],
+  ['Defense evasion via a scripting engine', 'Two related detections for behavior consistent with an attempt to bypass endpoint monitoring — the category of activity that never has a file to scan, and never appears in an antivirus report.'],
+  ['An account added to a privileged group — and a phone call', 'A user was added to a security group on a domain controller outside a change window. Across 1,220,546 log entries that month, this is the one that got a phone call rather than a ticket.'],
+  ['Repeated Microsoft 365 sign-ins from outside the country', 'One account produced successful foreign logins across most of the month, including a single day with over 1,500 associated events. Investigated, escalated, and closed. It is worth being blunt about this one: a tool would have alerted on the first login and then produced 1,500 more. A SOC establishes what it is on day one and then handles the rest quietly.'],
+];
+
+const limits = [
+  ['A SOC prevents nothing', 'Every one of those 63 incidents happened. Detection and response is what you do because prevention is never complete — it is the second layer, not a substitute for the first. If your endpoints are unpatched and your accounts don’t have MFA, fix that before you buy monitoring.'],
+  ['Suppression is a judgment call, and judgment calls can be wrong', 'Twenty-four decisions last month were “this is expected activity in this environment.” We think all twenty-four were right. The honest framing is that a SOC trades a small risk of tuning out something real against the certainty that an untriaged alert stream gets ignored entirely. Every suppression is logged and reviewable.'],
+  ['Zero open incidents requires you to answer the phone', 'Every incident closed last month, but some of them closed because someone at the client confirmed what a login or an account change was. A SOC with no one to escalate to stalls at the escalation step.'],
+  ['Sixty-three incidents in a month is not a lot', 'That is the total across everything we monitor, not one company’s month — a typical monitored client saw two or three. If you are expecting a dramatic weekly report, this is the wrong service. Most months are quiet. You are paying for the coverage on the month that isn’t.'],
+];
+
+const fit = [
+  'You already own EDR, antivirus, or Microsoft 365 E5, and nobody reviews what they report',
+  'Your team is small enough that “security” is one person’s fourth priority',
+  'You operate outside business hours — manufacturing, healthcare, hospitality, municipal',
+  'You are subject to cyber insurance questions, CMMC, HIPAA, or a client security questionnaire that asks who monitors your environment and how quickly',
+  'You’ve had an incident before and the honest answer to “when did it start” was “we don’t know”',
+];
+
+const steps = [
+  ['1', 'Assessment', 'We inventory what you have, what’s reporting, and what isn’t. Most environments have at least one security product that stopped sending data months ago and nobody noticed.'],
+  ['2', 'Deployment and baselining', 'Agents go on endpoints, cloud connectors go into Microsoft 365, firewall logs get pointed at the collector. Then we spend the first few weeks learning what normal looks like in your environment — which is what makes suppression possible later.'],
+  ['3', 'Monitoring and triage', 'Alerts land in the queue 24/7. Analysts triage, investigate, and either close them or escalate. You hear from us when something needs you, not when something fires.'],
+  ['4', 'Escalation and reporting', 'Real incidents come to you with what happened, what we’ve already done, and what you need to decide. Monthly reporting shows the full picture, including everything we closed without calling.'],
+];
+
+const faqs = [
+  ['Is this your own SOC or someone else’s?', 'We operate the monitoring, triage, and escalation for your environment, on a platform built for multi-tenant security operations. What matters practically is that the escalation path ends with the people who already manage your network — not with a ticket queue that has to ask you what a domain controller is.'],
+  ['How fast do you respond?', 'Alerts are triaged around the clock. Escalation speed depends on severity — a privileged group change on a domain controller gets a phone call; a suppressed duplicate gets logged. Last month every incident raised in the period was closed within the period.'],
+  ['Do we have to replace our current security tools?', 'Usually not. The SOC ingests from what you have where the integration exists. The assessment tells you where there’s a real gap versus where there’s just a console nobody opens.'],
+  ['What happens if you find something at 3 a.m.?', 'It gets triaged at 3 a.m. Whether you get woken up depends on what it is, and we agree on that threshold with you during onboarding rather than guessing.'],
+  ['Isn’t this what our IT provider already does?', 'Ask them who reads the alerts, when, and what the escalation path is at midnight on a Saturday. It’s a fair question and it has a specific answer. Nine of last month’s incidents arrived on a weekend.'],
+  ['Will this generate a pile of alerts we have to deal with?', 'The opposite is the point. Of 1.2 million log entries last month, 63 became incidents and 39 needed any client involvement at all.'],
+];
+
+const related = [
+  ['Endpoint Security & Managed EDR', 'The agents that generate a share of what the SOC reads. Five of last month’s 63 incidents came from this layer.', '/services/endpoint-security'],
+  ['Email Security & Phishing Protection', 'Most cloud identity incidents start with a message. Filtering reduces what the SOC has to catch later.', '/services/email-security'],
+  ['Network Detection & Response', 'The network layer of the same picture — what a device did after it was compromised.', '/services/network-detection'],
+  ['Microsoft 365 & Entra ID', 'Half of last month’s incidents originated in cloud identity. Conditional access and MFA policy are where most of them get prevented instead of detected.', '/services/cloud-microsoft-365'],
+];
+
+const contactHref = '/contact?service=Cybersecurity';
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(([question, answer]) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer },
+  })),
+};
+---
+
+<BaseLayout
+  title="Managed SOC — 24/7 Security Monitoring"
+  description="A 24/7 security operations center for Northern Utah businesses. AllTech's SOC triages the alerts your security tools generate and calls you when one matters."
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">Managed SOC</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          Every security tool you own generates alerts.<br />
+          <span style="color: var(--color-amber-400);">Somebody has to read them.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">
+          Detection is the easy part now. The hard part is the 40,000 log entries a day that arrive
+          behind it, and the judgment call about which twenty of them are worth interrupting your
+          Tuesday for. AllTech runs a security operations center that reads them — around the clock,
+          including the 2 a.m. ones, and including the ones that turn out to be nothing.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Schedule a security review <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- The problem -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">The problem</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Buying the tool is not the same as watching it
+      </h2>
+      <div class="mt-6 space-y-5 text-lg leading-relaxed text-muted">
+        <p>Most businesses that get breached had the product that would have caught it. It was installed, it was licensed, and it fired an alert. The alert went to a dashboard nobody had logged into that week, or to a distribution list that everyone had filtered into a folder six months earlier.</p>
+        <p>This is the actual failure mode. Not a missing product — an unread one. Security tools are built to be sensitive, because a tool that stays quiet is a tool that gets blamed. So they flag the new local account, the sign-in from an unusual country, the remote access tool that just installed itself as a service. All three of those are routine most of the time. All three of them are also exactly what an attacker does. Nothing in the alert tells you which one you're looking at.</p>
+        <p>Sorting that out takes a person who knows what normal looks like on your network, has the context to check it against the rest of the environment, and is awake at the time it happens. That person is what a security operations center is. Everything else is licensing.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- The stack -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">The stack</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Seven feeds, one queue, one place they land
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          A SOC is only as good as what it can see. Ours pulls from every layer of the environment
+          we manage, not just the endpoints:
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {feeds.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 text-lg leading-relaxed text-muted max-w-3xl">
+        Last month that added up to more than 1,200 endpoint agents, 44 firewalls, and more than 800
+        Microsoft 365 accounts under continuous monitoring, feeding a single queue reviewed 24 hours
+        a day, 365 days a year.
+      </p>
+    </div>
+  </section>
+
+  <!-- The numbers -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">The numbers</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          1.2 million logs. 63 incidents. Zero left open.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Most security marketing quotes the big number and stops. The big number is the least
+          interesting one. Here is the whole funnel from a single month across the environments we
+          monitor:
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {funnel.map(([figure, label, body]) => (
+          <div class="card">
+            <div class="font-display text-3xl font-bold mb-1" style="color: var(--color-amber-500);">{figure}</div>
+            <div class="font-semibold mb-2" style="color: var(--color-text-primary);">{label}</div>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 text-lg leading-relaxed text-muted max-w-3xl">
+        Incidents landed on 23 of the 31 days in the period, and nine of them arrived on a weekend.
+        The longest completely quiet stretch was three days. There is no version of this that works
+        as a business-hours service.
+      </p>
+      <p class="mt-6 text-sm" style="color: var(--color-text-subtle);">
+        Figures from AllTech SOC monitoring, {REPORT_PERIOD}, aggregated across all monitored
+        environments.
+      </p>
+    </div>
+  </section>
+
+  <!-- Triage — the strongest section -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">Triage</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        24 of 63 incidents were closed without ever reaching the client
+      </h2>
+      <div class="mt-6 space-y-5 text-lg leading-relaxed text-muted">
+        <p>Twenty-four of last month's sixty-three incidents were suppressed — reviewed, matched against known activity in that environment, closed, and tuned so the same benign pattern wouldn't raise a second one. Thirty-eight percent of the queue.</p>
+        <p>Here is the clearest example. One alert type — a new local user account created on a Windows machine — fired <strong style="color: var(--color-text-primary);">eleven times last month, on eleven different computers</strong>. Ten were technicians imaging hardware, setting up a kiosk, or standing up a service account, and were closed as expected. One wasn't, and was worked as a real investigation.</p>
+        <p>If you had bought that detection and pointed it at your own inbox, you would have received eleven identical alerts, ignored the first four, and been trained by the fifth to ignore the eleventh. That is precisely how the alert that mattered gets missed — not through absence, but through volume.</p>
+        <p>Deciding which of the eleven was different is the entire product. It requires knowing what that environment's technicians were doing that week, and it cannot be done by a rule.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Real incidents -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Real incidents</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The 39 that were worth someone's morning
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">Anonymized, from last month:</p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {escalations.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 text-sm" style="color: var(--color-text-subtle);">
+        All identifying detail removed.
+      </p>
+    </div>
+  </section>
+
+  <!-- The finding — origin split -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">The finding</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          More incidents started in the cloud than on the endpoints
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Broken down by origin, last month's 63 incidents split like this:
+        </p>
+      </div>
+
+      <figure class="max-w-3xl m-0">
+        <div class="grid gap-5">
+          {origins.map(([label, detail, count, pct]) => (
+            <div>
+              <div class="flex items-baseline justify-between gap-4 mb-2">
+                <span class="font-semibold" style="color: var(--color-text-primary);">{label}</span>
+                <span class="font-mono text-sm shrink-0" style="color: var(--color-text-default);">
+                  {count} <span style="color: var(--color-text-subtle);">·</span> {pct}%
+                </span>
+              </div>
+              <div class="h-2.5 w-full rounded-full overflow-hidden" style="background: var(--color-border-subtle);">
+                <div class="h-full rounded-full" style={`width: ${pct}%; background: var(--color-amber-500);`}></div>
+              </div>
+              <p class="mt-1.5 text-sm" style="color: var(--color-text-muted);">{detail}</p>
+            </div>
+          ))}
+        </div>
+        <figcaption class="mt-6 text-sm" style="color: var(--color-text-subtle);">
+          Incident origin, all monitored environments, {REPORT_PERIOD}. n = 63.
+        </figcaption>
+      </figure>
+
+      <div class="mt-10 space-y-5 text-lg leading-relaxed text-muted max-w-3xl">
+        <p>Just five of the 63 came from antivirus or EDR firing on something malicious. That is the layer most businesses think of as “security,” and it accounted for under eight percent of what actually needed looking at.</p>
+        <p>The majority started with a valid credential being used in a way that didn't fit — a login from the wrong country, an account added to a group it shouldn't be in, a new local user on a machine at midnight. No malware involved. Nothing for antivirus to catch.</p>
+        <p>This is the argument for monitoring the whole environment rather than buying one product for the part of it that has a good marketing budget.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Honest expectations -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Honest expectations</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Worth saying plainly
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        {limits.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Fit -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">Fit</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        This is worth it if any of these are true
+      </h2>
+      <div class="mt-8 grid gap-3 not-prose">
+        {fit.map((item) => (
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="leading-snug text-muted">{item}</span>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 text-lg leading-relaxed text-muted">
+        <strong style="color: var(--color-text-primary);">Probably not worth it if:</strong> you have
+        a staffed internal security team already, or you're small enough that your entire environment
+        is a handful of laptops and a Microsoft 365 tenant with MFA enforced. We'll tell you if
+        that's the case.
+      </p>
+    </div>
+  </section>
+
+  <!-- Getting started -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Getting started</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Four steps, most of it on us
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {steps.map(([n, title, body]) => (
+          <div class="card">
+            <div class="font-display text-2xl font-bold mb-2" style="color: var(--color-amber-500);">{n}</div>
+            <h3 class="font-display text-base font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">FAQ</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Common questions
+      </h2>
+      <div class="mt-8 space-y-6 not-prose">
+        {faqs.map(([q, a]) => (
+          <div>
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{q}</h3>
+            <p class="leading-relaxed text-muted">{a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Related services -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Related services</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          A SOC is only as good as what feeds it
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        {related.map(([title, body, href]) => (
+          <a href={href} class="card group block">
+            <h3 class="font-display text-lg font-bold mb-2 group-hover:text-[var(--color-amber-600)] transition" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+            <span class="mt-3 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">Learn more <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="surface-dark py-16 lg:py-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Find out whether anyone is actually reading your alerts.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          We'll inventory your security tools, check which ones are still reporting and to whom, and
+          show you what a month of your own alert data looks like once someone sorts it. Most
+          businesses find at least one product they're paying for that stopped sending data and
+          never said so. Plain findings, no pressure.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Schedule a security review <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
