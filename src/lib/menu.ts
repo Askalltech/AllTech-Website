@@ -44,11 +44,11 @@ export const menuCategories: MenuCategory[] = [
     sublabel: 'Powered by Cloudflare',
     href: '/services/cloudflare-zero-trust',
     tiles: [
-      { title: 'Zero Trust Access (ZTNA)', description: 'Identity-aware VPN replacement for remote teams', href: '/services/cloudflare-zero-trust#access' },
+      { title: 'Zero Trust Access (ZTNA)', description: 'Identity-aware VPN replacement for remote teams', href: '/services/tunnel-warp' },
       { title: 'Secure Web Gateway',       description: 'Cloud-delivered DNS and HTTP threat filtering',   href: '/services/cloudflare-zero-trust#gateway' },
       { title: 'Email Security',           description: 'Pre-inbox phishing defense for cloud mailboxes',  href: '/services/email-security' },
       { title: 'DNS & DDoS Protection',    description: 'Authoritative DNS and automated attack mitigation', href: '/services/cloudflare-zero-trust#dns' },
-      { title: 'Private Cloud Routing',    description: 'Connect infrastructure without public IP exposure', href: '/services/tunnel-warp' },
+      { title: 'Private Cloud Routing',    description: 'Connect infrastructure without public IP exposure', href: '/services/cloudflare-zero-trust#tunnel' },
     ],
   },
   {
