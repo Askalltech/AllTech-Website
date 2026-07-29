@@ -60,10 +60,13 @@ const serviceSchema = {
           { id: 'gateway', title: 'Secure Web Gateway', body: 'Cloud-delivered DNS filtering, HTTP inspection, and tenant control list policies replacing legacy on-prem proxies.', href: '/services/secure-web-gateway' },
           { id: 'access', title: 'Zero Trust Access (ZTNA)', body: 'Identity-aware access to internal apps, SSH, and RDP — browser-based or via the WARP private network. The VPN replacement for remote teams.', href: '/services/zero-trust-access' },
           { id: 'email', title: 'Email Security', body: 'Cloudflare Area 1 protection in front of Microsoft 365 or Google Workspace. Phishing, BEC, malware.', href: '/services/email-security' },
-          { id: 'dns', title: 'DNS & DDoS Protection', body: 'Authoritative DNS with automated attack mitigation at the edge — your records stay resolvable through a volumetric attack.' },
+          { id: 'dns', alias: 'ddos', title: 'DNS & DDoS Protection', body: 'Authoritative DNS with automated attack mitigation at the edge — your records stay resolvable through a volumetric attack.', href: '/services/dns-ddos-protection' },
           { id: 'terraform', title: 'Terraform-managed', body: 'Your environment lives as code. Reviewable, reproducible, version-controlled across sites.' },
-        ].map(({ id, title, body, href }) => (
+        ].map(({ id, alias, title, body, href }) => (
           <div id={id} class="card scroll-mt-24">
+            {/* A fragment never reaches the server, so an old #ddos link can't be
+                redirected — it has to keep resolving here. */}
+            {alias && <span id={alias} class="block scroll-mt-24"></span>}
             <h3 class="font-display text-lg font-semibold mb-2">{title}</h3>
             <p class="text-sm text-muted leading-relaxed">{body}</p>
             {href && (

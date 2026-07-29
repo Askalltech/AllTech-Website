@@ -1,0 +1,502 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * Built from the supplied copy. Two deliberate departures, both flagged:
+ *
+ * 1. Section 03 asked for Cloudflare's published network capacity / PoP count,
+ *    "or omit the number — do not hard-code a stat we can't source." It is
+ *    omitted. Nothing here cites a figure that isn't verifiable.
+ * 2. The supplied canonical ended in .html. Cloudflare Pages serves these
+ *    routes extensionless, so the canonical is extensionless too, matching
+ *    /privacy and /terms.
+ *
+ * Worth confirming before this is treated as a standing capability claim: the
+ * "Spectrum / Magic Transit" card. The copy frames it as optional and
+ * separately scoped, and section 08 is honest that it is a larger engagement on
+ * higher tiers — but whether AllTech has actually delivered either is not
+ * something this repo can establish.
+ */
+
+const problems = [
+  ['DNS lives at the registrar, or at the old web host', "Single-region nameservers, no redundancy, no monitoring, and a control panel someone's former web designer owns."],
+  ['No DNSSEC', 'Nothing cryptographically proves your answers are yours, which leaves room for cache poisoning and resolver spoofing.'],
+  ['Records nobody can explain', 'Stale A records pointing at decommissioned servers, duplicate SPF records breaking mail authentication, TXT entries from a vendor trial in 2019.'],
+  ['The origin IP is public', 'Even behind a proxy, an exposed IP in an old DNS record or mail header lets an attacker bypass every protection you paid for and hit the server directly.'],
+  ['No DDoS plan beyond calling the ISP', "A volumetric attack saturates the circuit before the firewall gets a vote, and the ISP's answer is usually to null-route you — which is indistinguishable from the outage you were trying to prevent."],
+  ['Nobody is watching the TTLs', 'In an incident, a 24-hour TTL means a 24-hour recovery.'],
+];
+
+const layers = [
+  ['Authoritative DNS', "Your zone served from Cloudflare's global anycast network. Every nameserver answers from the nearest edge, so resolution stays fast and no single site failure takes the zone offline."],
+  ['DNSSEC', 'Zone signing enabled and the DS record published at your registrar, so resolvers can verify answers came from you and were not altered in transit.'],
+  ['Always-on L3/L4 DDoS mitigation', 'Volumetric floods — SYN, UDP amplification, DNS reflection — absorbed and dropped at the edge, automatically, with no need for anyone to notice and flip a switch first.'],
+  ['L7 application-layer mitigation', 'HTTP floods, bot traffic, and application-targeted requests filtered with managed rulesets, rate limiting, and challenge actions rather than blanket blocks.'],
+  ['WAF & managed rules', "Cloudflare's managed rulesets in front of any public web application, tuned per site instead of enabled and forgotten."],
+  ['Zone hardening', 'Record audit and cleanup, SPF/DKIM/DMARC verified before cutover, sane TTLs, proxied vs. DNS-only decisions made record by record, and origin IP concealed where the record is proxied.'],
+  ['Optional: Spectrum / Magic Transit', "For TCP/UDP services that aren't HTTP, or for protecting your own IP space and circuit rather than just your published records. Scoped separately — see limitations."],
+];
+
+const anycast = [
+  ['Distance', 'Queries and requests are answered at the edge nearest the user, not backhauled to one data center you rent.'],
+  ['Capacity', 'An attack aimed at your domain is spread across the entire network rather than concentrated on one circuit. Absorption replaces heroics.'],
+  ['Failure domain', 'No single nameserver, region, or link is the thing that takes your zone down.'],
+];
+
+// The only tabular content on the page. Rendered as cards rather than a <table>
+// so it stacks cleanly under 768px without a horizontal scroll container.
+const migration = [
+  {
+    step: '1',
+    name: 'Audit',
+    body: "Export the existing zone, inventory every record, identify what's live and what's dead, confirm registrar access.",
+    risk: 'None — read-only',
+    emphasis: false,
+  },
+  {
+    step: '2',
+    name: 'Stage',
+    body: 'Build the zone in Cloudflare, match records exactly, decide proxied vs. DNS-only per record, lower TTLs at the current provider.',
+    risk: 'None — not yet authoritative',
+    emphasis: false,
+  },
+  {
+    step: '3',
+    name: 'Verify',
+    body: 'Compare staged zone against production record by record. Mail authentication (MX, SPF, DKIM, DMARC) checked explicitly, because this is where migrations break.',
+    risk: 'This is the step that prevents the outage',
+    emphasis: true,
+  },
+  {
+    step: '4',
+    name: 'Cut over',
+    body: 'Update nameservers at the registrar, watch propagation, then enable DNSSEC and mitigation once resolution is confirmed clean.',
+    risk: 'Reversible — old zone stays in place',
+    emphasis: false,
+  },
+];
+
+const underAttack = [
+  ['Detection', 'Mitigation is on before the attack, not configured during it. L3/L4 floods are dropped automatically at the edge.'],
+  ['Escalation', 'For application-layer attacks we tighten rate limits, raise challenge posture, and — if warranted — enable Under Attack Mode for the affected hostnames.'],
+  ['Communication', "You get told what's happening, what we changed, and what the user impact is. In plain language, while it's happening."],
+  ['After', "Written summary: vector, duration, what was blocked, what rules we're keeping, and what we're recommending you change."],
+];
+
+const audience = [
+  ['Anyone whose revenue runs through a website or portal', 'E-commerce, scheduling, client logins, payment pages.'],
+  ['Multi-site organizations', 'One zone, one set of records, one place the truth lives — instead of DNS split across three vendors and two former employees.'],
+  ['Businesses recovering from an outage or an attack', "If you've just been null-routed by your ISP, this is the conversation."],
+  ['Anyone with a cyber-insurance questionnaire in hand', 'DNS integrity and DDoS mitigation show up on renewal forms now.'],
+  ['Organizations that cannot find their registrar login', 'Genuinely common. We fix ownership as part of the engagement.'],
+];
+
+const engage = [
+  ['01', 'ASSESS', 'DNS & exposure review', 'Zone audit, record inventory, mail authentication check, DNSSEC status, and origin-exposure check. Written findings and a migration plan. Often the right first step, and it stands alone.'],
+  ['02', 'DEPLOY', 'Migration & hardening', 'Staged zone build, verified cutover, DNSSEC enabled, mitigation and WAF configured, documentation handed over. Fixed scope.'],
+  ['03', 'OPERATE', 'Managed DNS & mitigation', 'Record changes, rule tuning, attack response, certificate and TTL management, monthly review. When something breaks at 2 a.m., the people who built it answer.'],
+];
+
+const limitations = [
+  ['It does not protect your internet circuit.', "Cloudflare protects what's published through it. A flood aimed at your ISP-assigned IP range still saturates your own pipe. That's what Magic Transit exists for, and it's a separate, larger scope."],
+  ['A leaked origin IP defeats it.', "If an attacker learns your origin address from an old DNS record, a mail header, or a certificate log, they can bypass the edge entirely. We lock the origin firewall to Cloudflare ranges — but this only works if we're allowed to."],
+  ['Non-HTTP services need Spectrum.', 'Proxying protects HTTP/HTTPS. SSH, RDP, SMTP, game and VoIP protocols need Spectrum or Magic Transit, on higher tiers.'],
+  ['Some features are plan-gated.', 'Rate limiting depth, WAF ruleset control, and certificate options vary by Cloudflare tier. We tell you which tier your requirements need before you buy one.'],
+  ['DNS migration has a propagation window.', "Recursive resolvers honor cached TTLs. We lower TTLs in advance to shrink it, but we can't eliminate it."],
+  ['It is not a WAF strategy by itself.', 'Managed rules block known patterns. Business logic abuse, credential stuffing, and API abuse need tuning and review, not just an enabled toggle.'],
+  ["It doesn't fix an application that falls over at 200 concurrent users.", "Mitigation stops attack traffic. It doesn't make an undersized origin fast."],
+];
+
+const faqs = [
+  ['Will moving DNS to Cloudflare break our email?', "Not if it's done properly. MX, SPF, DKIM, and DMARC records are migrated and verified before nameservers change. Mail records are the most common cause of a bad DNS migration, which is why verification is its own step."],
+  ['Do we have to move our domain registration?', 'No. Cloudflare becomes your authoritative DNS while your registrar stays where it is. You update two nameserver entries. We can also consolidate registration later if you want to.'],
+  ['How long is the outage during migration?', "There isn't one, when it's staged correctly. The Cloudflare zone is built and verified before it becomes authoritative, and the old zone stays in place as a fallback."],
+  ['What counts as a DDoS attack big enough to matter?', "For a small business, far less than you'd think. Attacks well under the headline-grabbing sizes are more than enough to take a single office circuit or an unprotected web server offline."],
+  ['Is mitigation something we have to turn on when attacked?', 'L3/L4 mitigation is always on. Application-layer response has an escalation path we manage, including Under Attack Mode when the situation warrants it.'],
+  ['Does this replace our firewall?', 'No. Your firewall controls traffic at your edge. This protects what you publish to the public internet. Different jobs; you want both.'],
+  ['Can we keep internal DNS on our own servers?', 'Yes. Internal resolution stays where it is. This is about your public authoritative zone. For internal hostname routing for remote users, see our Secure Web Gateway page.'],
+  ['What does DNSSEC actually get us?', "It lets resolvers verify that the answer for your domain genuinely came from your zone and wasn't tampered with in transit. It's a signature, not a filter — cheap to enable and increasingly expected on security questionnaires."],
+];
+
+const related = [
+  ['Cloudflare Zero Trust', 'The full Cloudflare One platform this sits inside.', '/services/cloudflare-zero-trust'],
+  ['Secure Web Gateway', 'Outbound filtering — this page is the inbound half.', '/services/secure-web-gateway'],
+  ['Zero Trust Access (ZTNA)', 'Publish internal apps without exposing them to the internet at all.', '/services/zero-trust-access'],
+  ['Managed SOC', 'Humans reviewing what the edge flags.', '/services/managed-soc'],
+  ['Network & Infrastructure', 'The circuit, firewall, and multi-WAN failover underneath.', '/services/network-design'],
+  ['Backup & Disaster Recovery', 'For when the problem is the origin, not the traffic.', '/services/backup-disaster-recovery'],
+];
+
+// DNS & DDoS is a component of the Cloudflare Zero Trust engagement, so the
+// contact deep link uses that existing checkbox rather than adding another
+// option to an already-long form. Must match ContactForm.tsx exactly.
+const contactHref = '/contact?service=Cloudflare%20Zero%20Trust';
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'DNS & DDoS Protection',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'DNS & DDoS Protection — Authoritative DNS & Attack Mitigation',
+  description:
+    'AllTech runs Cloudflare authoritative DNS and DDoS mitigation as a managed service — anycast DNS, DNSSEC, always-on L3/4 and L7 attack absorption, WAF and rate limiting.',
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(([question, answer]) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer },
+  })),
+};
+---
+
+<BaseLayout
+  title="DNS & DDoS Protection — Authoritative DNS & Attack Mitigation"
+  description="AllTech runs Cloudflare authoritative DNS and DDoS mitigation as a managed service — anycast DNS, DNSSEC, always-on L3/4 and L7 attack absorption, WAF and rate limiting. Cloudflare Partner serving Northern Utah."
+  canonical={`${site.url}/services/dns-ddos-protection`}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">Cloudflare Partner · SASE Solutions</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          If your DNS goes down,<br />
+          <span style="color: var(--color-amber-400);">everything goes down with it.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">
+          DNS is the one dependency every other system has. Your website, your email routing, your
+          VPN endpoint, your line-of-business portal — all of it resolves through DNS first. AllTech
+          moves that record set onto Cloudflare's anycast network, signs it, and puts always-on DDoS
+          mitigation in front of everything you publish.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Review our DNS setup <span aria-hidden="true">→</span></a>
+          <a href="#layers" class="btn btn-ghost">See how mitigation works</a>
+        </div>
+        <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
+          <div>Cloudflare Partner</div>
+          <div>Anycast DNS</div>
+          <div>Always-on mitigation</div>
+          <div>Local engineers</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 · The problem -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">01 · The problem</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Nobody owns your DNS.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          In most networks we take over, DNS is a footnote. It was configured once, by somebody who
+          has since left, at a registrar nobody has the login for. It works until it doesn't, and
+          then every system fails at the same time. The recurring findings:
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {problems.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 · What we deploy -->
+  <section id="layers" class="surface-dark py-16 lg:py-20 scroll-mt-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">02 · What we deploy</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Cloudflare DNS and DDoS, run as a managed service.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          We move authoritative DNS to Cloudflare's anycast network, publish it from every edge
+          location simultaneously, and enable mitigation in front of the records that face the
+          public internet. Configuration is documented and version-controlled alongside the rest of
+          your Cloudflare tenant — so the next engineer can read it.
+        </p>
+      </div>
+
+      <!-- The argument of the page: both visitors arrive at the same edge, and
+           only one of them leaves it. The attack arrow is amber and stops. -->
+      <div class="mb-10 -mx-2 overflow-x-auto">
+        <svg viewBox="0 0 920 250" fill="none" aria-hidden="true" class="w-full min-w-[760px] h-auto">
+          <defs>
+            <filter id="dns-shadow" x="-50%" y="-50%" width="220%" height="220%">
+              <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#0a0f1a" flood-opacity="0.08" />
+            </filter>
+          </defs>
+
+          <!-- Sources -->
+          <rect x="0" y="34" width="176" height="62" rx="12" fill="var(--color-bg-surface)" stroke="var(--color-border-default)" stroke-width="1.5" filter="url(#dns-shadow)" />
+          <text x="88" y="71" text-anchor="middle" font-family="var(--font-display)" font-weight="700" font-size="14" fill="var(--color-text-primary)">Legitimate user</text>
+
+          <rect x="0" y="154" width="176" height="62" rx="12" fill="var(--color-bg-surface)" stroke="var(--color-amber-500)" stroke-width="1.5" filter="url(#dns-shadow)" />
+          <text x="88" y="191" text-anchor="middle" font-family="var(--font-display)" font-weight="700" font-size="14" fill="var(--color-text-primary)">Attacker</text>
+
+          <line x1="188" y1="65" x2="242" y2="65" stroke="var(--color-slate-400)" stroke-width="2" />
+          <path d="M236 58l10 7l-10 7" stroke="var(--color-slate-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          <line x1="188" y1="185" x2="242" y2="185" stroke="var(--color-amber-500)" stroke-width="2.5" />
+          <path d="M236 178l10 7l-10 7" stroke="var(--color-amber-500)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+
+          <!-- Cloudflare edge -->
+          <rect x="254" y="18" width="392" height="214" rx="14" fill="var(--color-bg-tint)" stroke="var(--color-amber-500)" stroke-width="1.5" filter="url(#dns-shadow)" />
+          <text x="450" y="45" text-anchor="middle" font-family="var(--font-display)" font-weight="700" font-size="14" fill="var(--color-text-primary)">Cloudflare edge</text>
+          <rect x="280" y="58" width="340" height="28" rx="6" fill="var(--color-bg-surface)" stroke="var(--color-amber-500)" stroke-width="1.2" />
+          <text x="450" y="77" text-anchor="middle" font-family="var(--font-mono)" font-size="11" fill="var(--color-text-default)">Anycast DNS</text>
+          <rect x="280" y="92" width="340" height="28" rx="6" fill="var(--color-bg-surface)" stroke="var(--color-amber-500)" stroke-width="1.2" />
+          <text x="450" y="111" text-anchor="middle" font-family="var(--font-mono)" font-size="11" fill="var(--color-text-default)">L3/L4 mitigation</text>
+          <rect x="280" y="126" width="340" height="28" rx="6" fill="var(--color-bg-surface)" stroke="var(--color-amber-500)" stroke-width="1.2" />
+          <text x="450" y="145" text-anchor="middle" font-family="var(--font-mono)" font-size="11" fill="var(--color-text-default)">L7 WAF &amp; rate limiting</text>
+
+          <line x1="280" y1="172" x2="620" y2="172" stroke="var(--color-amber-500)" stroke-width="1" stroke-dasharray="4 5" />
+          <text x="450" y="194" text-anchor="middle" font-family="var(--font-mono)" font-size="10" fill="var(--color-amber-600)">attack traffic terminates here</text>
+          <text x="450" y="212" text-anchor="middle" font-family="var(--font-mono)" font-size="10" fill="var(--color-amber-600)">and never reaches the origin</text>
+
+          <!-- Only legitimate traffic continues -->
+          <line x1="658" y1="112" x2="722" y2="112" stroke="var(--color-slate-400)" stroke-width="2" />
+          <path d="M716 105l10 7l-10 7" stroke="var(--color-slate-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+
+          <rect x="734" y="81" width="186" height="62" rx="12" fill="var(--color-bg-surface)" stroke="var(--color-border-default)" stroke-width="1.5" filter="url(#dns-shadow)" />
+          <text x="827" y="110" text-anchor="middle" font-family="var(--font-display)" font-weight="700" font-size="14" fill="var(--color-text-primary)">Your origin</text>
+          <text x="827" y="131" text-anchor="middle" font-family="var(--font-mono)" font-size="10" letter-spacing="0.5" fill="var(--color-text-subtle)">IP concealed</text>
+        </svg>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {layers.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · Why anycast matters -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">03 · Why anycast matters</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The attack lands everywhere, so it lands nowhere.
+        </h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4">
+        {anycast.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · Migration -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">04 · Migration</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Four steps, and the risky one is the one everyone skips.
+        </h2>
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-4">
+        {migration.map(({ step, name, body, risk, emphasis }) => (
+          <div class="card" style={emphasis ? 'border-color: var(--color-amber-400);' : ''}>
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-amber-600);">Step {step}</div>
+            <h3 class="font-display text-xl font-semibold mb-3" style="color: var(--color-text-primary);">{name}</h3>
+            <p class="text-sm leading-relaxed mb-4" style="color: var(--color-text-default);">{body}</p>
+            <p class="text-sm leading-relaxed pt-4" style="color: var(--color-text-default); border-top: 1px solid var(--color-line-faint);">
+              <span class="font-mono text-[10px] tracking-wider block mb-1" style="color: var(--color-text-subtle);">RISK</span>
+              {risk}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        Mail is the failure mode. A web record that's wrong is visible in seconds; an SPF record
+        that's wrong is silent for a week and then your invoices are in a spam folder. We verify
+        mail before we touch nameservers.
+      </p>
+    </div>
+  </section>
+
+  <!-- 05 · Under attack -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">05 · Under attack</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What actually happens when it starts.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        {underAttack.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        If we run your <a href="/services/managed-soc" class="font-medium" style="color: var(--color-amber-600);">Managed SOC</a>,
+        this is already in scope. If we don't, it's still covered under managed DNS — see the
+        OPERATE tier below.
+      </p>
+    </div>
+  </section>
+
+  <!-- 06 · Who this is for -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">06 · Who this is for</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Where it makes the most difference.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {audience.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 · How we engage -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">07 · How we engage</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Three ways to start.
+        </h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4">
+        {engage.map(([n, label, title, body], i) => (
+          <div class="card" style={i === 1 ? 'border-color: var(--color-amber-400);' : ''}>
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-amber-600);">{n} · {label}</div>
+            <h3 class="font-display text-xl font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 · Honest limitations -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">08 · Honest limitations</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What this will not do for you.
+        </h2>
+      </div>
+      <div class="max-w-4xl space-y-6">
+        {limitations.map(([title, body]) => (
+          <div class="flex items-start gap-4">
+            <svg class="w-5 h-5 mt-1 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <circle cx="10" cy="10" r="7.5" stroke="var(--color-amber-500)" stroke-width="1.75" />
+              <line x1="10" y1="6" x2="10" y2="11" stroke="var(--color-amber-500)" stroke-width="1.75" stroke-linecap="round" />
+              <circle cx="10" cy="14" r="0.9" fill="var(--color-amber-500)" />
+            </svg>
+            <p class="leading-relaxed" style="color: var(--color-text-default);">
+              <span class="font-display font-bold" style="color: var(--color-text-primary);">{title}</span>{' '}
+              {body}
+            </p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        Related: <a href="/services/secure-web-gateway" class="font-medium" style="color: var(--color-amber-600);">Secure Web Gateway</a> ·
+        <a href="/services/managed-soc" class="font-medium" style="color: var(--color-amber-600);">Managed SOC</a> ·
+        <a href="/services/network-design" class="font-medium" style="color: var(--color-amber-600);">Network &amp; Infrastructure</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- 09 · FAQ -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">09 · FAQ</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Common questions
+      </h2>
+      <div class="mt-8 space-y-6 not-prose">
+        {faqs.map(([q, a]) => (
+          <div>
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{q}</h3>
+            <p class="leading-relaxed text-muted">{a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 · Related services -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">10 · Related services</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The rest of the stack it plugs into
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {related.map(([title, body, href]) => (
+          <a href={href} class="card group block">
+            <h3 class="font-display text-lg font-bold mb-2 group-hover:text-[var(--color-amber-600)] transition" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+            <span class="mt-3 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">Learn more <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="surface-dark py-16 lg:py-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Find out what your DNS is actually publishing.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          Send us your domain and a short note about your environment. We'll run a zone and exposure
+          review, tell you what needs fixing, and be straight with you if what you have is already
+          fine.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Start a conversation <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
