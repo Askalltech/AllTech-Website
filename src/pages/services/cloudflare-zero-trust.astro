@@ -55,16 +55,22 @@ const serviceSchema = {
 
       <div class="lg:col-span-8 grid sm:grid-cols-2 gap-4">
         {[
-          { title: 'Cloudflare Tunnel', body: 'Expose internal apps without opening firewall ports. Multi-site tunnel architectures with failover.' },
-          { title: 'WARP & Device Profiles', body: 'Endpoint client deployed via RMM, with split-tunnel and posture-based policies tailored per role.' },
-          { title: 'Gateway (SWG/DNS)', body: 'DNS filtering, HTTP inspection, and tenant control list policies replacing legacy on-prem proxies.' },
-          { title: 'Access (ZTNA)', body: 'Identity-aware access to internal apps, SSH, and RDP — browser-based or via WARP private network.' },
-          { title: 'Email Security', body: 'Cloudflare Area 1 protection in front of Microsoft 365 or Google Workspace. Phishing, BEC, malware.' },
-          { title: 'Terraform-managed', body: 'Your environment lives as code. Reviewable, reproducible, version-controlled across sites.' },
-        ].map(({ title, body }) => (
-          <div class="card">
+          { id: 'tunnel', title: 'Cloudflare Tunnel', body: 'Expose internal apps without opening firewall ports. Multi-site tunnel architectures with failover.', href: '/services/tunnel-warp' },
+          { id: 'warp', title: 'WARP & Device Profiles', body: 'Endpoint client deployed via RMM, with split-tunnel and posture-based policies tailored per role.', href: '/services/tunnel-warp' },
+          { id: 'gateway', title: 'Secure Web Gateway', body: 'Cloud-delivered DNS filtering, HTTP inspection, and tenant control list policies replacing legacy on-prem proxies.' },
+          { id: 'access', title: 'Zero Trust Access (ZTNA)', body: 'Identity-aware access to internal apps, SSH, and RDP — browser-based or via WARP private network.' },
+          { id: 'email', title: 'Email Security', body: 'Cloudflare Area 1 protection in front of Microsoft 365 or Google Workspace. Phishing, BEC, malware.', href: '/services/email-security' },
+          { id: 'dns', title: 'DNS & DDoS Protection', body: 'Authoritative DNS with automated attack mitigation at the edge — your records stay resolvable through a volumetric attack.' },
+          { id: 'terraform', title: 'Terraform-managed', body: 'Your environment lives as code. Reviewable, reproducible, version-controlled across sites.' },
+        ].map(({ id, title, body, href }) => (
+          <div id={id} class="card scroll-mt-24">
             <h3 class="font-display text-lg font-semibold mb-2">{title}</h3>
             <p class="text-sm text-muted leading-relaxed">{body}</p>
+            {href && (
+              <a href={href} class="mt-3 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">
+                Learn more <span aria-hidden="true">→</span>
+              </a>
+            )}
           </div>
         ))}
       </div>

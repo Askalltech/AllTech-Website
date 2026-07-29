@@ -44,11 +44,11 @@ export const menuCategories: MenuCategory[] = [
     sublabel: 'Powered by Cloudflare',
     href: '/services/cloudflare-zero-trust',
     tiles: [
-      { title: 'Tunnel & WARP',     description: 'Replace your VPN with identity-aware access', href: '/services/cloudflare-zero-trust#tunnel' },
-      { title: 'Access (ZTNA)',     description: 'Per-app authorization with any IdP',          href: '/services/cloudflare-zero-trust#access' },
-      { title: 'Gateway',           description: 'DNS & HTTP filtering as a service',           href: '/services/cloudflare-zero-trust#gateway' },
-      { title: 'Email Security',    description: 'Cloud email security in front of M365',       href: '/services/cloudflare-zero-trust#email' },
-      { title: 'DNS & DDoS',        description: 'Authoritative DNS, attack mitigation',        href: '/services/cloudflare-zero-trust' },
+      { title: 'Zero Trust Access (ZTNA)', description: 'Identity-aware VPN replacement for remote teams', href: '/services/cloudflare-zero-trust#access' },
+      { title: 'Secure Web Gateway',       description: 'Cloud-delivered DNS and HTTP threat filtering',   href: '/services/cloudflare-zero-trust#gateway' },
+      { title: 'Email Security',           description: 'Pre-inbox phishing defense for cloud mailboxes',  href: '/services/email-security' },
+      { title: 'DNS & DDoS Protection',    description: 'Authoritative DNS and automated attack mitigation', href: '/services/cloudflare-zero-trust#dns' },
+      { title: 'Private Cloud Routing',    description: 'Connect infrastructure without public IP exposure', href: '/services/tunnel-warp' },
     ],
   },
   {

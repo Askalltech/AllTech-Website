@@ -1,0 +1,362 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+const problems = [
+  ['Open ports are scanned in minutes', 'Anything published to a public IP gets found. RDP and VPN appliances are the two most common ransomware entry points we see.'],
+  ['All-or-nothing access', 'A VPN grants network access, not application access. One compromised laptop reaches everything on the subnet.'],
+  ['Appliance ceilings', "Concentrator throughput, license tiers, and firmware CVEs all become your problem on a schedule you don't control."],
+  ['Multi-site sprawl', 'Every new location means another IPsec tunnel, another overlapping subnet, another routing table to reconcile.'],
+];
+
+const warpAdvantages = [
+  ['Device profiles', "Different rules for different groups. A field tech, a front-office workstation, and a server admin don't need the same routes or the same posture requirements."],
+  ['Split Tunnel control', 'Exclude mode sends everything through Cloudflare except what you carve out. Include mode does the opposite — only your private ranges route through the tunnel, everything else goes direct. We pick per client, and usually per profile.'],
+  ['Posture-aware access', 'Disk encryption, OS version, EDR presence, domain join, serial number. Fail the check, lose the access — no ticket required.'],
+];
+
+const deploy = [
+  ['Tunnel architecture', 'Connector placement, replica pairs for high availability, and per-site tunnels with clean subnet separation. Designed so no one location is a single point of failure.'],
+  ['WARP rollout', 'Deployed silently through Datto RMM or Intune with your enrollment parameters baked in. Users get the client already logged in, not a PDF with setup instructions.'],
+  ['Device profiles & posture', 'Profiles mapped to your actual roles, with Split Tunnel routes and posture checks tuned per group instead of one global policy that fits nobody.'],
+  ['Private DNS & local fallback', 'Internal hostnames keep resolving. We configure Local Domain Fallback so your domain controllers, NAS shares, and legacy apps answer the way they always have.'],
+  ['Site-to-site replacement', 'Multi-location networks connected through Cloudflare instead of a mesh of IPsec tunnels. Includes OT and industrial segments where the PLC network needs to reach head office and nothing else.'],
+  ['Terraform-managed', 'Your configuration lives as code in version control. Changes are reviewed before they ship and auditable after.'],
+];
+
+const useCases = [
+  'Publishing an internal ERP or scheduling app without exposing it to the internet',
+  'Giving a software vendor RDP access to one server, scoped to their identity, revoked the day the project ends',
+  'Remote staff reaching file shares and line-of-business apps at full speed without a concentrator in the middle',
+  'Connecting a manufacturing floor network to head office without stretching a flat VLAN across sites',
+  'Passing the MFA and remote-access questions on a cyber-insurance renewal',
+  "Retiring a firewall's inbound rule list down to zero",
+];
+
+const engage = [
+  ['01', 'ASSESS', 'VPN & remote access review', "We document what's currently published, who has access to what, and where the VPN is actually being used. You get a written report and a migration plan. Often the right first step."],
+  ['02', 'DEPLOY', 'Fixed-scope rollout', 'Tunnel architecture, WARP deployment, device profiles, DNS, and cutover. Typically 2–6 weeks depending on site count and application inventory. The old VPN stays up until the new path is proven.'],
+  ['03', 'OPERATE', 'Managed Cloudflare', 'Policy changes, user provisioning, connector health monitoring, version upgrades, and incident response. Billed monthly per seat.'],
+];
+
+const faqs = [
+  ['Does this replace our firewall?', 'No. It replaces inbound firewall rules and your VPN. You still want a proper edge device for local segmentation, routing, and WAN failover — we deploy UniFi for that side.'],
+  ['What happens if the internet drops at a site?', 'Local resources stay local. Tunnel connectivity depends on your ISP the same way a VPN does — which is why we design multi-WAN failover alongside it for sites that can’t be offline.'],
+  ['Will our old software work?', "Usually. Tunnel carries SSH, RDP, SMB, and arbitrary TCP over private routing. Anything we're unsure about gets tested during the assessment, before you commit."],
+  ['Do users have to do anything?', 'Log in once. After that WARP runs in the background and reconnects on its own. There’s no “connect to VPN” step in the morning.'],
+  ['Is this only for large companies?', "No. We run this for organizations from a dozen seats up. Cloudflare's Zero Trust tier is free under 50 users, which makes the math work for businesses that could never justify an appliance refresh."],
+];
+
+const related = [
+  ['Access (ZTNA)', 'Per-application authorization with your existing identity provider — the policy layer that decides who reaches what.', '/services/cloudflare-zero-trust#access'],
+  ['Gateway', 'DNS and HTTP filtering as a service, applied to the same WARP-enrolled devices.', '/services/cloudflare-zero-trust#gateway'],
+  ['Network & Infrastructure', 'The edge device, segmentation, and multi-WAN failover that Tunnel sits on top of rather than replaces.', '/services/network-design'],
+  ['AllTech Top 10', 'Where identity-aware remote access fits in the wider security stack we deploy first.', '/services/alltech-top-10'],
+];
+
+// Tunnel & WARP is a component of the Cloudflare Zero Trust engagement, so the
+// contact deep link uses that existing checkbox rather than adding another
+// option to an already-long form. Must match ContactForm.tsx exactly.
+const contactHref = '/contact?service=Cloudflare%20Zero%20Trust';
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Cloudflare Tunnel & WARP Deployment',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Cloudflare Tunnel & WARP — VPN Replacement',
+  description:
+    'AllTech deploys Cloudflare Tunnel and the WARP client to replace legacy VPNs — outbound-only connectivity, no open firewall ports, identity-aware access.',
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(([question, answer]) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer },
+  })),
+};
+---
+
+<BaseLayout
+  title="Cloudflare Tunnel & WARP — VPN Replacement"
+  description="AllTech deploys Cloudflare Tunnel and the WARP client to replace legacy VPNs — outbound-only connectivity, no open firewall ports, identity-aware access. Cloudflare Partner serving Northern Utah."
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">Cloudflare Partner · SASE Solutions</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          Retire the VPN.<br />
+          <span style="color: var(--color-amber-400);">Keep every port closed.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">
+          Cloudflare Tunnel connects your servers, apps, and sites to Cloudflare without a public IP
+          or a single inbound firewall rule. WARP puts every laptop and phone on that same private
+          network — no concentrator to size, no license count to renew, no split-DNS to babysit.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Scope a VPN replacement <span aria-hidden="true">→</span></a>
+          <a href="#how" class="btn btn-ghost">How it works</a>
+        </div>
+        <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
+          <div>Cloudflare Partner</div>
+          <div>Multi-site deployments</div>
+          <div>Terraform-managed</div>
+          <div>Local engineers</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 · The problem -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">01 · The problem</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The VPN was never designed for this.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Most of the networks we take over have the same three problems: a firewall with inbound
+          ports open to the internet because a vendor needed RDP, a VPN concentrator that becomes
+          the bottleneck the moment everyone works remote, and a tunnel that — once a user is on it
+          — puts them on the whole flat network instead of the one app they actually needed.
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        {problems.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 · How it works -->
+  <section id="how" class="surface-dark py-16 lg:py-20 scroll-mt-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">02 · How it works</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Outbound-only, by design.
+        </h2>
+      </div>
+
+      <!-- The whole argument of the page in one diagram: traffic leaves your
+           network toward Cloudflare, never the other way, so the firewall has
+           zero inbound rules. -->
+      <div class="mb-12 -mx-2 overflow-x-auto">
+        <svg viewBox="0 0 920 250" fill="none" aria-hidden="true" class="w-full min-w-[760px] h-auto">
+          <defs>
+            <filter id="tw-shadow" x="-50%" y="-50%" width="220%" height="220%">
+              <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#0a0f1a" flood-opacity="0.08" />
+            </filter>
+          </defs>
+
+          <!-- Panel 1 — user + WARP -->
+          <rect x="0" y="55" width="220" height="120" rx="14" fill="var(--color-bg-surface)" stroke="var(--color-border-default)" stroke-width="1.5" filter="url(#tw-shadow)" />
+          <rect x="80" y="82" width="60" height="38" rx="4" stroke="var(--color-slate-500)" stroke-width="2" />
+          <line x1="70" y1="124" x2="150" y2="124" stroke="var(--color-slate-500)" stroke-width="2.5" stroke-linecap="round" />
+          <circle cx="130" cy="92" r="4" fill="var(--color-teal-500)" />
+          <text x="110" y="152" text-anchor="middle" font-family="var(--font-display)" font-weight="700" font-size="15" fill="var(--color-text-primary)">User + WARP</text>
+
+          <!-- Arrow 1 -->
+          <line x1="232" y1="115" x2="298" y2="115" stroke="var(--color-slate-400)" stroke-width="2" />
+          <path d="M292 108l10 7l-10 7" stroke="var(--color-slate-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+
+          <!-- Panel 2 — Cloudflare -->
+          <rect x="310" y="40" width="240" height="150" rx="14" fill="var(--color-bg-tint)" stroke="var(--color-amber-500)" stroke-width="1.5" filter="url(#tw-shadow)" />
+          <text x="430" y="80" text-anchor="middle" font-family="var(--font-display)" font-weight="700" font-size="15" fill="var(--color-text-primary)">Cloudflare network</text>
+          <rect x="342" y="98" width="176" height="28" rx="6" fill="var(--color-bg-surface)" stroke="var(--color-amber-500)" stroke-width="1.2" />
+          <text x="430" y="117" text-anchor="middle" font-family="var(--font-mono)" font-size="11" fill="var(--color-text-default)">Gateway filtering</text>
+          <rect x="342" y="134" width="176" height="28" rx="6" fill="var(--color-bg-surface)" stroke="var(--color-amber-500)" stroke-width="1.2" />
+          <text x="430" y="153" text-anchor="middle" font-family="var(--font-mono)" font-size="11" fill="var(--color-text-default)">Access policy check</text>
+
+          <!-- Panel 3 — connector + private app -->
+          <rect x="700" y="55" width="220" height="120" rx="14" fill="var(--color-bg-surface)" stroke="var(--color-border-default)" stroke-width="1.5" filter="url(#tw-shadow)" />
+          <rect x="722" y="76" width="176" height="30" rx="6" stroke="var(--color-slate-500)" stroke-width="1.5" />
+          <text x="810" y="96" text-anchor="middle" font-family="var(--font-mono)" font-size="11" fill="var(--color-text-default)">cloudflared</text>
+          <line x1="810" y1="106" x2="810" y2="120" stroke="var(--color-slate-400)" stroke-width="2" />
+          <rect x="722" y="120" width="176" height="30" rx="6" fill="var(--color-bg-tint)" stroke="var(--color-amber-500)" stroke-width="1.5" />
+          <text x="810" y="140" text-anchor="middle" font-family="var(--font-mono)" font-size="11" fill="var(--color-text-default)">private app</text>
+          <text x="810" y="168" text-anchor="middle" font-family="var(--font-mono)" font-size="10" letter-spacing="0.5" fill="var(--color-text-subtle)">no public IP</text>
+
+          <!-- Firewall boundary, and the OUTBOUND arrow that is the whole point:
+               the connector dials out to Cloudflare, so nothing dials in. Drawn
+               last so the labels sit above the panels rather than behind them. -->
+          <line x1="625" y1="30" x2="625" y2="215" stroke="var(--color-slate-400)" stroke-width="1.5" stroke-dasharray="4 5" />
+          <text x="625" y="24" text-anchor="middle" font-family="var(--font-mono)" font-size="10" letter-spacing="1" fill="var(--color-text-subtle)">YOUR FIREWALL</text>
+          <line x1="690" y1="115" x2="566" y2="115" stroke="var(--color-amber-500)" stroke-width="2.5" />
+          <path d="M572 108l-10 7l10 7" stroke="var(--color-amber-500)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+          <text x="625" y="143" text-anchor="middle" font-family="var(--font-mono)" font-size="10" fill="var(--color-amber-600)">outbound 7844 only</text>
+          <text x="625" y="159" text-anchor="middle" font-family="var(--font-mono)" font-size="10" fill="var(--color-amber-600)">zero inbound rules</text>
+        </svg>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-10">
+        <div>
+          <h3 class="font-display text-xl font-bold mb-3" style="color: var(--color-text-primary);">Cloudflare Tunnel</h3>
+          <div class="space-y-4 leading-relaxed text-muted">
+            <p>A lightweight daemon called <code class="font-mono text-sm">cloudflared</code> runs on a server, VM, or container inside your network. It makes outbound-only connections to the nearest Cloudflare data centers on port 7844 — the kind of traffic your firewall already permits. Once established, traffic flows both directions over that connection. Your origin never needs a publicly routable IP, and you can close inbound entirely.</p>
+            <p>A tunnel is a persistent object with its own UUID. You can run multiple <code class="font-mono text-sm">cloudflared</code> connectors against the same tunnel across different hosts, so a reboot or a failed VM doesn't take the connection down. Routes point either to a public hostname or into a private subnet reachable only by authenticated users.</p>
+            <p>It carries more than web traffic: HTTP servers, SSH, RDP, SMB, internal line-of-business apps, and private subnet routing for protocols that legacy reverse proxies can't handle.</p>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="font-display text-xl font-bold mb-3" style="color: var(--color-text-primary);">WARP</h3>
+          <div class="space-y-4 leading-relaxed text-muted">
+            <p>WARP is the endpoint client — the other half of the connection. Installed on Windows, macOS, Linux, iOS, and Android, it enrolls the device into your Cloudflare organization and routes traffic through Cloudflare's network before it reaches the internet or your internal apps.</p>
+            <p>That gives you three things a VPN client doesn't:</p>
+          </div>
+          <div class="mt-5 grid gap-3">
+            {warpAdvantages.map(([title, body]) => (
+              <div class="card">
+                <h4 class="font-display text-base font-bold mb-1.5" style="color: var(--color-text-primary);">{title}</h4>
+                <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+              </div>
+            ))}
+          </div>
+          <p class="mt-5 leading-relaxed text-muted">
+            Because WARP terminates in the same place your tunnels do, users reach private resources
+            by Layer 4 without running <code class="font-mono text-sm">cloudflared access</code>
+            commands on their own machines. It looks like the app is just there.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · What we deploy -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">03 · What we deploy</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Sized for your network, not a demo tenant.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {deploy.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · Where it earns its keep -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">04 · Where it earns its keep</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What clients actually use it for.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-x-10 gap-y-3 max-w-4xl">
+        {useCases.map((item) => (
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="leading-snug text-muted">{item}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 · How we engage -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">05 · How we engage</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Three ways to start.
+        </h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4">
+        {engage.map(([n, label, title, body], i) => (
+          <div class="card" style={i === 1 ? 'border-color: var(--color-amber-400);' : ''}>
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-amber-600);">{n} · {label}</div>
+            <h3 class="font-display text-xl font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 · FAQ -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">06 · FAQ</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Common questions
+      </h2>
+      <div class="mt-8 space-y-6 not-prose">
+        {faqs.map(([q, a]) => (
+          <div>
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{q}</h3>
+            <p class="leading-relaxed text-muted">{a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Related -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Related services</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The rest of the stack it plugs into
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        {related.map(([title, body, href]) => (
+          <a href={href} class="card group block">
+            <h3 class="font-display text-lg font-bold mb-2 group-hover:text-[var(--color-amber-600)] transition" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+            <span class="mt-3 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">Learn more <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="surface-dark py-16 lg:py-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Still running a VPN?
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          Tell us what's published today and how many people connect. We'll do a 30-minute scoping
+          call and tell you honestly whether Tunnel and WARP are the right move — sometimes the
+          answer is fix the firewall first.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Start a conversation <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
