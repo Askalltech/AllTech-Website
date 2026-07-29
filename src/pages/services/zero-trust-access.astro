@@ -48,26 +48,26 @@ const faqs = [
 ];
 
 const related = [
-  ['Access (ZTNA)', 'Per-application authorization with your existing identity provider — the policy layer that decides who reaches what.', '/services/cloudflare-zero-trust#access'],
-  ['Gateway', 'DNS and HTTP filtering as a service, applied to the same WARP-enrolled devices.', '/services/cloudflare-zero-trust#gateway'],
+  ['Secure Web Gateway', 'DNS, network, and HTTP filtering as a service, applied to the same WARP-enrolled devices.', '/services/secure-web-gateway'],
+  ['Cloudflare Zero Trust', 'The full Cloudflare One platform this sits inside — Gateway, Email Security, DNS, and DDoS protection.', '/services/cloudflare-zero-trust'],
   ['Network & Infrastructure', 'The edge device, segmentation, and multi-WAN failover that Tunnel sits on top of rather than replaces.', '/services/network-design'],
   ['AllTech Top 10', 'Where identity-aware remote access fits in the wider security stack we deploy first.', '/services/alltech-top-10'],
 ];
 
-// Tunnel & WARP is a component of the Cloudflare Zero Trust engagement, so the
-// contact deep link uses that existing checkbox rather than adding another
+// Zero Trust Access is a component of the Cloudflare Zero Trust engagement, so
+// the contact deep link uses that existing checkbox rather than adding another
 // option to an already-long form. Must match ContactForm.tsx exactly.
 const contactHref = '/contact?service=Cloudflare%20Zero%20Trust';
 
 const serviceSchema = {
   '@context': 'https://schema.org',
   '@type': 'Service',
-  serviceType: 'Cloudflare Tunnel & WARP Deployment',
+  serviceType: 'Zero Trust Network Access (ZTNA)',
   provider: { '@id': `${site.url}/#organization` },
   areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
-  name: 'Cloudflare Tunnel & WARP — VPN Replacement',
+  name: 'Zero Trust Access (ZTNA) — VPN Replacement',
   description:
-    'AllTech deploys Cloudflare Tunnel and the WARP client to replace legacy VPNs — outbound-only connectivity, no open firewall ports, identity-aware access.',
+    'AllTech deploys Cloudflare Zero Trust Access with Tunnel and the WARP client to replace legacy VPNs — outbound-only connectivity, no open firewall ports, identity-aware access.',
 };
 
 const faqSchema = {
@@ -82,8 +82,8 @@ const faqSchema = {
 ---
 
 <BaseLayout
-  title="Cloudflare Tunnel & WARP — VPN Replacement"
-  description="AllTech deploys Cloudflare Tunnel and the WARP client to replace legacy VPNs — outbound-only connectivity, no open firewall ports, identity-aware access. Cloudflare Partner serving Northern Utah."
+  title="Zero Trust Access (ZTNA) — VPN Replacement"
+  description="AllTech deploys Cloudflare Zero Trust Access with Tunnel and WARP to replace legacy VPNs — outbound-only connectivity, no open firewall ports, identity-aware access. Cloudflare Partner serving Northern Utah."
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />

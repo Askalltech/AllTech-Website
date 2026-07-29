@@ -1,0 +1,534 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * HELD BACK FROM THE SUPPLIED COPY — pending confirmation, do not restore
+ * without checking with AllTech first. Each item is a claim about what AllTech
+ * has actually delivered, not a description of what the platform can do.
+ *
+ * 1. "Egress policies / dedicated egress IPs" capability card. The copy's own
+ *    pre-publish note says to confirm AllTech has delivered this for a client
+ *    before it appears as a capability. Cut until confirmed.
+ * 2. "Managed as code" was softened. The Zero Trust page claims Terraform for
+ *    the tenant overall; whether Gateway POLICY specifically lives in Terraform
+ *    is unconfirmed, so this page says version-controlled alongside the tenant
+ *    rather than asserting Gateway policy is Terraform-managed.
+ *
+ * Still awaiting confirmation but published as-written because the same claim
+ * already appears elsewhere on the site:
+ *  - 4–8 week full rollout (mirrors the Cloudflare Zero Trust page).
+ *  - Client deployment via Datto RMM or Intune (already on the ZTNA page).
+ *
+ * Deliberately NOT added, per the copy: any "X% of breaches start with a
+ * malicious URL" statistic, any catch-rate or efficacy number, and any client's
+ * real category-block list or block-page screenshot.
+ */
+
+const problems = [
+  ['Filtering only applies on-premises', 'Remote and hybrid staff are unfiltered for most of the week — home Wi-Fi, airport hotspots, cell tethering. No policy, and no record of where they went.'],
+  ['DNS filtering with nothing behind it', "Blocking a domain at DNS is fast and cheap, but a user or a piece of malware that knows the IP address still connects. Cloudflare's own guidance is explicit: DNS policies need HTTP policies behind them to be a real control."],
+  ['No visibility into encrypted traffic', 'Almost all web traffic is HTTPS. Without decryption a filter sees the hostname and nothing else — not the URL path, not the file being downloaded, not the data being uploaded.'],
+  ['Nobody reads the logs', 'The appliance is generating records that no one has looked at since the day it was installed.'],
+  ['The appliance is a capital purchase with an end-of-life date', 'It has to be sized for peak load, patched, and replaced on a cycle you pay for whether the threat landscape cooperates or not.'],
+];
+
+const layers = [
+  ['DNS policies', 'Every DNS query your users make gets checked before a connection is ever opened. Block malware, phishing, and command-and-control domains by security category, restrict content categories, and force SafeSearch on Google, Bing, YouTube, and DuckDuckGo. The fastest layer to deploy and the broadest in scope.'],
+  ['Network policies', 'Layer 4 filtering on TCP, UDP, and GRE traffic — by IP, port, protocol, and the server name (SNI) sent at the start of an encrypted connection. This is where non-web traffic gets controlled: SSH, RDP, and anything else trying to leave on an unusual port.'],
+  ['HTTP policies', 'The full request, decrypted and inspected: URL paths, headers, uploads, and downloads. Block a specific page rather than an entire domain. Scan downloads for malware. Quarantine a suspicious file for sandbox analysis before it reaches the endpoint. Allow your company Microsoft 365 tenant while blocking personal accounts on the same service.'],
+  ['Data loss prevention', "Inspect what's leaving, not just what's coming in. DLP profiles detect sensitive data — account numbers, records, source code, custom patterns — in uploads and block the transfer before it completes."],
+  ['Resolver policies & internal DNS', 'Send internal hostnames to your own DNS servers while everything else resolves through Gateway — so private resources still work for users on the client, without splitting DNS management in two.'],
+];
+
+// The only tabular content on the page. Rendered as cards rather than a <table>
+// so it stacks cleanly under 768px without a horizontal scroll container.
+const onRamps = [
+  {
+    name: 'Cloudflare One Client (WARP)',
+    dns: true, network: true, http: true,
+    best: 'Roaming users on managed laptops and phones',
+  },
+  {
+    name: 'DNS resolver configuration',
+    dns: true, network: false, http: false,
+    best: 'Unmanaged devices, guest networks, first-week rollouts',
+  },
+  {
+    name: 'Proxy endpoint (PAC file)',
+    dns: false, network: false, http: 'Browser only',
+    best: 'HTTP filtering without installing an agent',
+  },
+  {
+    name: 'Network tunnel (IPsec/GRE)',
+    dns: true, network: true, http: true,
+    best: 'Branch offices, plant floors, data centers',
+  },
+];
+
+const phases = [
+  ['Phase 1', 'Week 1', 'DNS filtering', 'Point DNS at Gateway, block the security-risk categories, and watch the logs. This alone stops a large share of malware and phishing domains and requires no software on any device. Nothing to install, nothing to decrypt, easy to reverse.'],
+  ['Phase 2', 'Weeks 2–4', 'Device client & network policies', 'Deploy the Cloudflare One Client through Datto RMM or Intune. Filtering now follows the device off-network, and Layer 4 policies can control SSH, RDP, and unusual outbound ports. Split-tunnel and posture rules get set per role here.'],
+  ['Phase 3', 'Weeks 4–8', 'HTTP inspection & DLP', 'Install the Cloudflare root certificate so HTTPS can be decrypted and inspected, then enable download scanning, file sandboxing, and DLP profiles. This is the phase that finds the pinned-certificate app nobody remembered was installed — which is exactly why it goes last and starts with a pilot group.'],
+];
+
+const engage = [
+  ['01', 'ASSESS', 'Filtering & egress review', "We look at what's filtering today, what isn't, and where your traffic actually leaves from. You get a written policy recommendation and a category baseline before anything changes. Often the right first step."],
+  ['02', 'DEPLOY', 'Staged rollout', "DNS-layer filtering first for immediate coverage, then the device client, then HTTP inspection and the root certificate, then DLP. Staged deliberately — every layer we turn on is one more thing that can break a line-of-business app, and we'd rather find that with a pilot group than with your whole company."],
+  ['03', 'OPERATE', 'Managed Gateway', 'Policy changes, category tuning, block-page exceptions, new-hire provisioning, and log review. Billed monthly per seat. When someone calls because a site they need is blocked, they call us, not you.'],
+];
+
+const audience = [
+  ['Multi-site organizations', 'One policy set, enforced identically in Logan, Boise, and the office you open next quarter — without shipping an appliance to each one.'],
+  ['Hybrid and remote teams', 'The point where "we have a firewall" stops being an answer, because half the workforce isn\'t behind it.'],
+  ['Manufacturers', 'Plant-floor networks and office networks with genuinely different filtering needs, plus vendors who need narrow, logged access rather than open outbound.'],
+  ['Clinics and professional services', 'Organizations that need to answer "where did that data go" with a record instead of a guess, and that have DLP obligations attached to specific record types.'],
+  ['Businesses with an aging filtering appliance', 'If the renewal quote just landed and the box is out of support, this is the conversation to have before you re-up for another three years.'],
+];
+
+const limitations = [
+  ['DNS filtering alone is not sufficient.', 'If you only deploy DNS policies, a user or a piece of malware that knows the destination IP address can still connect. DNS is the fast, broad first layer. HTTP policies are what make it a control.'],
+  ['HTTP inspection requires a certificate on every device.', 'Decrypting HTTPS means installing the Cloudflare root certificate on managed endpoints. On unmanaged or BYOD devices that is a real constraint — those users get DNS-layer protection, not full inspection.'],
+  ["Some applications will break, and we'll have to exempt them.", "Certificate-pinned applications, some banking and healthcare portals, and certain updaters do not tolerate inspection. The fix is a Do Not Inspect policy for that destination, which means that destination isn't inspected. That's a trade, and we'll document each one."],
+  ["It doesn't replace endpoint security or email security.", 'Gateway filters what is in transit. It does not stop a threat already resident on a device, and it is not a mail filter.'],
+  ['Logs are only useful if someone reads them.', "Gateway produces DNS, HTTP, and network session analytics. We review them as part of managed service; if you're self-managing, budget the time or pair it with Managed SOC."],
+  ['Not every capability is on every plan.', "Packet filtering, for example, is an Enterprise-tier feature. We'll tell you which tier your requirements actually need before you buy one."],
+];
+
+const faqs = [
+  ['Is this the same thing as DNS filtering?', 'DNS filtering is one layer of it. A secure web gateway also inspects Layer 4 network traffic and decrypted HTTP requests, which is what catches the threats that live inside otherwise-allowed traffic.'],
+  ["Do our employees know they're being filtered?", "Yes. Blocked requests return a block page, and the client can display a notification. We'd recommend telling staff before rollout — every deployment we've run goes smoother when the announcement precedes the block page."],
+  ['Can we filter by person or group instead of by network?', 'Yes. Policies can key off user identity and group membership from Entra ID, Okta, or Google Workspace, plus device posture signals like disk encryption.'],
+  ['Will this slow down the internet?', 'Traffic is processed at the Cloudflare edge location nearest the user, not backhauled to a central appliance. For most users on most requests the effect is not perceptible. Full HTTPS inspection does add processing, which is one reason we scope which traffic gets inspected rather than inspecting everything.'],
+  ['We already have a firewall. Why do we need this?', "Your firewall protects the office. This protects the user. Gateway's layers map to familiar firewall functions — DNS filtering, a Layer 4 stateful firewall, and a Layer 7 forward proxy — except they're enforced wherever the user is instead of only at one perimeter."],
+  ['Can we keep our internal DNS?', 'Yes. Resolver policies send queries for your internal domains to your own DNS servers while everything else resolves through Gateway.'],
+  ['How long does deployment take?', 'DNS-layer filtering can be live in days. A full rollout including the device client, HTTP inspection, and DLP typically runs four to eight weeks depending on headcount and how many applications need testing.'],
+];
+
+const related = [
+  ['Zero Trust Access (ZTNA)', 'The client and connector that carry traffic to Gateway, and the per-app authorization layer for internal resources.', '/services/zero-trust-access'],
+  ['Endpoint Security', 'EDR on the device itself — the threat Gateway cannot see because it is already resident.', '/services/endpoint-security'],
+  ['Email Security', 'The other half of the phishing problem, filtered before the message reaches the inbox.', '/services/email-security'],
+  ['Managed SOC', 'Humans reviewing what the tooling flags, including Gateway DNS and HTTP analytics.', '/services/managed-soc'],
+  ['Cloudflare Zero Trust', 'The full Cloudflare One platform this sits inside — Access, Tunnel, DNS, and DDoS protection.', '/services/cloudflare-zero-trust'],
+  ['Network & Infrastructure', 'The edge device, segmentation, and multi-WAN failover Gateway rides on top of rather than replaces.', '/services/network-design'],
+];
+
+// Gateway is a component of the Cloudflare Zero Trust engagement, so the
+// contact deep link uses that existing checkbox rather than adding another
+// option to an already-long form. Must match ContactForm.tsx exactly.
+const contactHref = '/contact?service=Cloudflare%20Zero%20Trust';
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Secure Web Gateway',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Secure Web Gateway (SWG) — DNS & Web Filtering',
+  description:
+    'AllTech deploys Cloudflare Gateway as a managed secure web gateway — DNS filtering, TLS inspection, malware and DLP scanning for every user, in the office or not.',
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(([question, answer]) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer },
+  })),
+};
+---
+
+<BaseLayout
+  title="Secure Web Gateway (SWG) — DNS & Web Filtering"
+  description="AllTech deploys Cloudflare Gateway as a managed secure web gateway — DNS filtering, TLS inspection, malware and DLP scanning for every user, in the office or not. Cloudflare Partner serving Northern Utah."
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">Cloudflare Partner · SASE Solutions</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          Every request your team makes,<br />
+          <span style="color: var(--color-amber-400);">inspected before it lands.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">
+          A secure web gateway sits between your users and the internet and checks what they're
+          reaching — at the DNS layer, the network layer, and inside the encrypted web request
+          itself. AllTech deploys and runs Cloudflare Gateway as that layer, so the filtering
+          follows the laptop home instead of stopping at the office firewall.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Scope a Gateway rollout <span aria-hidden="true">→</span></a>
+          <a href="#layers" class="btn btn-ghost">See how filtering works</a>
+        </div>
+        <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
+          <div>Cloudflare Partner</div>
+          <div>Filtering that follows the device</div>
+          <div>Version-controlled policy</div>
+          <div>Local engineers</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 · The problem -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">01 · The problem</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Your web filter stops at the front door.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          The content filter in most small-business networks lives inside the firewall at the
+          office. It works well right up until the laptop leaves the building — then the user is on
+          home Wi-Fi, an airport hotspot, or a cell hotspot, with no filtering at all and no record
+          of where they went. The gaps we find most often when we take over a network:
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        {problems.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 · What we deploy -->
+  <section id="layers" class="surface-dark py-16 lg:py-20 scroll-mt-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">02 · What we deploy</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Cloudflare Gateway, run as a managed service.
+        </h2>
+        <div class="mt-4 space-y-4 text-muted leading-relaxed">
+          <p>
+            Gateway is Cloudflare's secure web gateway, built into the Cloudflare One SASE platform.
+            It inspects and filters traffic at three layers — DNS, network (Layer 4), and HTTP
+            (Layer 7) — across Cloudflare's global network, at the edge location nearest the user
+            rather than a single data center you have to backhaul to.
+          </p>
+          <p>
+            We deploy it, write the policy, tune it against real user complaints, and keep the
+            configuration under version control alongside the rest of your Cloudflare tenant.
+            Which of the layers below you can use depends on the Cloudflare plan you're on — we
+            scope that up front rather than after the contract.
+          </p>
+        </div>
+      </div>
+
+      <!-- The three enforcement layers, drawn once so the DNS → network → HTTP
+           ordering in the cards below reads as a sequence rather than a list. -->
+      <div class="mb-10 -mx-2 overflow-x-auto">
+        <svg viewBox="0 0 920 190" fill="none" aria-hidden="true" class="w-full min-w-[720px] h-auto">
+          <defs>
+            <filter id="swg-shadow" x="-50%" y="-50%" width="220%" height="220%">
+              <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#0a0f1a" flood-opacity="0.08" />
+            </filter>
+          </defs>
+
+          <!-- User -->
+          <rect x="0" y="45" width="150" height="100" rx="14" fill="var(--color-bg-surface)" stroke="var(--color-border-default)" stroke-width="1.5" filter="url(#swg-shadow)" />
+          <rect x="48" y="68" width="54" height="34" rx="4" stroke="var(--color-slate-500)" stroke-width="2" />
+          <line x1="40" y1="106" x2="110" y2="106" stroke="var(--color-slate-500)" stroke-width="2.5" stroke-linecap="round" />
+          <text x="75" y="132" text-anchor="middle" font-family="var(--font-display)" font-weight="700" font-size="14" fill="var(--color-text-primary)">User</text>
+
+          <line x1="162" y1="95" x2="218" y2="95" stroke="var(--color-slate-400)" stroke-width="2" />
+          <path d="M212 88l10 7l-10 7" stroke="var(--color-slate-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+
+          <!-- Gateway: three stacked enforcement layers -->
+          <rect x="230" y="20" width="440" height="150" rx="14" fill="var(--color-bg-tint)" stroke="var(--color-amber-500)" stroke-width="1.5" filter="url(#swg-shadow)" />
+          <text x="450" y="46" text-anchor="middle" font-family="var(--font-display)" font-weight="700" font-size="14" fill="var(--color-text-primary)">Cloudflare Gateway</text>
+          <rect x="256" y="60" width="388" height="28" rx="6" fill="var(--color-bg-surface)" stroke="var(--color-amber-500)" stroke-width="1.2" />
+          <text x="450" y="79" text-anchor="middle" font-family="var(--font-mono)" font-size="11" fill="var(--color-text-default)">DNS — category &amp; security filtering</text>
+          <rect x="256" y="94" width="388" height="28" rx="6" fill="var(--color-bg-surface)" stroke="var(--color-amber-500)" stroke-width="1.2" />
+          <text x="450" y="113" text-anchor="middle" font-family="var(--font-mono)" font-size="11" fill="var(--color-text-default)">Network — L4 by IP, port, protocol, SNI</text>
+          <rect x="256" y="128" width="388" height="28" rx="6" fill="var(--color-bg-surface)" stroke="var(--color-amber-500)" stroke-width="1.2" />
+          <text x="450" y="147" text-anchor="middle" font-family="var(--font-mono)" font-size="11" fill="var(--color-text-default)">HTTP — decrypted URL, upload, download</text>
+
+          <line x1="682" y1="95" x2="738" y2="95" stroke="var(--color-slate-400)" stroke-width="2" />
+          <path d="M732 88l10 7l-10 7" stroke="var(--color-slate-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+
+          <!-- Internet -->
+          <rect x="750" y="45" width="170" height="100" rx="14" fill="var(--color-bg-surface)" stroke="var(--color-border-default)" stroke-width="1.5" filter="url(#swg-shadow)" />
+          <circle cx="835" cy="88" r="22" stroke="var(--color-slate-500)" stroke-width="2" />
+          <line x1="813" y1="88" x2="857" y2="88" stroke="var(--color-slate-500)" stroke-width="1.5" />
+          <path d="M835 66c9 10 9 34 0 44c-9-10-9-34 0-44z" stroke="var(--color-slate-500)" stroke-width="1.5" />
+          <text x="835" y="132" text-anchor="middle" font-family="var(--font-display)" font-weight="700" font-size="14" fill="var(--color-text-primary)">Internet</text>
+        </svg>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {layers.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · Identity and device posture -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide grid lg:grid-cols-12 gap-10">
+      <div class="lg:col-span-5">
+        <div class="eyebrow mb-4">03 · Identity &amp; device posture</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          A policy that knows who is asking, and what they're asking from.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Most legacy filters make decisions based on a source IP address. Gateway policies can
+          factor in the user and the device as well, pulled from the identity provider you already
+          run.
+        </p>
+      </div>
+      <div class="lg:col-span-7 grid gap-4">
+        <div class="card">
+          <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">Identity signals</h3>
+          <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">
+            Email address, group membership, and authentication method from Microsoft Entra ID,
+            Okta, Google Workspace, or another IdP.
+          </p>
+        </div>
+        <div class="card">
+          <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">Device posture signals</h3>
+          <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">
+            OS version, disk encryption status, firewall state, and whether the device serial
+            number matches your managed device list.
+          </p>
+        </div>
+        <p class="leading-relaxed text-muted">
+          Those combine. A policy can allow a sensitive SaaS application only when the user is in
+          the right security group <em>and</em> the device is encrypted — and quietly block it on
+          the personal laptop that isn't. That's the difference between a content filter and a
+          control.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · How traffic gets to Gateway -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">04 · How traffic gets to Gateway</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Four on-ramps. Most clients use two.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          How you connect determines which policy layers can be enforced. We usually pair a device
+          client for people with a network tunnel for locations.
+        </p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-4">
+        {onRamps.map(({ name, dns, network, http, best }) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-4" style="color: var(--color-text-primary);">{name}</h3>
+            <dl class="grid grid-cols-3 gap-3 mb-4">
+              {[['DNS', dns], ['Network', network], ['HTTP', http]].map(([label, value]) => (
+                <div>
+                  <dt class="font-mono text-[10px] tracking-wider mb-1" style="color: var(--color-text-subtle);">{label}</dt>
+                  <dd
+                    class="text-sm font-medium leading-snug"
+                    style={value === false
+                      ? 'color: var(--color-text-subtle);'
+                      : 'color: var(--color-amber-600);'}
+                  >
+                    {value === true ? 'Yes' : value === false ? 'No' : value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            <p class="text-sm leading-relaxed pt-4" style="color: var(--color-text-default); border-top: 1px solid var(--color-line-faint);">
+              <span class="font-mono text-[10px] tracking-wider block mb-1" style="color: var(--color-text-subtle);">BEST FOR</span>
+              {best}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        Practical version: the client covers the people, the tunnel covers the building, and DNS
+        resolver configuration is how we get filtering live on day one while the client rollout is
+        still in progress. See <a href="/services/zero-trust-access" class="font-medium" style="color: var(--color-amber-600);">Zero Trust Access (ZTNA)</a> for
+        the client and connector side of that.
+      </p>
+    </div>
+  </section>
+
+  <!-- 05 · How we engage -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">05 · How we engage</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Three ways to start.
+        </h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4">
+        {engage.map(([n, label, title, body], i) => (
+          <div class="card" style={i === 1 ? 'border-color: var(--color-amber-400);' : ''}>
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-amber-600);">{n} · {label}</div>
+            <h3 class="font-display text-xl font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 · What the rollout actually looks like -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">06 · What the rollout looks like</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Three phases, because turning it all on at once is how you break payroll day.
+        </h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4">
+        {phases.map(([phase, weeks, title, body]) => (
+          <div class="card">
+            <div class="flex items-baseline justify-between gap-3 mb-3">
+              <span class="font-mono text-xs tracking-wider" style="color: var(--color-amber-600);">{phase}</span>
+              <span class="font-mono text-xs" style="color: var(--color-text-subtle);">{weeks}</span>
+            </div>
+            <h3 class="font-display text-xl font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        Policy changes propagate across Cloudflare's network in under a minute, so tuning during
+        rollout is fast — the constraint is our testing discipline, not the platform.
+      </p>
+    </div>
+  </section>
+
+  <!-- 07 · Who this is for -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">07 · Who this is for</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Where it makes the most difference.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {audience.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 · Honest limitations -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">08 · Honest limitations</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What a secure web gateway will not do for you.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          We'd rather say this here than after you've signed something.
+        </p>
+      </div>
+      <div class="max-w-4xl space-y-6">
+        {limitations.map(([title, body]) => (
+          <div class="flex items-start gap-4">
+            <svg class="w-5 h-5 mt-1 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <circle cx="10" cy="10" r="7.5" stroke="var(--color-amber-500)" stroke-width="1.75" />
+              <line x1="10" y1="6" x2="10" y2="11" stroke="var(--color-amber-500)" stroke-width="1.75" stroke-linecap="round" />
+              <circle cx="10" cy="14" r="0.9" fill="var(--color-amber-500)" />
+            </svg>
+            <p class="leading-relaxed" style="color: var(--color-text-default);">
+              <span class="font-display font-bold" style="color: var(--color-text-primary);">{title}</span>{' '}
+              {body}
+            </p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        For the two gaps Gateway leaves open, see <a href="/services/endpoint-security" class="font-medium" style="color: var(--color-amber-600);">Endpoint Security</a> and
+        <a href="/services/email-security" class="font-medium" style="color: var(--color-amber-600);">Email Security</a>. For log review,
+        <a href="/services/managed-soc" class="font-medium" style="color: var(--color-amber-600);">Managed SOC</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- 09 · FAQ -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">09 · FAQ</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Common questions
+      </h2>
+      <div class="mt-8 space-y-6 not-prose">
+        {faqs.map(([q, a]) => (
+          <div>
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{q}</h3>
+            <p class="leading-relaxed text-muted">{a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 · Related services -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">10 · Related services</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The rest of the stack it plugs into
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {related.map(([title, body, href]) => (
+          <a href={href} class="card group block">
+            <h3 class="font-display text-lg font-bold mb-2 group-hover:text-[var(--color-amber-600)] transition" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+            <span class="mt-3 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">Learn more <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="surface-dark py-16 lg:py-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Find out what your network is actually reaching.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          Send us a short note about your environment. We'll book a 30-minute scoping call, tell you
+          which policy layers you actually need, and be honest if DNS filtering alone is enough for
+          where you are right now.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Start a conversation <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

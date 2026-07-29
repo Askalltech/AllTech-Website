@@ -15,8 +15,12 @@ export default defineConfig({
 
   // Consolidated the old /cloudflare landing into the Cloudflare Zero Trust
   // service page — redirect so old links/bookmarks/SEO don't break.
+  // The Tunnel & WARP page was renamed to match the SASE menu taxonomy — it is
+  // the Zero Trust Access (ZTNA) story. Redirect the old route so shared links
+  // and anything already indexed keep working.
   redirects: {
     '/cloudflare': '/services/cloudflare-zero-trust',
+    '/services/tunnel-warp': '/services/zero-trust-access',
   },
 
   // Static by default; opt specific routes into SSR with `export const prerender = false`
