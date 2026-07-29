@@ -32,6 +32,9 @@ interface Member {
    * Paragraphs. The FIRST one is the preview — it's clamped to two lines on
    * the resting card, so write it so the opening sentence stands alone.
    * Everything after it appears only once "Show more" is pressed.
+   *
+   * An entry prefixed with "## " renders as a subheading inside the bio rather
+   * than as body copy, for bios that are split into named parts.
    */
   bio: string[];
   tagline?: string;    // short moniker shown under the role, e.g. "The Network Nomad"
@@ -63,10 +66,16 @@ const team: Member[] = [
     ],
   },
   {
-    // Supplied in full, exactly as written. It is meant to be this short.
+    // Supplied verbatim. The one-line opener is deliberate, not a truncation —
+    // it stays first because it is what the card preview clamps to.
     name: 'Tad Spiekerman',
     role: 'Systems Administrator',
-    bio: ['This is Tad. You probably already know Tad. Everybody loves Tad.'],
+    bio: [
+      'This is Tad. You probably already know Tad. Everybody loves Tad.',
+      '## The Myth, The Method, The Tad',
+      'Tad did not choose the IT life; the IT life chose him and has regretted it ever since. Operating on the bleeding edge of digital chaos, he navigates Linux terminals like a man who knows exactly what the root directory is thinking. He remains the only admin to route a corporate intranet through a modified toaster, baffling cybersecurity teams for three fiscal quarters.',
+      'His routine is fueled by panic, Dr. Pepper, and a belief that Active Directory password policies should just allow “password123” to save everyone the headache. When he isn’t managing the camera systems to secure his office fort of expired server racks, Tad uses a single red button to auto-reply “Have you tried turning it off and on again?” to every frantic ticket.',
+    ],
   },
   {
     name: 'Team Member 04',
@@ -270,7 +279,15 @@ const initials = (name: string) =>
                   )}
 
                   <div class="mt-5 space-y-4 leading-relaxed" style="color: var(--color-text-default);">
-                    {m.bio.map((para) => <p>{para}</p>)}
+                    {m.bio.map((para) =>
+                      para.startsWith('## ') ? (
+                        <h4 class="font-display text-lg font-bold pt-2" style="color: var(--color-text-primary);">
+                          {para.slice(3)}
+                        </h4>
+                      ) : (
+                        <p>{para}</p>
+                      ),
+                    )}
                   </div>
 
                   {m.funnyBlurb && (
