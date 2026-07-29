@@ -1,0 +1,243 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * Supplied as finished copy — the text below is verbatim. Only the wrapper was
+ * adapted to this repo: BaseLayout instead of Layout, container-prose +
+ * prose-alltech instead of the .legal classes, and the postal address and phone
+ * number now come from site.ts so they cannot drift from the rest of the site.
+ *
+ * FLAGGED, not changed: Section 15 lists legal@askalltech.com. site.ts uses
+ * help@askalltech.com and notes the shared mailbox is still TBD. If legal@ does
+ * not route anywhere, notices sent to it — including the permission requests
+ * Sections 2 and 5 tell people to send — land nowhere.
+ */
+
+const effectiveDate = 'July 29, 2026';
+const addr = site.address;
+---
+
+<BaseLayout
+  title="Terms of Use"
+  description="The terms governing use of askalltech.com, the AllTech security gap assessment, and related online tools."
+  canonical={`${site.url}/terms`}
+>
+  <section class="surface-dark py-16 lg:py-20">
+    <div class="container-prose">
+      <header class="mb-10">
+        <div class="eyebrow mb-4">Legal</div>
+        <h1 class="font-display text-4xl lg:text-5xl font-semibold leading-tight" style="color: var(--color-text-primary);">
+          Terms of Use
+        </h1>
+        <p class="mt-4 font-mono text-sm" style="color: var(--color-text-subtle);">
+          Effective date: {effectiveDate}
+        </p>
+      </header>
+
+      <div class="prose-alltech legal-body">
+        <p>
+          These Terms of Use (&ldquo;Terms&rdquo;) govern your access to and use of
+          <a href={site.url}>askalltech.com</a> and any related pages, forms, assessments, and
+          online tools we make available (together, the &ldquo;Site&rdquo;), operated by AllTech
+          (&ldquo;AllTech,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;). By using
+          the Site, you agree to these Terms. If you do not agree, do not use the Site.
+        </p>
+
+        <h2 id="not-agreement">1. The Site is not a services agreement</h2>
+        <p>
+          The Site describes services we offer. It does not create a client relationship, a quote,
+          or a binding commitment to provide services. Managed IT, cybersecurity, network, cloud,
+          and installation services are governed exclusively by a signed Master Services Agreement,
+          statement of work, quote, or similar written agreement between AllTech and the client. If
+          anything on the Site conflicts with a signed agreement, the signed agreement controls for
+          that client.
+        </p>
+
+        <h2 id="eligibility">2. Eligibility and acceptable use</h2>
+        <p>
+          You must be at least 18 years old and able to form a binding contract. You agree not to:
+        </p>
+        <ul>
+          <li>
+            Access or attempt to access any portion of the Site, our systems, or our clients&rsquo;
+            systems without authorization, including by scanning, probing, or testing for
+            vulnerabilities.
+          </li>
+          <li>
+            Introduce malware, launch denial-of-service attacks, or otherwise interfere with the
+            Site&rsquo;s operation or security controls.
+          </li>
+          <li>
+            Scrape, harvest, or systematically extract content or contact details, including for
+            training machine learning models, without our written permission.
+          </li>
+          <li>
+            Submit false, misleading, or third-party information through our forms, or use them to
+            transmit spam or unsolicited solicitations.
+          </li>
+          <li>
+            Reverse engineer, decompile, or circumvent any technical measure protecting the Site.
+          </li>
+          <li>Use the Site in violation of any applicable law or regulation.</li>
+        </ul>
+        <p>
+          Authorized security testing of AllTech systems requires our prior written consent and a
+          defined scope. Contact us before conducting any testing.
+        </p>
+
+        <h2 id="assessment">3. Security gap assessment</h2>
+        <p>
+          Our free security gap assessment is a high-level, self-reported questionnaire. It is
+          provided for general informational purposes only.
+        </p>
+        <ul>
+          <li>
+            The score reflects only the answers you supply. We do not verify them, and we do not
+            scan, test, or inspect your environment as part of the assessment.
+          </li>
+          <li>
+            The assessment is not a penetration test, vulnerability assessment, audit, or
+            certification, and it is not evidence of compliance with CIS, NIST, HIPAA, PCI DSS,
+            CMMC, cyber-insurance requirements, or any other framework or standard.
+          </li>
+          <li>
+            A high score does not mean you are secure, and a low score does not mean you have been
+            compromised. Do not rely on the assessment as the sole basis for any security,
+            insurance, procurement, or compliance decision.
+          </li>
+        </ul>
+
+        <h2 id="content">4. Informational content</h2>
+        <p>
+          Content on the Site — including service pages, case studies, blog and insights posts, and
+          framework references — is general information, not professional, legal, regulatory, or
+          insurance advice for your specific environment. Case studies describe past engagements and
+          do not guarantee comparable results. Availability, response times, service levels, and
+          pricing are set in a signed agreement, not on the Site.
+        </p>
+
+        <h2 id="ip">5. Intellectual property</h2>
+        <p>
+          The Site and its content — text, graphics, logos, layouts, code, methodologies, and the
+          &ldquo;AllTech Top 10&rdquo; and related materials — are owned by AllTech or its licensors
+          and are protected by intellectual property laws. You may view and print pages for your own
+          internal business evaluation. Any other reproduction, distribution, modification,
+          republication, or commercial use requires our prior written permission.
+        </p>
+        <p>
+          Third-party names and marks appearing on the Site, including Cloudflare, Ubiquiti UniFi,
+          Microsoft, Microsoft 365, Entra ID, and Datto, are the property of their respective
+          owners. Their appearance indicates the technologies we work with and does not imply
+          endorsement by those owners except where a partner relationship is expressly stated.
+        </p>
+        <p>
+          Client logos appear with permission and remain the property of those organizations.
+        </p>
+
+        <h2 id="submissions">6. Your submissions</h2>
+        <p>
+          You are responsible for anything you send us through the Site. Do not submit confidential
+          information belonging to a third party, credentials, or sensitive personal information
+          through the contact or assessment forms. Information you submit is handled in accordance
+          with our <a href="/privacy">Privacy Policy</a>. If you send us feedback or suggestions,
+          you grant us a perpetual, royalty-free license to use them without obligation or
+          attribution.
+        </p>
+
+        <h2 id="third-party">7. Third-party sites and tools</h2>
+        <p>
+          The Site links to properties we do not control, including
+          <a href="https://utahdatarecovery.com/" rel="noopener">Utah Data Recovery</a>, our remote
+          assistance portal, and embedded maps. We are not responsible for their content,
+          availability, or practices, and links do not imply endorsement. Access to remote
+          assistance and other support tools is limited to authorized client personnel and is
+          subject to the applicable services agreement and any tooling vendor&rsquo;s terms.
+        </p>
+
+        <h2 id="availability">8. Availability</h2>
+        <p>
+          We may modify, suspend, or discontinue any part of the Site at any time without notice. We
+          do not warrant that the Site will be uninterrupted, timely, secure, or error-free, or that
+          content is current or accurate.
+        </p>
+
+        <h2 id="warranty">9. Disclaimer of warranties</h2>
+        <p>
+          THE SITE AND ALL CONTENT, ASSESSMENTS, AND TOOLS ARE PROVIDED &ldquo;AS IS&rdquo; AND
+          &ldquo;AS AVAILABLE,&rdquo; WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED. TO THE
+          FULLEST EXTENT PERMITTED BY LAW, ALLTECH DISCLAIMS ALL IMPLIED WARRANTIES, INCLUDING
+          MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, NON-INFRINGEMENT, AND ANY
+          WARRANTY ARISING FROM COURSE OF DEALING OR USAGE OF TRADE. THIS SECTION DOES NOT LIMIT ANY
+          WARRANTY EXPRESSLY GIVEN IN A SIGNED SERVICES AGREEMENT.
+        </p>
+
+        <h2 id="liability">10. Limitation of liability</h2>
+        <p>
+          TO THE FULLEST EXTENT PERMITTED BY LAW, ALLTECH AND ITS OWNERS, OFFICERS, EMPLOYEES, AND
+          SUPPLIERS WILL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL,
+          EXEMPLARY, OR PUNITIVE DAMAGES, OR FOR ANY LOSS OF PROFITS, REVENUE, DATA, GOODWILL, OR
+          BUSINESS INTERRUPTION, ARISING OUT OF OR RELATING TO YOUR USE OF THE SITE, EVEN IF ADVISED
+          OF THE POSSIBILITY OF SUCH DAMAGES.
+        </p>
+        <p>
+          OUR TOTAL AGGREGATE LIABILITY ARISING OUT OF OR RELATING TO THE SITE WILL NOT EXCEED ONE
+          HUNDRED U.S. DOLLARS ($100). LIABILITY ARISING FROM SERVICES IS GOVERNED SOLELY BY THE
+          APPLICABLE SIGNED SERVICES AGREEMENT. SOME JURISDICTIONS DO NOT ALLOW CERTAIN EXCLUSIONS,
+          SO SOME OF THE ABOVE MAY NOT APPLY TO YOU.
+        </p>
+
+        <h2 id="indemnity">11. Indemnification</h2>
+        <p>
+          You agree to indemnify and hold harmless AllTech and its owners, officers, and employees
+          from any claims, damages, liabilities, costs, and expenses (including reasonable
+          attorneys&rsquo; fees) arising out of your use of the Site, your violation of these Terms,
+          or your violation of any law or third-party right.
+        </p>
+
+        <h2 id="law">12. Governing law and venue</h2>
+        <p>
+          These Terms are governed by the laws of the State of Utah, without regard to its
+          conflict-of-laws rules. You consent to the exclusive jurisdiction and venue of the state
+          and federal courts located in Cache County, Utah for any dispute arising out of or
+          relating to the Site or these Terms.
+        </p>
+
+        <h2 id="general">13. General</h2>
+        <p>
+          If any provision of these Terms is held unenforceable, the remaining provisions remain in
+          effect. Our failure to enforce a provision is not a waiver of it. These Terms, together
+          with our <a href="/privacy">Privacy Policy</a>, are the entire agreement between you and
+          AllTech regarding the Site. You may not assign these Terms; we may assign them in
+          connection with a merger, acquisition, or sale of assets. Sections 5, 6, and 9 through 13
+          survive termination.
+        </p>
+
+        <h2 id="changes">14. Changes to these Terms</h2>
+        <p>
+          We may update these Terms at any time. Changes take effect when posted, and we will update
+          the effective date above. Your continued use of the Site after a change constitutes
+          acceptance.
+        </p>
+
+        <h2 id="contact">15. Contact us</h2>
+        <p>
+          <strong>AllTech</strong><br />
+          {addr.street}<br />
+          {addr.city}, {addr.region} {addr.postalCode}<br />
+          Phone: <a href={`tel:${site.phoneE164}`}>{site.phone}</a><br />
+          Email: <a href="mailto:legal@askalltech.com">legal@askalltech.com</a>
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Numbered sections are deep-linked from within the page and from elsewhere,
+     so headings need to clear the sticky header when jumped to. */
+  .legal-body :global(h2),
+  .legal-body :global(h3) {
+    scroll-margin-top: 6rem;
+  }
+</style>

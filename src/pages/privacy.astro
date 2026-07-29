@@ -1,0 +1,304 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * Supplied as finished copy — the text below is verbatim. Only the wrapper was
+ * adapted to this repo: BaseLayout instead of Layout, container-prose +
+ * prose-alltech instead of the .legal classes, and the postal address and phone
+ * number now come from site.ts so they cannot drift from the rest of the site.
+ *
+ * FLAGGED, not changed: Section 13 lists privacy@askalltech.com. site.ts uses
+ * help@askalltech.com and notes the shared mailbox is still TBD. If privacy@
+ * does not route anywhere, a rights request under Section 10 lands nowhere
+ * while this page promises a response within the statutory window.
+ */
+
+const effectiveDate = 'July 29, 2026';
+const addr = site.address;
+---
+
+<BaseLayout
+  title="Privacy Policy"
+  description="How AllTech collects, uses, and protects personal information through askalltech.com and our managed IT and cybersecurity services."
+  canonical={`${site.url}/privacy`}
+>
+  <section class="surface-dark py-16 lg:py-20">
+    <div class="container-prose">
+      <header class="mb-10">
+        <div class="eyebrow mb-4">Legal</div>
+        <h1 class="font-display text-4xl lg:text-5xl font-semibold leading-tight" style="color: var(--color-text-primary);">
+          Privacy Policy
+        </h1>
+        <p class="mt-4 font-mono text-sm" style="color: var(--color-text-subtle);">
+          Effective date: {effectiveDate}
+        </p>
+      </header>
+
+      <div class="prose-alltech legal-body">
+        <p>
+          This Privacy Policy explains how AllTech (&ldquo;AllTech,&rdquo; &ldquo;we,&rdquo; &ldquo;us,&rdquo; or
+          &ldquo;our&rdquo;) collects, uses, discloses, and protects information in connection with
+          <a href={site.url}>askalltech.com</a> (the &ldquo;Site&rdquo;) and the managed IT,
+          cybersecurity, network, and cloud services we provide (the &ldquo;Services&rdquo;).
+        </p>
+        <p>
+          AllTech is located at {addr.street}, {addr.city}, {addr.region} {addr.postalCode} and
+          serves businesses across Northern Utah, the Wasatch Front, and southern Idaho.
+        </p>
+
+        <h2 id="scope">1. Scope of this policy</h2>
+        <p>
+          This policy covers information we collect as a controller of our own business records —
+          for example, information submitted through the Site by prospective and current clients.
+        </p>
+        <p>
+          It does <strong>not</strong> govern client data we process on a client&rsquo;s behalf while
+          delivering Services (for example, data inside a client&rsquo;s Microsoft 365 tenant,
+          endpoints, backups, or network logs). We handle that data as a service provider under the
+          client&rsquo;s Master Services Agreement, statement of work, or data processing addendum,
+          and the terms of those agreements control. If you are an employee or customer of an
+          AllTech client and you have a question about your personal information, contact that
+          organization directly.
+        </p>
+
+        <h2 id="collect">2. Information we collect</h2>
+
+        <h3>2.1 Information you provide</h3>
+        <ul>
+          <li>
+            <strong>Contact form.</strong> Name, company name, email address, phone number, the
+            service categories you select, and any free-text details you include in your message.
+          </li>
+          <li>
+            <strong>Security gap assessment.</strong> Your responses to assessment questions across
+            the assessed domains, your resulting score, and the contact details you supply to
+            receive results.
+          </li>
+          <li>
+            <strong>Direct communications.</strong> Information contained in emails, phone calls,
+            support tickets, and on-site conversations, including any records or recordings we
+            maintain of them.
+          </li>
+          <li>
+            <strong>Business relationship records.</strong> Billing contacts, purchase orders,
+            service addresses, and payment details you provide to establish or maintain an account.
+          </li>
+        </ul>
+
+        <h3>2.2 Information collected automatically</h3>
+        <ul>
+          <li>
+            <strong>Log and device data.</strong> IP address, browser type and version, operating
+            system, referring URL, pages viewed, and timestamps.
+          </li>
+          <li>
+            <strong>Security telemetry.</strong> Our hosting and security provider records request
+            metadata to detect and mitigate bot traffic, abuse, and denial-of-service attacks.
+          </li>
+          <li>
+            <strong>Cookies and similar technologies.</strong> See <a href="#cookies">Section 6</a>.
+          </li>
+        </ul>
+
+        <h3>2.3 Information we do not seek</h3>
+        <p>
+          The Site is a business-to-business resource. Please do not submit government identifiers,
+          financial account credentials, health information, or other sensitive personal information
+          through the contact or assessment forms. If you need to share sensitive material, ask us
+          for a secure transfer method.
+        </p>
+
+        <h2 id="use">3. How we use information</h2>
+        <ul>
+          <li>Respond to inquiries and route them to the right engineer.</li>
+          <li>Prepare quotes, proposals, assessments, and statements of work.</li>
+          <li>Deliver, support, monitor, and invoice for the Services.</li>
+          <li>Generate and follow up on security gap assessment results.</li>
+          <li>
+            Operate, secure, and improve the Site, including fraud prevention, abuse detection, and
+            troubleshooting.
+          </li>
+          <li>Send service, maintenance, incident, and administrative notices.</li>
+          <li>
+            Send occasional business communications about our services. You can opt out at any time
+            using the unsubscribe link or by contacting us; transactional and service notices will
+            continue.
+          </li>
+          <li>
+            Comply with legal, tax, insurance, and regulatory obligations, and establish or defend
+            legal claims.
+          </li>
+        </ul>
+        <p>
+          We do not sell personal information, and we do not share it for cross-context behavioral
+          advertising.
+        </p>
+
+        <h2 id="basis">4. Legal bases (EEA/UK visitors)</h2>
+        <p>
+          Where the GDPR or UK GDPR applies, we rely on: <strong>contract</strong> (to provide
+          Services you have requested or to take pre-contractual steps);
+          <strong>legitimate interests</strong> (to operate and secure the Site, respond to
+          inquiries, and market our services to businesses); <strong>legal obligation</strong>
+          (recordkeeping and tax); and <strong>consent</strong> where required, which you may
+          withdraw at any time.
+        </p>
+
+        <h2 id="sharing">5. When we disclose information</h2>
+        <p>We disclose personal information only as described below.</p>
+        <ul>
+          <li>
+            <strong>Service providers.</strong> Vendors who process information on our instructions
+            under written agreements, including hosting and network security (Cloudflare), business
+            email and productivity (Microsoft 365), remote monitoring and management (Datto), remote
+            support tooling, ticketing and CRM systems, and accounting and payment processors.
+          </li>
+          <li>
+            <strong>Professional advisors.</strong> Attorneys, accountants, auditors, and insurers
+            bound by confidentiality obligations.
+          </li>
+          <li>
+            <strong>Legal and safety.</strong> Where required by law, subpoena, court order, or
+            governmental request, or where necessary to investigate a security incident, enforce our
+            agreements, or protect the rights, property, or safety of AllTech, our clients, or
+            others.
+          </li>
+          <li>
+            <strong>Business transfers.</strong> In connection with a merger, acquisition,
+            financing, or sale of assets, subject to this policy&rsquo;s continued application to
+            transferred information.
+          </li>
+          <li>
+            <strong>With your direction.</strong> When you ask us to share information with a third
+            party, such as a hardware vendor or another provider you use.
+          </li>
+        </ul>
+
+        <h2 id="cookies">6. Cookies and analytics</h2>
+        <p>
+          The Site uses strictly necessary cookies to deliver pages, balance load, and protect
+          against automated abuse. We may also use privacy-oriented analytics to measure aggregate
+          traffic and page performance.
+        </p>
+        <p>
+          You can block or delete cookies through your browser settings. Strictly necessary cookies
+          cannot be disabled without affecting Site functionality. We do not currently respond to Do
+          Not Track browser signals; we do honor recognized opt-out preference signals such as
+          Global Privacy Control where legally required.
+        </p>
+
+        <h2 id="third-party">7. Third-party sites and tools</h2>
+        <p>
+          The Site links to properties we do not control, including
+          <a href="https://utahdatarecovery.com/" rel="noopener">Utah Data Recovery</a>, our remote
+          assistance portal, and embedded Google Maps. Their own privacy policies govern the
+          information they collect. Embedded map content may load resources from Google and transmit
+          your IP address to Google.
+        </p>
+
+        <h2 id="retention">8. Retention</h2>
+        <ul>
+          <li>
+            <strong>Inquiry and assessment submissions:</strong> retained while we evaluate the
+            inquiry and for a reasonable follow-up period, generally up to 24 months from last
+            contact, unless a client relationship forms.
+          </li>
+          <li>
+            <strong>Client account and billing records:</strong> retained for the term of the
+            engagement and for the period required by tax, accounting, insurance, and
+            statute-of-limitations rules.
+          </li>
+          <li>
+            <strong>Site and security logs:</strong> retained for a limited period consistent with
+            our security monitoring needs.
+          </li>
+        </ul>
+        <p>
+          We delete or de-identify information once it is no longer needed for the purposes
+          described here, subject to any applicable legal hold.
+        </p>
+
+        <h2 id="security">9. Security</h2>
+        <p>
+          We maintain administrative, technical, and physical safeguards appropriate to the
+          sensitivity of the information we hold, including multi-factor authentication,
+          least-privilege access controls, endpoint protection, encryption in transit, patch
+          management, monitoring, and vendor due diligence.
+        </p>
+        <p>
+          No system is completely secure. We cannot guarantee that information transmitted to or
+          from the Site will be free from unauthorized access. If we become aware of a security
+          incident affecting your personal information, we will notify you and any applicable
+          regulator as required by law.
+        </p>
+
+        <h2 id="rights">10. Your privacy rights</h2>
+        <p>
+          Depending on where you live, you may have the right to request access to the personal
+          information we hold about you, correction of inaccurate information, deletion, a portable
+          copy, restriction of or objection to certain processing, and the right not to be
+          discriminated against for exercising these rights.
+        </p>
+        <p>
+          <strong>How to submit a request.</strong> Email us or call the number in
+          <a href="#contact">Section 13</a>. We will acknowledge your request and respond within the
+          time frame required by applicable law. We may need to verify your identity before acting,
+          using information already in our possession, and we will not use verification information
+          for any other purpose. An authorized agent may submit a request on your behalf with
+          written proof of authorization.
+        </p>
+        <p>
+          <strong>California residents.</strong> If we hold personal information about you, you may
+          request the categories and specific pieces of personal information collected, the
+          categories of sources, the business purposes for collection, and the categories of third
+          parties to whom it was disclosed. We do not sell or share personal information as those
+          terms are defined by the CCPA/CPRA, and we do not use or disclose sensitive personal
+          information for purposes requiring a right to limit.
+        </p>
+        <p>
+          <strong>EEA and UK residents.</strong> You may lodge a complaint with your supervisory
+          authority, including the UK Information Commissioner&rsquo;s Office. We store and process
+          information in the United States; where we transfer personal information out of the EEA or
+          UK, we rely on Standard Contractual Clauses or another approved mechanism.
+        </p>
+
+        <h2 id="children">11. Children&rsquo;s privacy</h2>
+        <p>
+          The Site and Services are intended for businesses and individuals age 18 and over. We do
+          not knowingly collect personal information from children. If you believe a child has
+          provided us information, contact us and we will delete it.
+        </p>
+
+        <h2 id="changes">12. Changes to this policy</h2>
+        <p>
+          We may update this policy to reflect changes in our practices, services, or legal
+          obligations. We will revise the effective date above and, for material changes, provide
+          additional notice on the Site or by email to active clients. Continued use of the Site
+          after an update constitutes acceptance of the revised policy.
+        </p>
+
+        <h2 id="contact">13. Contact us</h2>
+        <p>
+          <strong>AllTech</strong><br />
+          {addr.street}<br />
+          {addr.city}, {addr.region} {addr.postalCode}<br />
+          Phone: <a href={`tel:${site.phoneE164}`}>{site.phone}</a><br />
+          Email: <a href="mailto:privacy@askalltech.com">privacy@askalltech.com</a>
+        </p>
+        <p>
+          You can also reach us through our <a href="/contact">contact form</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Numbered sections are deep-linked from within the page and from elsewhere,
+     so headings need to clear the sticky header when jumped to. */
+  .legal-body :global(h2),
+  .legal-body :global(h3) {
+    scroll-margin-top: 6rem;
+  }
+</style>
