@@ -1,0 +1,31 @@
+---
+// SCRATCH ROUTE — pipeline check for the shadcn / shadcnblocks integration.
+// Prefixed with _ so Astro does NOT publish it. Delete once blocks land.
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+---
+<BaseLayout title="shadcn spike" description="Scratch route." noindex={true}>
+  <section class="surface-dark py-16">
+    <div class="container-wide space-y-8">
+      <h1 class="font-display text-4xl font-bold">shadcn pipeline check</h1>
+      <div class="flex flex-wrap gap-3 items-center">
+        <Button>Primary</Button>
+        <Button variant="secondary">Secondary</Button>
+        <Button variant="outline">Outline</Button>
+        <Button variant="ghost">Ghost</Button>
+        <Badge>Badge</Badge>
+      </div>
+      <Card className="max-w-md">
+        <CardHeader><CardTitle>Card title</CardTitle></CardHeader>
+        <CardContent>
+          <p class="text-muted-foreground text-sm">
+            Rendered from the shadcn registry, resolving bg-card, text-muted-foreground,
+            border-border and rounded-lg against the AllTech palette.
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+  </section>
+</BaseLayout>

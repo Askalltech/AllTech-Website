@@ -427,3 +427,86 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ============================================================
+   shadcn / shadcnblocks token layer
+   ------------------------------------------------------------
+   Blocks pulled from the shadcn + shadcnblocks registries are
+   written against semantic names this site never had:
+   bg-background, text-muted-foreground, border-border, rounded-lg.
+
+   These are mapped onto the AllTech palette above rather than
+   installing shadcnblocks' own theme, so a dropped-in block
+   inherits our colours instead of shadcn's default slate. That
+   also means adding this layer changes NOTHING about the ~30
+   pages already built — it only gives new blocks something to
+   resolve against.
+
+   TO ADOPT SHADCNBLOCKS' THEME INSTEAD: replace the :root values
+   below (not the @theme inline block, which just exposes them to
+   Tailwind). Everything else on the site is unaffected either way.
+   ============================================================ */
+:root {
+  --background:            var(--color-bg-page);
+  --foreground:            var(--color-text-primary);
+  --card:                  var(--color-bg-surface);
+  --card-foreground:       var(--color-text-primary);
+  --popover:               var(--color-bg-surface);
+  --popover-foreground:    var(--color-text-primary);
+  --primary:               var(--color-amber-500);
+  --primary-foreground:    var(--color-ink-950);
+  --secondary:             var(--color-bg-tint);
+  --secondary-foreground:  var(--color-text-primary);
+  --muted:                 var(--color-bg-elevated);
+  --muted-foreground:      var(--color-text-muted);
+  --accent:                var(--color-teal-500);
+  --accent-foreground:     var(--color-ink-950);
+  --destructive:           #b42318;
+  --destructive-foreground:#ffffff;
+  --border:                var(--color-border-default);
+  --input:                 var(--color-border-default);
+  --ring:                  var(--color-amber-500);
+  --radius:                0.625rem;
+}
+
+@theme inline {
+  --color-background:            var(--background);
+  --color-foreground:            var(--foreground);
+  --color-card:                  var(--card);
+  --color-card-foreground:       var(--card-foreground);
+  --color-popover:               var(--popover);
+  --color-popover-foreground:    var(--popover-foreground);
+  --color-primary:               var(--primary);
+  --color-primary-foreground:    var(--primary-foreground);
+  --color-secondary:             var(--secondary);
+  --color-secondary-foreground:  var(--secondary-foreground);
+  --color-muted:                 var(--muted);
+  --color-muted-foreground:      var(--muted-foreground);
+  --color-accent:                var(--accent);
+  --color-accent-foreground:     var(--accent-foreground);
+  --color-destructive:           var(--destructive);
+  --color-destructive-foreground:var(--destructive-foreground);
+  --color-border:                var(--border);
+  --color-input:                 var(--input);
+  --color-ring:                  var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* shadcn expects a global border-color default. Tailwind v4 defaults borders
+   to currentColor, so registry components using a bare `border` render with
+   the text colour instead of the border token.
+
+   Verified safe for existing pages: every border utility already in this repo
+   (`border-l-4`, `border-t`, `border-collapse`) either sets border-color via an
+   inline style — which wins over this — or sets no colour at all. */
+@layer base {
+  *,
+  ::after,
+  ::before {
+    border-color: var(--color-border);
+  }
+}
