@@ -64,7 +64,7 @@ export const menuCategories: MenuCategory[] = [
   {
     label: 'Install',
     sublabel: 'On-site & low-voltage',
-    href: '/services/security-cameras',
+    href: '/services/install',
     tiles: [
       { title: 'Security Cameras',        description: 'Indoor & outdoor surveillance',   href: '/services/security-cameras' },
       { title: 'Door Access Control',     description: 'Readers, mobile & card unlock',    href: '/services/door-access-control' },
@@ -75,13 +75,13 @@ export const menuCategories: MenuCategory[] = [
   },
   {
     label: 'IT & Cloud',
-    href: '/services/managed-it',
+    href: '/services/it-cloud',
     tiles: [
       { title: 'Help Desk',             description: 'Local engineers, fast response',         href: '/services/help-desk' },
       { title: 'Remote Monitoring',     description: 'Datto RMM, patching, automation',        href: '/services/remote-monitoring' },
-      { title: 'Vendor Management',     description: 'One number for all your tech vendors',   href: '/services/managed-it#vendors' },
+      { title: 'Vendor Management',     description: 'One number for all your tech vendors',   href: '/services/vendor-management' },
       { title: 'Microsoft 365',         description: 'Tenant design, licensing, migration',    href: '/services/cloud-microsoft-365#m365' },
-      { title: 'Entra ID & Intune',     description: 'Identity & device management',           href: '/services/cloud-microsoft-365#intune' },
+      { title: 'Entra ID & Intune',     description: 'Identity & device management',           href: '/services/entra-id-intune' },
       { title: 'Backup & Disaster Recovery', description: 'Immutable copies & tested restores', href: '/services/backup-disaster-recovery' },
     ],
   },

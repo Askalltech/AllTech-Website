@@ -1,0 +1,203 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * PARENT LANDING PAGE for the Network menu column.
+ *
+ * DEVIATION FROM THE SUPPLIED BRIEF, deliberate: the brief retargets every nav
+ * child onto an anchor on this page (#unifi, #cameras, #helpdesk, ...). Those
+ * children already have full standalone pages on this branch, built and
+ * approved earlier. Pointing the nav back at anchors would orphan thirteen
+ * pages, so the nav children are left alone and each capability block here
+ * links OUT to its page instead.
+ *
+ * The anchor ids the brief specifies ARE present on this page, so if the nav
+ * should later point at anchors instead, that switch costs one edit in
+ * menu.ts and nothing here changes.
+ */
+
+const capabilities: { id: string; title: string; href: string; points: string[] }[] = [
+  {
+    id: 'unifi',
+    title: 'Switching & Gateways',
+    href: '/services/switching-and-gateways',
+    points: [
+      'Business-grade UniFi switching and gateways sized for actual port count, PoE budget, and growth — not the cheapest box that fits today.',
+      'VLAN segmentation separating staff, guest, VoIP, cameras, and OT so one compromised device can\'t reach everything.',
+      'Single-pane UniFi management across every site, monitored alongside your other systems.',
+    ],
+  },
+  {
+    id: 'wifi',
+    title: 'Wi-Fi Design',
+    href: '/services/wifi-design',
+    points: [
+      'On-site survey before the quote: coverage, capacity, interference, and construction materials measured, not estimated.',
+      'AP placement and channel plan designed for density — a warehouse and a clinic waiting room are not the same problem.',
+      'Post-install validation walk with results documented, plus tuning after you\'ve had real users on it.',
+    ],
+  },
+  {
+    id: 'firewall',
+    title: 'Firewall & Routing',
+    href: '/services/firewall-routing',
+    points: [
+      'Edge firewall policy built around your VLAN design — rules that reflect how the business actually works.',
+      'Multi-WAN failover so a single carrier outage doesn\'t stop the day.',
+      'Ongoing firmware and rule maintenance under your managed agreement, not a one-time config that drifts for four years.',
+    ],
+  },
+  {
+    id: 'sdwan',
+    title: 'Site-to-Site & SD-WAN',
+    href: '/services/site-to-site-sd-wan',
+    points: [
+      'Encrypted site-to-site links between offices, warehouses, and remote facilities.',
+      'SD-WAN routing that picks the healthy path automatically instead of waiting for someone to notice.',
+      'Cloudflare Tunnel as an alternative where you need application access without exposing public IPs.',
+    ],
+  },
+];
+
+const pillars: [string, string][] = [
+  ['Surveyed', 'We walk the building before we quote.'],
+  ['UniFi specialists', 'Deep on one platform beats shallow on five.'],
+  ['Documented', 'Diagrams, IPs, VLANs, credentials — handed to you, not held hostage.'],
+];
+
+const engage: [string, string, string, string][] = [
+  ['01', 'SURVEY', 'Site survey & design', 'Walk the building, map coverage and cabling paths, produce a design and fixed quote.'],
+  ['02', 'DEPLOY', 'Install & cut-over', 'Staged and configured in advance; cut-over scheduled around your production hours.'],
+  ['03', 'OPERATE', 'Monitor & maintain', 'Firmware, capacity, and health monitored under a managed agreement.'],
+];
+
+const contactHref = '/contact?service=Network%20%26%20Infrastructure';
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Business Network Design & Wi-Fi',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Business Network Design & Wi-Fi',
+  description: 'UniFi switching, business Wi-Fi design, firewall and multi-WAN routing, and site-to-site SD-WAN for businesses across northern Utah and southern Idaho.',
+};
+---
+
+<BaseLayout
+  title="Business Network Design & Wi-Fi"
+  description="UniFi switching, business Wi-Fi design, firewall and multi-WAN routing, and site-to-site SD-WAN for businesses across northern Utah and southern Idaho."
+  canonical={`${site.url}/services/network-design`}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">Network &middot; Design &amp; Infrastructure</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          The network<br />
+          <span style="color: var(--color-amber-400);">everything else runs on.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">Switching, Wi-Fi, firewalls, and multi-site links designed as one system by Ubiquiti UniFi specialists — surveyed before it's quoted, documented after it's built.</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Scope a network project <span aria-hidden="true">&rarr;</span></a>
+          <a href="#what-we-deploy" class="btn btn-ghost">What we deploy</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Capabilities -->
+  <section id="what-we-deploy" class="surface-dark py-16 lg:py-20 scroll-mt-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Capabilities</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What we deploy.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">Four layers, one design. We size and document the whole path — internet handoff to access point — so nobody has to guess later.</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+        {capabilities.map(({ id, title, href, points }) => (
+          <div id={id} class="card scroll-mt-24">
+            <h3 class="font-display text-xl font-bold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <ul class="space-y-2.5 list-none p-0 m-0">
+              {points.map((pt) => (
+                <li class="flex items-start gap-2.5">
+                  <svg class="w-4 h-4 mt-1 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <span class="text-sm leading-snug" style="color: var(--color-text-default);">{pt}</span>
+                </li>
+              ))}
+            </ul>
+            <a href={href} class="mt-4 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">
+              Learn more <span aria-hidden="true">&rarr;</span>
+            </a>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Why -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Why AllTech</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Designed once. Documented always.
+        </h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-6">
+        {pillars.map(([t, b]) => (
+          <div>
+            <div class="font-display text-2xl font-semibold" style="color: var(--color-amber-500);">{t}</div>
+            <div class="mt-2 leading-relaxed text-muted">{b}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Engage -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">How we engage</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Three ways to start.
+        </h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4">
+        {engage.map(([n, label, t, b], i) => (
+          <div class="card" style={i === 1 ? 'border-color: var(--color-amber-400);' : ''}>
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-amber-600);">{n} &middot; {label}</div>
+            <h3 class="font-display text-xl font-semibold mb-3" style="color: var(--color-text-primary);">{t}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{b}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="surface-dark py-16 lg:py-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Wi-Fi that drops, or a network you inherited?
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">Send us the address and a rough headcount. We'll tell you whether it needs a survey or just tuning.</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Scope a network project <span aria-hidden="true">&rarr;</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

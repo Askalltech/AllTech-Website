@@ -1,0 +1,349 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * IT & CLOUD family — amber accent.
+ *
+ * HELD BACK from the supplied copy: the section 03 stats block. It asserted
+ * that 50.8% of security incidents across AllTech's client base last month
+ * originated in Microsoft 365 rather than on an endpoint, and its own build
+ * note says to pull the current figure from the RocketCyber SOC monthly report
+ * and fill in the date range before publishing. The source line shipped as a
+ * literal "[DATE RANGE]" placeholder.
+ *
+ * The section is kept, because the ARGUMENT is sound without the number — a
+ * stolen session token never touches a managed laptop, and that is the point.
+ * Restore the figure and the date range together, from a real report, or leave
+ * it as is. Do not ship a placeholder.
+ *
+ * Microsoft's "fewer than five Global Administrators" guidance is Microsoft's
+ * published recommendation and stays. "Three to six in the average
+ * small-business tenant" is AllTech's own observation, phrased as an
+ * observation rather than a measurement.
+ */
+
+const gaps = [
+  ['Global Administrators nobody can account for', "The average small-business tenant has several. Microsoft's own guidance is fewer than five, with none of them used for daily work. We usually find at least one that belonged to a former MSP."],
+  ['MFA enforced by policy, not in practice', 'Enabled for most staff, missing on the shared mailbox, the service account, and the executive who requested an exemption in 2022 that was never revisited.'],
+  ['Legacy authentication still on', 'Basic auth protocols that predate MFA and bypass it entirely. Almost always left enabled for one device — a scanner, a copier, an old line-of-business app — and almost always forgotten once that device is replaced.'],
+  ['Devices enrolled but not compliant', 'Enrollment and compliance are two different things. A device can be in Intune, reporting cheerfully, and still be unencrypted and three months behind on patches. Without a compliance policy tied to conditional access, nothing acts on that.'],
+  ['Personal phones with full mailbox access', 'No app protection policy, no separation between work mail and everything else on the phone, no way to remove company data if the phone is lost or the employee leaves.'],
+  ['Ex-employees with live sessions', "The account was disabled. The active session token wasn't revoked, and it stays valid until it expires on its own."],
+];
+
+const included = [
+  ['Entra ID tenant design', 'Users, groups, and roles built on a structure that still makes sense at twice your headcount. Licensing assigned by group rather than by hand. Administrative roles scoped to what the job actually needs — most people who need to reset a password do not need to be a Global Administrator.'],
+  ['Conditional access', "The rules that decide whether a sign-in succeeds: MFA where it matters, blocked sign-ins from countries you don't do business in, restricted access from unmanaged devices, and session controls for the accounts that would hurt most. Built with break-glass accounts and a rollout order that doesn't lock anybody out of their own tenant."],
+  ['MFA and passwordless', "Phishing-resistant methods where they'll be adopted — Microsoft Authenticator number matching, Windows Hello for Business, FIDO2 keys for privileged accounts. Legacy authentication protocols disabled, once we've found what still depends on them."],
+  ['Intune device management', 'Windows and macOS enrollment, iOS and Android for the phones that touch company mail. Baseline security configuration, BitLocker and FileVault enforcement, disk encryption key escrow, and app deployment that does not require an engineer at the desk.'],
+  ['Device compliance and Autopilot', 'Compliance policies that define what a trusted device is — encrypted, patched, protected, and up to date — tied back into conditional access so a non-compliant machine loses access instead of quietly keeping it. Autopilot for new hardware: unbox, connect to Wi-Fi, sign in, and the laptop configures itself.'],
+  ['Identity monitoring', 'Risky sign-in and risky user detections routed into the same SOC that watches your endpoints. Impossible-travel logins, anonymized IP addresses, and anomalous session tokens are the ones we want to hear about at 3 a.m., not on the next monthly report.'],
+  ['Offboarding that finishes', 'A documented sequence: disable the account, revoke active sessions and refresh tokens, remove licenses, convert the mailbox, wipe or retire the device. Session revocation is the step most people skip, and it is the one that decides whether a departed employee actually lost access.'],
+];
+
+const rollout = [
+  ['1', 'Assess', 'We inventory the tenant as it stands: admin roles, MFA coverage, conditional access policies, legacy auth, enrolled devices, guest accounts, and licensing. You get the findings whether or not you hire us for the remediation.'],
+  ['2', 'Design', 'Policies drafted against your actual working patterns — who travels, who works from home, which devices are company-owned, what the field staff use. Break-glass accounts created and documented before anything is enforced.'],
+  ['3', 'Pilot', 'Policies deploy in report-only mode first. We watch what would have been blocked for a week or two and fix the surprises before they become help desk tickets. Every environment has at least one.'],
+  ['4', 'Enforce', 'Staged rollout by group, IT first, then department by department. Communication sent ahead of each stage so people know what is changing and why.'],
+  ['5', 'Enroll', 'Devices move into Intune in batches, existing hardware first, Autopilot for everything purchased after. Compliance policies come on in report-only mode too, then enforce.'],
+  ['6', 'Operate', 'Ongoing administration: onboarding, offboarding, policy changes, license management, and identity alerts monitored by the SOC alongside your endpoints.'],
+];
+
+const fit = [
+  'You\'re on Microsoft 365 and nobody has reviewed the security settings since the tenant was created',
+  "Your cyber-insurance renewal asks whether MFA is enforced on all accounts and you can't answer with certainty",
+  'Staff work from home, from the road, or from their own phones, and access is the same either way',
+  'You handle regulated data — patient records, financial records, CJIS, or CMMC-scoped work',
+  'Onboarding a new hire takes a day and offboarding takes a week',
+  "You've inherited a tenant from a previous IT provider who still has access",
+];
+
+const faqs = [
+  ["What's the difference between Entra ID and Intune?", "Entra ID is identity: accounts, groups, sign-ins, and the rules that govern them. Intune is device management: enrollment, configuration, patching, and compliance. They're most useful together — Intune decides whether a device is trustworthy, and Entra ID uses that answer to decide whether to allow the sign-in."],
+  ['Do we need to buy new licenses?', "Sometimes, and less often than expected. Conditional access requires Entra ID P1, which is included in Business Premium — a license many businesses already own and haven't fully deployed. We'll tell you what you're already paying for before we suggest anything new."],
+  ['Will this lock people out?', "That's the risk the rollout process is designed around. Every policy runs in report-only mode first so we can see the effect before it's real, break-glass accounts are in place before enforcement, and the rollout is staged by group rather than tenant-wide overnight."],
+  ['Can employees still use their personal phones?', 'Yes. App protection policies let us protect company data inside the Outlook and Teams apps without managing the whole phone. Company data can be wiped remotely; personal photos and messages are untouched and out of scope.'],
+  ["We already have MFA. Isn't that enough?", 'MFA is the single highest-value control and it is not the whole job. Token theft and MFA-fatigue attacks both work against accounts with MFA enabled. Conditional access, device compliance, and session controls are what close that gap.'],
+  ['What about our on-premises Active Directory?', 'Most environments run hybrid for a while, and that is fine. We handle Entra Connect sync, password hash or pass-through authentication, and — where it makes sense — a path toward retiring the on-prem domain controller entirely.'],
+  ['Can you take over a tenant from our previous provider?', 'Yes, and it is a common starting point. The first task is a full admin-access audit: who has privileged access, which partner relationships are still delegated, and what gets removed.'],
+];
+
+const related = [
+  ['Microsoft 365 & Cloud', 'Tenant design, migration, licensing, and ongoing administration.', '/services/cloud-microsoft-365'],
+  ['Endpoint Security', "Device compliance decides what's trusted; EDR decides what's happening on it.", '/services/endpoint-security'],
+  ['Zero Trust Access (ZTNA)', 'Identity-aware access to internal applications, without a VPN.', '/services/zero-trust-access'],
+  ['Managed SOC', 'Risky sign-in alerts are only useful if someone reads them at 3 a.m.', '/services/managed-soc'],
+  ['Email Security', 'Most credential theft starts with a message that got through.', '/services/email-security'],
+];
+
+const contactHref = '/contact?service=Microsoft%20365%20%2F%20Cloud';
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Entra ID and Intune Management',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Entra ID & Intune — Identity and Device Management',
+  description:
+    'Entra ID and Intune management — conditional access, MFA, device compliance, and managed enrollment, built and run by local engineers.',
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(([question, answer]) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer },
+  })),
+};
+---
+
+<BaseLayout
+  title="Entra ID & Intune — Identity and Device Management"
+  description="Entra ID and Intune management for Northern Utah businesses. Conditional access, MFA, device compliance, and managed enrollment — built and run by local engineers."
+  canonical={`${site.url}/services/entra-id-intune`}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">Entra ID &amp; Intune</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          The laptop was clean.<br />
+          <span style="color: var(--color-amber-400);">The account wasn't.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">
+          Endpoint security protects the device. Identity is what an attacker actually wants — and a
+          stolen session token never touches a managed machine. AllTech builds and runs the Entra ID
+          and Intune side of Microsoft 365: who can sign in, from what device, under what
+          conditions, and what happens when those conditions stop being true.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Schedule an identity review <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 · The problem -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide grid lg:grid-cols-12 gap-10">
+      <div class="lg:col-span-5">
+        <div class="eyebrow mb-4">01 · The problem</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Most tenants are secure by accident, not by design.
+        </h2>
+      </div>
+      <div class="lg:col-span-7 space-y-4 leading-relaxed text-muted">
+        <p>
+          Microsoft 365 ships open. A new tenant will happily let anyone sign in from any device,
+          anywhere in the world, with a password alone — and it will do it without generating a
+          single complaint. Nothing breaks. That's the difficulty. There is no error message for a
+          tenant that has no conditional access policies; there's just a quiet gap between what you
+          assume is happening and what's actually enforced.
+        </p>
+        <p>
+          The gap usually shows up in the same few places. MFA is on for most people, but not the
+          service account nobody remembers creating. Legacy authentication is still enabled because
+          turning it off might break the scanner in accounting. Personal phones sync company mail
+          with nothing in the way. Six people are Global Administrators because that's what "make
+          them an admin" did at the time.
+        </p>
+        <p>
+          None of that is negligence. It's what happens when a
+          <a href="/services/cloud-microsoft-365" class="font-medium" style="color: var(--color-amber-600);">tenant</a>
+          grows one request at a time over five years and nobody's job was to look at the whole
+          thing.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 · What's included -->
+  <section id="included" class="surface-dark py-16 lg:py-20 scroll-mt-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">02 · What's included</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Identity, devices, and the policies between them.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {included.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-base font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        Identity alerts land with the same
+        <a href="/services/managed-soc" class="font-medium" style="color: var(--color-amber-600);">Managed SOC</a>
+        that watches your endpoints, so a risky sign-in gets a human rather than a dashboard entry.
+      </p>
+    </div>
+  </section>
+
+  <!-- 03 · In practice -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">03 · In practice</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The device was fine. The account was being used by someone else.
+        </h2>
+        <div class="mt-6 space-y-4 text-lg leading-relaxed text-muted">
+          <p>
+            A meaningful share of the security incidents we open across our client base start in
+            Microsoft 365 rather than on an endpoint. Sign-ins from anonymized IP addresses. Logins
+            from places no employee had traveled to. A session token behaving in a way that meant
+            multi-factor authentication had already been skipped.
+          </p>
+          <p>
+            None of those touched a managed laptop. The device was fine. The antivirus was green.
+          </p>
+          <p>
+            That is the argument for treating identity as its own layer with its own controls,
+            rather than as a setting inside the email product. Conditional access is what turns a
+            stolen password into a failed sign-in, and device compliance is what stops a valid
+            password on an unmanaged machine from being good enough. It is also why identity
+            detections belong with
+            <a href="/services/endpoint-security" class="font-medium" style="color: var(--color-amber-600);">endpoint detections</a>,
+            in front of the same analysts.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · What we find -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">04 · What we find</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The same six findings, in almost every tenant.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {gaps.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 · Getting started -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">05 · Getting started</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          How we roll this out without locking anyone out.
+        </h2>
+      </div>
+      <ol class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 list-none p-0 m-0">
+        {rollout.map(([n, title, body]) => (
+          <li class="card">
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-amber-600);">{n}</div>
+            <h3 class="font-display text-lg font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- 06 · Fit -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">06 · Fit</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          This is the right fit if
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-x-10 gap-y-3 max-w-5xl">
+        {fit.map((item) => (
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="leading-snug text-muted">{item}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 · FAQ -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">07 · FAQ</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Common questions
+      </h2>
+      <div class="mt-8 space-y-6 not-prose">
+        {faqs.map(([q, a]) => (
+          <div>
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{q}</h3>
+            <p class="leading-relaxed text-muted">{a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 · Related services -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">08 · Related services</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Identity is one layer
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {related.map(([title, body, href]) => (
+          <a href={href} class="card group block">
+            <h3 class="font-display text-lg font-bold mb-2 group-hover:text-[var(--color-amber-600)] transition" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+            <span class="mt-3 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">Learn more <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="surface-dark py-16 lg:py-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Find out who can actually get into your tenant.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          We'll audit your Entra ID configuration — admin roles, MFA coverage, conditional access,
+          legacy authentication, and device compliance — and show you the gaps in plain language.
+          Findings are yours either way, no pressure.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Schedule an identity review <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,213 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * PARENT LANDING PAGE for the Install menu column.
+ *
+ * DEVIATION FROM THE SUPPLIED BRIEF, deliberate: the brief retargets every nav
+ * child onto an anchor on this page (#unifi, #cameras, #helpdesk, ...). Those
+ * children already have full standalone pages on this branch, built and
+ * approved earlier. Pointing the nav back at anchors would orphan thirteen
+ * pages, so the nav children are left alone and each capability block here
+ * links OUT to its page instead.
+ *
+ * The anchor ids the brief specifies ARE present on this page, so if the nav
+ * should later point at anchors instead, that switch costs one edit in
+ * menu.ts and nothing here changes.
+ */
+
+const capabilities: { id: string; title: string; href: string; points: string[] }[] = [
+  {
+    id: 'cameras',
+    title: 'Security Cameras',
+    href: '/services/security-cameras',
+    points: [
+      'UniFi Protect indoor and outdoor camera systems — designed around the shots you actually need, not a camera count.',
+      'On-premise recording with retention sized to your policy; remote viewing on phone or desktop without opening ports to the internet.',
+      'Placement planned with lighting, entry points, and usable identification distance in mind.',
+    ],
+  },
+  {
+    id: 'access',
+    title: 'Door Access Control',
+    href: '/services/door-access-control',
+    points: [
+      'UniFi Access readers with card, fob, and mobile unlock — no more re-keying after every departure.',
+      'Schedules and per-door permissions by role, plus an audit trail of who opened what and when.',
+      'Integrated with your identity system where it makes sense, so offboarding removes building access too.',
+    ],
+  },
+  {
+    id: 'cabling',
+    title: 'Structured Cabling',
+    href: '/services/structured-cabling',
+    points: [
+      'Cat6/6A drops, terminations, and labeling done to standard — tested, certified, and documented.',
+      'Fiber runs between buildings and between floors where copper won\'t reach.',
+      'Clean pathways and dressing, because someone will have to work in there in five years.',
+    ],
+  },
+  {
+    id: 'ptp',
+    title: 'Point-to-Point Wireless',
+    href: '/services/point-to-point-wireless',
+    points: [
+      'Licence-free point-to-point and point-to-multipoint links bridging buildings, yards, shops, and remote sites where trenching isn\'t worth it.',
+      'Path survey and link budget before install — line of sight confirmed, not assumed.',
+      'Monitored alongside the rest of the network so a degrading link gets caught before it drops.',
+    ],
+  },
+  {
+    id: 'racks',
+    title: 'Rack & Server Rooms',
+    href: '/services/rack-server-rooms',
+    points: [
+      'Rack and enclosure buildouts: mounting, power, cable management, and airflow.',
+      'Cleanup of inherited server rooms — re-terminated, re-labeled, and mapped.',
+      'UPS sizing and shutdown configuration so a power event doesn\'t corrupt what\'s running.',
+    ],
+  },
+];
+
+const pillars: [string, string][] = [
+  ['In-house', 'Our engineers on the ladder, not a subcontracted crew.'],
+  ['Integrated', 'Cameras and doors land on the VLANs we designed.'],
+  ['Documented', 'As-built drawings, port maps, and labels handed over at close.'],
+];
+
+const engage: [string, string, string, string][] = [
+  ['01', 'WALK', 'Site walk & scope', 'On-site visit, measurements, photos, and a fixed-scope quote.'],
+  ['02', 'INSTALL', 'Build & terminate', 'Scheduled around your hours; tested and certified before we call it done.'],
+  ['03', 'HAND OFF', 'Document & support', 'As-builts delivered, systems added to monitoring, warranty and support in writing.'],
+];
+
+const contactHref = '/contact?service=Network%20%26%20Infrastructure';
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Low-Voltage Install — Cameras, Access Control & Cabling',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Low-Voltage Install — Cameras, Access Control & Cabling',
+  description: 'On-site low-voltage installation across northern Utah: UniFi Protect cameras, door access control, structured cabling, point-to-point wireless, and server-room buildouts.',
+};
+---
+
+<BaseLayout
+  title="Low-Voltage Install — Cameras, Access Control & Cabling"
+  description="On-site low-voltage installation across northern Utah: UniFi Protect cameras, door access control, structured cabling, point-to-point wireless, and server-room buildouts."
+  canonical={`${site.url}/services/install`}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">Install &middot; On-site &amp; Low-Voltage</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          The part that<br />
+          <span style="color: var(--color-amber-400);">requires a ladder.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">Cameras, door access, cabling, wireless bridges, and rack buildouts — installed by the same engineers who manage the network they plug into. One vendor, one drawing, one number to call.</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Schedule a site walk <span aria-hidden="true">&rarr;</span></a>
+          <a href="#what-we-deploy" class="btn btn-ghost">What we install</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Capabilities -->
+  <section id="what-we-deploy" class="surface-dark py-16 lg:py-20 scroll-mt-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Capabilities</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What we install.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">Five on-site disciplines. Each one lands on the network we designed, so there's no finger-pointing between the cabling guy and the IT guy.</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+        {capabilities.map(({ id, title, href, points }) => (
+          <div id={id} class="card scroll-mt-24">
+            <h3 class="font-display text-xl font-bold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <ul class="space-y-2.5 list-none p-0 m-0">
+              {points.map((pt) => (
+                <li class="flex items-start gap-2.5">
+                  <svg class="w-4 h-4 mt-1 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <span class="text-sm leading-snug" style="color: var(--color-text-default);">{pt}</span>
+                </li>
+              ))}
+            </ul>
+            <a href={href} class="mt-4 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">
+              Learn more <span aria-hidden="true">&rarr;</span>
+            </a>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Why -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Why AllTech</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          One crew, one drawing.
+        </h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-6">
+        {pillars.map(([t, b]) => (
+          <div>
+            <div class="font-display text-2xl font-semibold" style="color: var(--color-amber-500);">{t}</div>
+            <div class="mt-2 leading-relaxed text-muted">{b}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Engage -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">How we engage</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Three ways to start.
+        </h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4">
+        {engage.map(([n, label, t, b], i) => (
+          <div class="card" style={i === 1 ? 'border-color: var(--color-amber-400);' : ''}>
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-amber-600);">{n} &middot; {label}</div>
+            <h3 class="font-display text-xl font-semibold mb-3" style="color: var(--color-text-primary);">{t}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{b}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="surface-dark py-16 lg:py-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Building out, moving in, or fixing what&rsquo;s already there?
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">Tell us the site and what you need covered. We'll walk it and come back with a real number.</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Schedule a site walk <span aria-hidden="true">&rarr;</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

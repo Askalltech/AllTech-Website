@@ -103,6 +103,17 @@ const related = [
 // silently does nothing.
 const contactHref = '/contact?service=Backup%20%26%20Disaster%20Recovery';
 
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Backup and Disaster Recovery',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Backup & Disaster Recovery',
+  description:
+    'Backup and disaster recovery designed, run, and restore-tested on a schedule, with immutable copies and documented RTO and RPO.',
+};
+
 const faqSchema = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -117,7 +128,9 @@ const faqSchema = {
 <BaseLayout
   title="Backup & Disaster Recovery"
   description="Backup is only worth what it restores. AllTech builds and tests backup and disaster recovery for Northern Utah businesses. Book a restore test review."
+  canonical={`${site.url}/services/backup-disaster-recovery`}
 >
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
 
   <!-- Hero -->

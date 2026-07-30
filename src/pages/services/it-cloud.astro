@@ -1,0 +1,228 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * PARENT LANDING PAGE for the IT & Cloud menu column.
+ *
+ * DEVIATION FROM THE SUPPLIED BRIEF, deliberate: the brief retargets every nav
+ * child onto an anchor on this page (#unifi, #cameras, #helpdesk, ...). Those
+ * children already have full standalone pages on this branch, built and
+ * approved earlier. Pointing the nav back at anchors would orphan thirteen
+ * pages, so the nav children are left alone and each capability block here
+ * links OUT to its page instead.
+ *
+ * The anchor ids the brief specifies ARE present on this page, so if the nav
+ * should later point at anchors instead, that switch costs one edit in
+ * menu.ts and nothing here changes.
+ */
+
+const capabilities: { id: string; title: string; href: string; points: string[] }[] = [
+  {
+    id: 'helpdesk',
+    title: 'Help Desk',
+    href: '/services/help-desk',
+    points: [
+      'Local engineers answering the phone in Hyde Park — not a ticket queue routed overseas.',
+      'Remote resolution for most issues, on-site when hardware needs hands.',
+      'Onboarding and offboarding handled end to end: laptop, logins, M365, access, and the reverse on the way out.',
+    ],
+  },
+  {
+    id: 'rmm',
+    title: 'Remote Monitoring & Patching',
+    href: '/services/remote-monitoring',
+    points: [
+      'Datto RMM across workstations and servers — patching, scripting, and automation running before problems surface.',
+      'Health alerting on disks, backups, and services, so a silent failure doesn\'t become a Monday morning.',
+      'Standardized configuration applied to every machine, so the fleet stays consistent as it grows.',
+    ],
+  },
+  {
+    id: 'vendors',
+    title: 'Vendor Management',
+    href: '/services/vendor-management',
+    points: [
+      'One number for the ISP, the phone system, the line-of-business software, and the copier.',
+      'We sit on the hold call and translate, so your staff doesn\'t have to.',
+      'Renewal and contract dates tracked, so nothing auto-renews by surprise.',
+    ],
+  },
+  {
+    id: 'm365',
+    title: 'Microsoft 365',
+    href: '/services/cloud-microsoft-365',
+    points: [
+      'Tenant design, licensing right-sizing, and migration from on-prem Exchange, Google Workspace, or another tenant.',
+      'SharePoint and Teams structure that matches how your teams actually share files.',
+      'Ongoing administration and security baseline maintenance.',
+    ],
+  },
+  {
+    id: 'intune',
+    title: 'Entra ID & Intune',
+    href: '/services/entra-id-intune',
+    points: [
+      'Identity as the control plane: MFA, conditional access, and least-privilege roles.',
+      'Intune device enrollment, compliance policy, and app deployment across Windows and mobile.',
+      'Access that follows the person, so a departure closes every door at once.',
+    ],
+  },
+  {
+    id: 'bdr',
+    title: 'Backup & Disaster Recovery',
+    href: '/services/backup-disaster-recovery',
+    points: [
+      'Immutable backup copies that ransomware can\'t reach or encrypt.',
+      'Restores tested on a schedule — a backup nobody has restored is a hope, not a plan.',
+      'Documented recovery objectives, so you know what "back up and running" actually means in hours.',
+    ],
+  },
+];
+
+const pillars: [string, string][] = [
+  ['Local', 'Northern Utah since 2009, on-site when it matters.'],
+  ['Proactive', 'Monitored and patched before the call comes in.'],
+  ['Accountable', 'Documented, responsive, and still here in year ten.'],
+];
+
+const engage: [string, string, string, string][] = [
+  ['01', 'ASSESS', 'Environment review', 'Inventory, risk, and licensing review. Often the first step for a business outgrowing one IT person.'],
+  ['02', 'STANDARDIZE', 'Onboard & align', 'RMM, identity, M365, and backup brought to one standard; fixed scope.'],
+  ['03', 'OPERATE', 'Managed agreement', 'Help desk, monitoring, patching, and vendor management billed monthly per user or endpoint.'],
+];
+
+const contactHref = '/contact?service=Managed%20IT';
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Managed IT & Cloud Services',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Managed IT & Cloud Services',
+  description: 'Outsourced IT for northern Utah businesses: local help desk, Datto RMM monitoring and patching, vendor management, Microsoft 365, Entra ID and Intune, and tested backup and disaster recovery.',
+};
+---
+
+<BaseLayout
+  title="Managed IT & Cloud Services"
+  description="Outsourced IT for northern Utah businesses: local help desk, Datto RMM monitoring and patching, vendor management, Microsoft 365, Entra ID and Intune, and tested backup and disaster recovery."
+  canonical={`${site.url}/services/it-cloud`}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">IT &amp; Cloud &middot; Managed Services</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          Your IT department,<br />
+          <span style="color: var(--color-amber-400);">without the hiring.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">Help desk, monitoring, patching, Microsoft 365, identity, and backup — run by local engineers who already know your environment. When you call, you get the person who built it.</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Talk to an engineer <span aria-hidden="true">&rarr;</span></a>
+          <a href="#what-we-deploy" class="btn btn-ghost">What's included</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Capabilities -->
+  <section id="what-we-deploy" class="surface-dark py-16 lg:py-20 scroll-mt-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Capabilities</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What's included.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">Six functions that normally take an internal team. Each links to how we actually deliver it.</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+        {capabilities.map(({ id, title, href, points }) => (
+          <div id={id} class="card scroll-mt-24">
+            <h3 class="font-display text-xl font-bold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <ul class="space-y-2.5 list-none p-0 m-0">
+              {points.map((pt) => (
+                <li class="flex items-start gap-2.5">
+                  <svg class="w-4 h-4 mt-1 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <span class="text-sm leading-snug" style="color: var(--color-text-default);">{pt}</span>
+                </li>
+              ))}
+            </ul>
+            <a href={href} class="mt-4 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">
+              Learn more <span aria-hidden="true">&rarr;</span>
+            </a>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Why -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Why AllTech</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          One team, no hand-offs.
+        </h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-6">
+        {pillars.map(([t, b]) => (
+          <div>
+            <div class="font-display text-2xl font-semibold" style="color: var(--color-amber-500);">{t}</div>
+            <div class="mt-2 leading-relaxed text-muted">{b}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Engage -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">How we engage</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Three ways to start.
+        </h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4">
+        {engage.map(([n, label, t, b], i) => (
+          <div class="card" style={i === 1 ? 'border-color: var(--color-amber-400);' : ''}>
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-amber-600);">{n} &middot; {label}</div>
+            <h3 class="font-display text-xl font-semibold mb-3" style="color: var(--color-text-primary);">{t}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{b}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        Related: <a href="/services/cybersecurity" class="font-medium" style="color: var(--color-amber-600);">Cybersecurity</a> &middot;
+        <a href="/services/alltech-top-10" class="font-medium" style="color: var(--color-amber-600);">AllTech Top 10</a> &middot;
+        <a href="/assessment" class="font-medium" style="color: var(--color-amber-600);">Free security gap assessment</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="surface-dark py-16 lg:py-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Outgrowing one IT person?
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">Send a short note about your environment. We'll book 30 minutes and tell you honestly what's worth doing first.</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Talk to an engineer <span aria-hidden="true">&rarr;</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
