@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
 /* ============================================================
    AllTech design tokens — dark-first
 
@@ -494,6 +496,18 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --animate-shadow-ping:  shadow-ping 1.5s ease-in-out infinite;
+  @keyframes shadow-ping {
+  0% {
+    box-shadow:  0 0 0 0px var(--color-neutral-100);
+    }
+  50% {
+    box-shadow:  0 0 0 12px var(--color-neutral-300);
+    }
+  100% {
+    box-shadow:  0 0 0 12px transparent;
+    }
+  }
 }
 
 /* shadcn expects a global border-color default. Tailwind v4 defaults borders
