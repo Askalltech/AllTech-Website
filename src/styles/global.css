@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
 /* ============================================================
    AllTech design tokens — dark-first
 
@@ -26,15 +28,22 @@
   --color-ink-900: #0a0f1a;
   --color-ink-950: #050810;
 
-  /* ----- SCALE: warm amber accent -----
+  /* ----- SCALE: brand accent -----
+     Site-wide theme swap, requested explicitly (previously amber/orange, now
+     the blue from the shadcnblocks custom theme registry palette, oklch hue
+     221.386). Token NAMES kept as "amber-*" rather than renamed sitewide —
+     every page already references these symbolically, so only the values
+     needed to change. A future full rename (amber-* -> brand-*) would touch
+     every page file for zero visual gain; do that separately if wanted.
      Light-mode tuned: amber-400 is the vivid fill (buttons, brand, large
      display highlights); amber-300 is intentionally deepened so it stays
-     readable as small accent text / links on white. */
-  --color-amber-200: #ffd699;
-  --color-amber-300: #b45309; /* readable accent TEXT on white (AA) */
-  --color-amber-400: #ec8c00; /* vivid FILL: buttons, brand dot, highlights */
-  --color-amber-500: #c46d00;
-  --color-amber-600: #9a5400;
+     readable as small accent text / links on white — re-verified for this
+     hue: 7.6:1 contrast on white (was tuned for AA before; now clears AAA). */
+  --color-amber-200: #a6dbed;
+  --color-amber-300: #005a7e; /* readable accent TEXT on white (AAA, 7.6:1) */
+  --color-amber-400: #0083b3; /* vivid FILL: buttons, brand dot, highlights */
+  --color-amber-500: #006792;
+  --color-amber-600: #004e72;
 
   /* ----- SCALE: signal ----- */
   --color-success: #15a06b;
@@ -42,14 +51,17 @@
   --color-danger:  #dc2626;
 
   /* ----- SCALE: illustration-only secondary hues -----
-     Reserved for the icon/illustration system (src/components/Icon.astro)
-     and larger composed scenes. NOT used in UI chrome — buttons, links, and
-     borders stay amber-only so the palette stays controlled. Muted/desaturated
-     on purpose so they sit quietly next to amber instead of competing with it.
+     Reserved for the icon/illustration system (src/components/Icon.astro),
+     larger composed scenes, and the Network/Install page family's accent
+     (distinguishes it from the Cybersecurity/SASE family's primary accent —
+     see net-family in switching-and-gateways.astro and siblings). Mapped to
+     the new theme's own --accent hue (251.386, blue-violet) rather than the
+     same hue as the primary/amber-* replacement above, specifically so the
+     two families stay visually distinguishable the way amber/teal did before.
      teal = connectivity/"online" status. slate = neutral hardware/infrastructure. */
-  --color-teal-400:  #6fc4b6;
-  --color-teal-500:  #4fb8a8;
-  --color-teal-600:  #2d7d70;
+  --color-teal-400:  #69a9ed;
+  --color-teal-500:  #2d83d6;
+  --color-teal-600:  #0059a2;
   --color-slate-400: #8b9bb4;
   --color-slate-500: #6f81a0;
   --color-slate-600: #5a6b85;
@@ -59,7 +71,7 @@
   --color-bg-surface:  #ffffff;
   --color-bg-elevated: #eef2f8;
   --color-bg-inverse:  #f1f4f9; /* subtle alternate light surface */
-  --color-bg-tint:     #fff6e6; /* light amber wash for card-amber */
+  --color-bg-tint:     #e6f4fb; /* light blue wash for card-amber and diagram fills */
 
   /* ----- SEMANTIC: borders ----- */
   --color-border-subtle:  #e4e9f2;
@@ -71,14 +83,14 @@
   --color-text-default: #243045;
   --color-text-muted:   #51617c;
   --color-text-subtle:  #6b7a96; /* AA-large only; for labels/captions */
-  --color-text-accent:  #b45309;
-  --color-text-link:    #b45309;
+  --color-text-accent:  var(--color-amber-300); /* was a literal hex duplicate of amber-300; now tracks it */
+  --color-text-link:    var(--color-amber-300);
 
   /* ----- SEMANTIC: text on light "inverse"/interlude surfaces ----- */
   --color-text-inverse-primary: #0a0f1a;
   --color-text-inverse-default: #243045;
   --color-text-inverse-muted:   #51617c;
-  --color-text-inverse-accent:  #b45309;
+  --color-text-inverse-accent:  var(--color-amber-300);
 
   /* ----- SEMANTIC: secondary/tertiary text + input surfaces -----
      (referenced by ContactForm and a few pages; previously undefined) */
@@ -88,7 +100,7 @@
   --color-surface-1: #ffffff;
   --color-surface-2: #f1f4f9;
   --color-line-soft: #e4e9f2;
-  --color-amber-glow: rgba(236, 140, 0, 0.12);
+  --color-amber-glow: rgba(0, 131, 179, 0.12); /* blue-400 equivalent */
   --color-signal-error: #dc2626;
 
   /* ----- Fonts ----- */
@@ -173,16 +185,16 @@
     transition-timing-function: var(--ease-out-soft);
   }
   .btn-primary {
+    /* Flat solid + neutral shadow, replacing the earlier amber inset/ring
+       glow to match the flatter language adopted from landing-page20. */
     background: var(--color-amber-400);
     color: var(--color-ink-950);
-    box-shadow: 0 1px 0 rgba(255,255,255,0.15) inset, 0 0 0 1px rgba(255,170,51,0.4);
+    box-shadow: var(--shadow-raw-sm);
   }
   .btn-primary:hover {
     background: var(--color-amber-500);
     transform: translateY(-1px);
-    box-shadow: 0 1px 0 rgba(255,255,255,0.2) inset,
-                0 0 0 1px rgba(236,140,0,0.6),
-                0 8px 24px -8px rgba(236,140,0,0.35);
+    box-shadow: var(--shadow-raw-md);
   }
   .btn-secondary {
     background: var(--color-bg-elevated);
@@ -224,11 +236,13 @@
     @apply rounded-lg p-6 transition-all duration-200;
     background: var(--color-bg-surface);
     border: 1px solid var(--color-border-subtle);
+    box-shadow: var(--shadow-raw-sm);
     transition-timing-function: var(--ease-out-soft);
   }
   .card:hover {
     background: var(--color-bg-elevated);
     border-color: var(--color-border-strong);
+    box-shadow: var(--shadow-raw-md);
     transform: translateY(-2px);
   }
   .surface-inverse .card {
@@ -262,7 +276,7 @@
     -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
   }
   .bg-glow-amber {
-    background: radial-gradient(circle at 80% 0%, rgba(236,140,0,0.10) 0%, transparent 50%);
+    background: radial-gradient(circle at 80% 0%, rgba(0,131,179,0.10) 0%, transparent 50%);
   }
 
   /* Helper text classes — prefer over raw ink-* in components */
@@ -354,7 +368,7 @@
     width: 600px;
     height: 600px;
     border-radius: 9999px;
-    background: radial-gradient(circle, rgba(236,140,0,0.14) 0%, transparent 60%);
+    background: radial-gradient(circle, rgba(0,131,179,0.14) 0%, transparent 60%);
     filter: blur(40px);
     pointer-events: none;
     z-index: 0;
@@ -426,4 +440,220 @@
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ============================================================
+   shadcn / shadcnblocks token layer
+   ------------------------------------------------------------
+   Blocks pulled from the shadcn + shadcnblocks registries are
+   written against semantic names this site never had:
+   bg-background, text-muted-foreground, border-border, rounded-lg.
+
+   These are mapped onto the AllTech palette above rather than
+   installing shadcnblocks' own theme, so a dropped-in block
+   inherits our colours instead of shadcn's default slate. That
+   also means adding this layer changes NOTHING about the ~30
+   pages already built — it only gives new blocks something to
+   resolve against.
+
+   TO ADOPT SHADCNBLOCKS' THEME INSTEAD: replace the :root values
+   below (not the @theme inline block, which just exposes them to
+   Tailwind). Everything else on the site is unaffected either way.
+   ============================================================ */
+:root {
+  --background:  oklch(0.99 0.004 221.386);
+  --foreground:  oklch(0.16 0.012 221.386);
+  --card:  oklch(1 0 221.386);
+  --card-foreground:  oklch(0.16 0.012 221.386);
+  --popover:  oklch(1 0 221.386);
+  --popover-foreground:  oklch(0.16 0.012 221.386);
+  --primary:  oklch(0.55 0.1011 221.386);
+  --primary-foreground:  oklch(0.985 0 0);
+  --secondary:  oklch(0.96 0.012 221.386);
+  --secondary-foreground:  oklch(0.22 0.02 221.386);
+  --muted:  oklch(0.965 0.008 221.386);
+  --muted-foreground:  oklch(0.52 0.014 221.386);
+  --accent:  oklch(0.95 0.0246 251.386);
+  --accent-foreground:  oklch(0.22 0.02 251.386);
+  --destructive:  oklch(0.577 0.245 27.325);
+  --destructive-foreground:#ffffff;
+  --border:  oklch(0.922 0.006 221.386);
+  --input:  oklch(0.922 0.006 221.386);
+  --ring:  oklch(0.55 0.1011 221.386);
+
+  /* Adopted from shadcnblocks landing-page20's theme (radius + shadow scale
+     only — see file header). 8px base radius, tighter/flatter than the
+     0.625rem this bridge shipped with originally.
+
+     Raw shadow values live here under non-Tailwind names (--shadow-raw-*)
+     rather than the real utility names (--shadow-sm etc). Tailwind v4 only
+     swaps a utility's compiled output for a value registered inside an
+     @theme block — a same-named plain :root custom property elsewhere in
+     the cascade does NOT override it, verified by inspecting computed
+     box-shadow on a live shadow-sm element before this fix (it still
+     rendered Tailwind's stock default). The @theme inline block below does
+     the actual registration, the same way --radius-lg already does. */
+  --radius:                0.5rem;
+  --shadow-raw-2xs: 0 1px 3px 0px rgba(10, 15, 26, 0.05);
+  --shadow-raw-xs:  0 1px 3px 0px rgba(10, 15, 26, 0.05);
+  --shadow-raw-sm:  0 1px 3px 0px rgba(10, 15, 26, 0.10), 0 1px 2px -1px rgba(10, 15, 26, 0.10);
+  --shadow-raw:     0 1px 3px 0px rgba(10, 15, 26, 0.10), 0 1px 2px -1px rgba(10, 15, 26, 0.10);
+  --shadow-raw-md:  0 1px 3px 0px rgba(10, 15, 26, 0.10), 0 2px 4px -1px rgba(10, 15, 26, 0.10);
+  --shadow-raw-lg:  0 1px 3px 0px rgba(10, 15, 26, 0.10), 0 4px 6px -1px rgba(10, 15, 26, 0.10);
+  --shadow-raw-xl:  0 1px 3px 0px rgba(10, 15, 26, 0.10), 0 8px 10px -1px rgba(10, 15, 26, 0.10);
+  --shadow-raw-2xl: 0 1px 3px 0px rgba(10, 15, 26, 0.25);
+  --chart-1:  oklch(0.62 0.114 221.386);
+  --chart-2:  oklch(0.62 0.17 251.386);
+  --chart-3:  oklch(0.62 0.17 5.386);
+  --chart-4:  oklch(0.62 0.1295 77.386);
+  --chart-5:  oklch(0.62 0.17 149.386);
+  --sidebar:  oklch(0.985 0.004 221.386);
+  --sidebar-foreground:  oklch(0.16 0.012 221.386);
+  --sidebar-primary:  oklch(0.55 0.1011 221.386);
+  --sidebar-primary-foreground:  oklch(0.985 0 0);
+  --sidebar-accent:  oklch(0.95 0.0246 251.386);
+  --sidebar-accent-foreground:  oklch(0.22 0.02 251.386);
+  --sidebar-border:  oklch(0.922 0.006 221.386);
+  --sidebar-ring:  oklch(0.55 0.1011 221.386);
+  /* The theme-registry CLI install (custom blue palette) tried to add its own
+     plain-black --shadow-2xs..2xl here too. Removed as dead weight: nothing
+     reads these directly from :root — Tailwind only registers a utility's
+     compiled output from an @theme block, and the real registration already
+     lives below in @theme inline, referencing --shadow-raw-* (ink-950-tinted,
+     kept from the previous commit) rather than plain black. */
+}
+
+@theme inline {
+  --color-background:            var(--background);
+  --color-foreground:            var(--foreground);
+  --color-card:                  var(--card);
+  --color-card-foreground:       var(--card-foreground);
+  --color-popover:               var(--popover);
+  --color-popover-foreground:    var(--popover-foreground);
+  --color-primary:               var(--primary);
+  --color-primary-foreground:    var(--primary-foreground);
+  --color-secondary:             var(--secondary);
+  --color-secondary-foreground:  var(--secondary-foreground);
+  /* --color-muted is deliberately NOT registered here. Tailwind v4
+     auto-generates a `.text-muted`/`.bg-muted`/`.border-muted` utility for
+     any --color-* key in an @theme block, and `.text-muted` is also the name
+     of this site's pre-existing body-copy class (@layer components, below).
+     Utilities always beat components in Tailwind's layer order, so
+     registering --color-muted silently made every `.text-muted` element
+     site-wide render in --muted's near-white tone instead of the intended
+     dark gray. No shadcn/shadcnblocks component here uses bare
+     bg-muted/text-muted (only the -foreground variant), so leaving this
+     unregistered costs nothing. --muted itself (the raw value) still exists
+     in :root above for anything that needs it directly. */
+  --color-muted-foreground:      var(--muted-foreground);
+  --color-accent:                var(--accent);
+  --color-accent-foreground:     var(--accent-foreground);
+  --color-destructive:           var(--destructive);
+  --color-destructive-foreground:var(--destructive-foreground);
+  --color-border:                var(--border);
+  --color-input:                 var(--input);
+  --color-ring:                  var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --shadow-2xs: var(--shadow-raw-2xs);
+  --shadow-xs:  var(--shadow-raw-xs);
+  --shadow-sm:  var(--shadow-raw-sm);
+  --shadow:     var(--shadow-raw);
+  --shadow-md:  var(--shadow-raw-md);
+  --shadow-lg:  var(--shadow-raw-lg);
+  --shadow-xl:  var(--shadow-raw-xl);
+  --shadow-2xl: var(--shadow-raw-2xl);
+
+  --animate-shadow-ping:  shadow-ping 1.5s ease-in-out infinite;
+  @keyframes shadow-ping {
+  0% {
+    box-shadow:  0 0 0 0px var(--color-neutral-100);
+    }
+  50% {
+    box-shadow:  0 0 0 12px var(--color-neutral-300);
+    }
+  100% {
+    box-shadow:  0 0 0 12px transparent;
+    }
+  }
+  /* The theme-registry CLI also tried to redefine --font-sans/--font-mono here
+     to generic Inter / system monospace, and --radius to a value already set
+     above. @theme inline is a later-in-file redefinition of the SAME theme
+     keys the top-level @theme block already sets (Inter Tight, JetBrains
+     Mono) — Tailwind v4 merges by last-occurrence, so left in place this
+     silently wins and drops the brand fonts sitewide. Verified on a live
+     page before removing this: body text and every .eyebrow label had
+     already fallen back to generic Inter / generic monospace. Do not
+     re-add a font-sans/font-mono/font-serif override here; if the fonts
+     ever need to change, change them at the top of the file instead, where
+     every other page-visible design decision already documents its reason. */
+  --color-sidebar-ring:  var(--sidebar-ring);
+  --color-sidebar-border:  var(--sidebar-border);
+  --color-sidebar-accent-foreground:  var(--sidebar-accent-foreground);
+  --color-sidebar-accent:  var(--sidebar-accent);
+  --color-sidebar-primary-foreground:  var(--sidebar-primary-foreground);
+  --color-sidebar-primary:  var(--sidebar-primary);
+  --color-sidebar-foreground:  var(--sidebar-foreground);
+  --color-sidebar:  var(--sidebar);
+  --color-chart-5:  var(--chart-5);
+  --color-chart-4:  var(--chart-4);
+  --color-chart-3:  var(--chart-3);
+  --color-chart-2:  var(--chart-2);
+  --color-chart-1:  var(--chart-1);
+  --radius-2xl:  calc(var(--radius) * 1.8);
+  --radius-3xl:  calc(var(--radius) * 2.2);
+  --radius-4xl:  calc(var(--radius) * 2.6)
+}
+
+/* shadcn expects a global border-color default. Tailwind v4 defaults borders
+   to currentColor, so registry components using a bare `border` render with
+   the text colour instead of the border token.
+
+   Verified safe for existing pages: every border utility already in this repo
+   (`border-l-4`, `border-t`, `border-collapse`) either sets border-color via an
+   inline style — which wins over this — or sets no colour at all. */
+@layer base {
+  *,
+  ::after,
+  ::before {
+    border-color: var(--color-border);
+  }
+}
+
+.dark {
+  --background:  oklch(0.17 0.01 221.386);
+  --foreground:  oklch(0.95 0.005 221.386);
+  --card:  oklch(0.21 0.01 221.386);
+  --card-foreground:  oklch(0.95 0.005 221.386);
+  --popover:  oklch(0.21 0.01 221.386);
+  --popover-foreground:  oklch(0.95 0.005 221.386);
+  --primary:  oklch(0.72 0.1324 221.386);
+  --primary-foreground:  oklch(0.205 0 0);
+  --secondary:  oklch(0.27 0.012 221.386);
+  --secondary-foreground:  oklch(0.95 0.005 221.386);
+  --muted:  oklch(0.27 0.01 221.386);
+  --muted-foreground:  oklch(0.71 0.01 221.386);
+  --accent:  oklch(0.3 0.06 251.386);
+  --accent-foreground:  oklch(0.95 0.005 221.386);
+  --destructive:  oklch(0.704 0.191 22.216);
+  --border:  oklch(0.3 0.008 221.386);
+  --input:  oklch(0.32 0.008 221.386);
+  --ring:  oklch(0.72 0.1324 221.386);
+  --chart-1:  oklch(0.7 0.1287 221.386);
+  --chart-2:  oklch(0.7 0.16 251.386);
+  --chart-3:  oklch(0.7 0.16 5.386);
+  --chart-4:  oklch(0.7 0.1462 77.386);
+  --chart-5:  oklch(0.7 0.16 149.386);
+  --sidebar:  oklch(0.21 0.01 221.386);
+  --sidebar-foreground:  oklch(0.95 0.005 221.386);
+  --sidebar-primary:  oklch(0.72 0.1324 221.386);
+  --sidebar-primary-foreground:  oklch(0.205 0 0);
+  --sidebar-accent:  oklch(0.3 0.06 251.386);
+  --sidebar-accent-foreground:  oklch(0.95 0.005 221.386);
+  --sidebar-border:  oklch(0.3 0.008 221.386);
+  --sidebar-ring:  oklch(0.72 0.1324 221.386);
 }
