@@ -1,0 +1,335 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * IT & CLOUD family — amber accent.
+ *
+ * HELD BACK from the supplied copy: the section 03 stat row. It shipped as
+ * three literal "[X]" placeholders — vendor tickets opened, hours spent on
+ * hold, renewals flagged — with its own build note saying to replace them with
+ * real ticket data before publishing or cut the row entirely, and explicitly:
+ * "Do not ship placeholders." Cut. The list of real call types underneath
+ * carries the section on its own, which is what the note proposed.
+ *
+ * Restore the row only with figures pulled from actual ticket data, with the
+ * period they cover stated.
+ */
+
+const included = [
+  ['We make the call', 'You tell us the symptom. We open the ticket, provide the diagnostics the vendor is going to ask for anyway, and escalate when the first-tier answer is obviously a script. Your staff goes back to work.'],
+  ['We hold the account details', "Circuit IDs, account numbers, support PINs, license keys, renewal dates, who's authorized to make changes. Documented in one place, so a support call doesn't start with fifteen minutes of looking for a number."],
+  ['We speak their language', "Most vendor escalations stall because the person calling can't answer the technical questions. We can — and we know when the answer we're being given doesn't hold up."],
+  ['We coordinate between vendors', 'The problems that stay unsolved for weeks are almost always at a boundary: the ISP and the firewall, the software and the server, the copier and the network. We get both parties in the same conversation instead of relaying messages between them.'],
+  ['We hold them to the contract', "Service credits for missed SLAs, circuits billed after they were disconnected, renewals that auto-escalated without notice. If it's in your agreement, we'll use it."],
+  ['We keep a vendor inventory', 'What you pay for, what it costs, when it renews, and whether anyone still uses it. Most businesses find at least one line item that surprises them.'],
+];
+
+const callTypes = [
+  'A fiber circuit that drops for ninety seconds twice a day and passes every test the ISP runs',
+  "A line-of-business software update that broke printing, and a vendor who insists printing isn't their scope",
+  'A phone system porting request that has been "in progress" for three weeks',
+  'A copier that stopped scanning to email the day after a mail-server change nobody connected to it',
+  'A camera system whose support contract lapsed two years ago and nobody knew',
+  'A software license true-up demanding payment for seats that belong to people who left years ago',
+];
+
+const scope = [
+  ['Connectivity', 'ISPs, fiber and broadband carriers, static IP and circuit provisioning, site-to-site links.'],
+  ['Voice', 'VoIP and hosted phone providers, number porting, call routing, e911 records.'],
+  ['Line-of-business software', "Practice management, ERP, accounting, dental and medical platforms, title and case-management systems. We don't administer the application; we handle the technical side and the escalation."],
+  ['Hardware and print', 'Copier and MFP vendors, workstation and server manufacturers, warranty and RMA claims.'],
+  ['Physical systems on your network', "Cameras, door access, alarm panels, and anything else that got plugged into a switch by someone who wasn't us."],
+  ['Cloud and licensing', 'Microsoft 365, backup platforms, and the subscriptions that renew whether or not anyone is watching.'],
+];
+
+const howItWorks = [
+  ['1', 'Vendor inventory', "We build the list: every technology vendor, account number, contract term, renewal date, and monthly cost. This is usually the first time it's existed in one document."],
+  ['2', 'Letters of authorization', "Vendors won't talk to us without them. We prepare the paperwork; you sign once per vendor and we're on the account."],
+  ['3', 'Documentation', 'Circuit IDs, support PINs, escalation paths, and known issues go into our documentation system, available to every engineer on your account rather than the one who set it up.'],
+  ['4', 'You call us instead', "One number for everything. If it's a vendor issue, we take it from there and tell you where it stands — you don't have to chase us for updates either."],
+];
+
+const fit = [
+  'Your office manager, controller, or practice administrator has quietly become the person who calls the internet company',
+  'You have more than three technology vendors and no single list of what they are',
+  'A problem has bounced between two vendors for longer than a week',
+  "You don't know what your contracts renew, when, or at what price",
+  "You've paid for something for a year that nobody uses",
+  'You have a vendor whose support you\'d describe as "eventually"',
+];
+
+const faqs = [
+  ['Is this included in managed IT, or is it extra?', "It's part of our managed IT agreements. Vendor coordination isn't billed as a separate line item — it's most of what \"someone is responsible for this\" actually means in practice."],
+  ['Do we have to move our vendors to you?', "No. We manage the relationships you already have. If we think you're overpaying or badly served, we'll say so and give you the comparison, but the decision and the contract stay yours."],
+  ['Do you take commissions from the vendors you recommend?', "Where a partner program exists, we'll tell you. Our recommendation doesn't change based on it, and you're welcome to ask what we earn on anything we suggest."],
+  ['What if the vendor refuses to talk to you?', 'Most require a letter of authorization on file, which we handle during onboarding. A few require the account holder to initiate the call — in those cases we join it rather than handing it back to you.'],
+  ["Can you manage a vendor you didn't select?", "Yes, and usually that's the situation. Inherited systems and legacy contracts are normal. We document what's there before we form an opinion about it."],
+  ["What happens if a vendor is genuinely at fault and won't fix it?", "We document the pattern, escalate past first-tier support, and pursue whatever the contract entitles you to. If the relationship isn't salvageable we'll bring you options — but we bring evidence first, not a sales pitch for a replacement."],
+];
+
+const related = [
+  ['Help Desk', 'The same phone number your staff already calls. Vendor issues just get routed to us instead of them.', '/services/help-desk'],
+  ['Remote Monitoring', 'Monitoring is how we know a circuit is flapping before your vendor tells us it isn\'t.', '/services/remote-monitoring'],
+  ['Managed IT', 'Vendor management is one piece of the outsourced IT department.', '/services/managed-it'],
+  ['Microsoft 365 & Cloud', 'Licensing, tenant administration, and the renewals nobody reviews.', '/services/cloud-microsoft-365'],
+];
+
+// Matches a ContactForm.tsx checkbox label exactly, as the copy specified.
+const contactHref = '/contact?service=Managed%20IT';
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Technology Vendor Management',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Vendor Management for Business IT',
+  description:
+    'AllTech handles your technology vendors — ISP, phones, line-of-business software, copiers, cameras — so your staff stops sitting on hold.',
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(([question, answer]) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer },
+  })),
+};
+---
+
+<BaseLayout
+  title="Vendor Management for Business IT"
+  description="AllTech handles your technology vendors — ISP, phones, line-of-business software, copiers, cameras — so your staff stops sitting on hold. One number, one team, Northern Utah."
+  canonical={`${site.url}/services/vendor-management`}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">Vendor Management</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          Your ISP doesn't answer to you.<br />
+          <span style="color: var(--color-amber-400);">We make that our problem instead.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">
+          Every business runs on vendors it didn't choose and can't fire — the internet provider, the
+          phone system, the practice-management software, the copier company. When something breaks
+          between two of them, both say it's the other one. AllTech makes the calls, sits on the
+          hold music, and stays on the ticket until it's closed.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Talk to us about vendor management <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 · The problem -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide grid lg:grid-cols-12 gap-10">
+      <div class="lg:col-span-5">
+        <div class="eyebrow mb-4">01 · The problem</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The outage isn't the expensive part. The finger-pointing is.
+        </h2>
+      </div>
+      <div class="lg:col-span-7 space-y-4 leading-relaxed text-muted">
+        <p>
+          The phones go down. Your office manager calls the phone provider, who checks their side,
+          finds it healthy, and suggests it's the network. She calls the ISP, who checks their side,
+          finds it healthy, and suggests it's the phone provider. Two hours later she has learned
+          nothing, missed her actual job, and the phones are still down.
+        </p>
+        <p>
+          Nobody in that chain is lying. Each vendor is looking at the piece they own and telling
+          the truth about it. The problem is that nobody is looking at all of it at once, and the
+          person being asked to do that is whoever happened to pick up the phone.
+        </p>
+        <p>
+          That's the job. Somebody has to hold the whole picture — what changed, what depends on
+          what, which vendor's "everything looks fine" is actually fine — and keep asking until
+          someone takes it. It should not be your front desk.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 · What's included -->
+  <section id="included" class="surface-dark py-16 lg:py-20 scroll-mt-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">02 · What's included</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          We own the vendor relationship, not just the ticket.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {included.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · In practice -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">03 · In practice</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What we actually take off your desk.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          The kinds of calls we make in a normal week:
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-x-10 gap-y-3 max-w-5xl">
+        {callTypes.map((item) => (
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="leading-snug text-muted">{item}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · Who we deal with -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">04 · Who we deal with</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The vendors we handle.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {scope.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        If it plugs into your network or sends you an invoice for technology, it's in scope. If it's
+        a vendor relationship you'd rather keep yourself, that's fine too — tell us which ones and
+        we'll leave them alone.
+      </p>
+    </div>
+  </section>
+
+  <!-- 05 · Getting started -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">05 · Getting started</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          How it works.
+        </h2>
+      </div>
+      <ol class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 list-none p-0 m-0">
+        {howItWorks.map(([n, title, body]) => (
+          <li class="card">
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-amber-600);">{n}</div>
+            <h3 class="font-display text-lg font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- 06 · Fit -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">06 · Fit</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          This is the right fit if
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-x-10 gap-y-3 max-w-5xl">
+        {fit.map((item) => (
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="leading-snug text-muted">{item}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 · FAQ -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">07 · FAQ</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Common questions
+      </h2>
+      <div class="mt-8 space-y-6 not-prose">
+        {faqs.map(([q, a]) => (
+          <div>
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{q}</h3>
+            <p class="leading-relaxed text-muted">{a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 · Related services -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">08 · Related services</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The rest of the stack it plugs into
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {related.map(([title, body, href]) => (
+          <a href={href} class="card group block">
+            <h3 class="font-display text-lg font-bold mb-2 group-hover:text-[var(--color-amber-600)] transition" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+            <span class="mt-3 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">Learn more <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="surface-dark py-16 lg:py-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Find out how many vendors you're actually paying.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          We'll build the inventory — every technology vendor, what it costs, when it renews, and
+          whether anyone still uses it. Plain findings, no pressure.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Talk to us about vendor management <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

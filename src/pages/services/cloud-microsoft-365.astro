@@ -1,0 +1,459 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * IT & CLOUD family — amber accent.
+ *
+ * This route previously rendered from the [service].astro catch-all as a
+ * "detailed page content coming soon" stub. That slug is now excluded from
+ * getStaticPaths so this real page owns it.
+ *
+ * The #m365 and #intune anchor ids are kept because they have been linked from
+ * the global nav since before this page existed. The nav's "Entra ID & Intune"
+ * tile now points at the standalone /services/entra-id-intune page instead, but
+ * #intune stays alive here so older links keep resolving.
+ *
+ * No pricing, no uptime percentages, no client names beyond the site-wide logo
+ * wall. Nothing claimed here that isn't verifiable.
+ */
+
+const findings = [
+  "Global admin rights handed out to three or four people who don't need them",
+  'Legacy authentication still enabled, quietly bypassing MFA',
+  'Shared mailboxes with a password and a licensed sign-in',
+  'Ex-employee accounts still active months after the last day',
+  'OneDrive and SharePoint links shared with "anyone with the link," permanently',
+  "No tenant backup, on the assumption Microsoft keeps a copy (it doesn't, not the way you'd want)",
+];
+
+const tenantDesign = [
+  ['Identity', 'Named admin accounts, break-glass account, role-based admin (no permanent global admins).'],
+  ['Authentication', 'MFA enforced tenant-wide, legacy auth blocked, Conditional Access policies scoped to your risk.'],
+  ['Email', 'Exchange Online with SPF, DKIM, and DMARC published and monitored.'],
+  ['Files', 'SharePoint and OneDrive structure that matches how your teams actually work, with sharing defaults locked down.'],
+  ['Groups & Teams', 'Naming standard, ownership rules, and an expiry policy so the sprawl stops.'],
+  ['Devices', 'Enrollment path into Intune from day one, not bolted on later.'],
+  ['Backup', 'Third-party backup of mail, OneDrive, SharePoint, and Teams with tested restores.'],
+];
+
+const migrationSteps = [
+  ['1', 'Discovery', 'Mailbox sizes, shared mailboxes, distribution groups, public folders, calendar permissions, third-party integrations, and anything hardcoded to an old address.'],
+  ['2', 'Tenant prep', 'Domains verified, DNS staged, licensing assigned, security baseline applied before a single mailbox moves.'],
+  ['3', 'Pre-sync', 'Mail, calendars, and contacts copied in the background while everyone keeps working in the old system.'],
+  ['4', 'Cutover', 'Scheduled after hours or over a weekend. MX flips, delta sync runs, and we watch mail flow.'],
+  ['5', 'Day one on-site or on-call', 'Outlook profiles, phones, scan-to-email, and the printer that only sends through the old relay.'],
+  ['6', 'Cleanup', 'Old system decommissioned on a schedule, not abandoned.'],
+];
+
+const entra = [
+  "Conditional Access: block sign-ins from countries you don't do business in, require compliant devices for sensitive apps, step up authentication on risky logins",
+  'Single sign-on for the line-of-business apps that support it',
+  "Self-service password reset, so a lockout isn't a phone call",
+  'Joiner/mover/leaver process: accounts provisioned on day one and disabled the hour someone leaves',
+];
+
+const intune = [
+  'Windows and macOS enrollment, with Autopilot for new hardware that ships straight to the user',
+  'Baseline policies: disk encryption, screen lock, firewall, patch rings',
+  'App deployment and updates without touching each machine',
+  'Mobile: protect company mail on personal phones without managing the whole phone',
+  'Remote wipe of company data on a lost or stolen device',
+];
+
+const securityControls = [
+  ['MFA everywhere', 'With phishing-resistant methods where the role warrants it.'],
+  ['Conditional Access', 'Rules tuned to your locations and devices.'],
+  ['Email security', 'In front of the mailbox, to catch phishing and impersonation before delivery.'],
+  ['Inbox rule and forwarding alerts', 'So a mailbox rule pointing at an external address gets flagged the same day.'],
+  ['Audit logging enabled and retained', 'Which matters enormously if you ever need to prove what happened.'],
+  ['Tenant backup with tested restores', 'The copy Microsoft does not keep for you.'],
+  ['Admin tiering', "So a compromised user account can't become a compromised tenant."],
+];
+
+const licensing = [
+  'Right-size each user to the license they actually need — frontline, Basic, Standard, Premium',
+  'Reclaim licenses from departed staff and unused shared mailboxes',
+  "Flag the security features you're already paying for and haven't enabled (this is common with Business Premium)",
+  'Tell you plainly when a cheaper tier plus a third-party tool beats the upgrade',
+];
+
+const ongoing = [
+  'User onboarding and offboarding, usually same-day',
+  'License management and monthly true-up',
+  'Secure Score monitoring and remediation',
+  'Mail flow troubleshooting, quarantine review, spoof and impersonation tuning',
+  "Message Center monitoring, so Microsoft's changes don't surprise you",
+  'Backup verification and periodic restore tests',
+  'Quarterly review of admin roles, guest accounts, and external sharing',
+];
+
+const faqs = [
+  ['Does Microsoft back up my data?', 'Microsoft guarantees the service, not your content. Retention windows are short and recovery options are limited once they pass. Deleted items, ransomware encryption, and departed-employee data are all your responsibility. We deploy third-party backup for every tenant we manage.'],
+  ['How long does a migration take?', "For most businesses under 50 users, two to three weeks from kickoff to cutover, with the disruptive part confined to a single evening or weekend. Larger or messier environments take longer, and we'll tell you that upfront."],
+  ['Can you take over a tenant another provider set up?', 'Yes, and we do it often. We start with a tenant assessment, document what is there, and give you a prioritized list of what needs fixing before we assume day-to-day management.'],
+  ['Will my staff lose access to email during the move?', 'No. Mail is pre-synced ahead of cutover, and the switch happens outside business hours. The visible change on Monday is usually a one-time Outlook sign-in.'],
+  ['Do you support Google Workspace too?', "We support and migrate from it. For businesses that want to stay on Google, we'll be straight with you about which of the above we can and can't replicate there."],
+  ['Do we have to use Intune?', 'No, but we\'ll recommend it. Without device management, "MFA is enabled" is a much weaker statement than it sounds.'],
+];
+
+const related = [
+  ['Entra ID & Intune', 'Identity and device management in depth — conditional access, compliance, and enrollment.', '/services/entra-id-intune'],
+  ['Email Security', 'Phishing and impersonation caught before delivery.', '/services/email-security'],
+  ['Backup & Disaster Recovery', 'The tenant backup Microsoft does not provide.', '/services/backup-disaster-recovery'],
+  ['Help Desk', 'The mailbox, account, and access tickets this generates day to day.', '/services/help-desk'],
+  ['Managed IT', 'The full engagement this administration runs inside.', '/services/managed-it'],
+  ['AllTech Top 10', 'Where M365 hardening sits in the baseline security stack.', '/services/alltech-top-10'],
+];
+
+const contactHref = '/contact?service=Microsoft%20365%20%2F%20Cloud';
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Microsoft 365 and Cloud Administration',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Microsoft 365 & Cloud',
+  description:
+    'Microsoft 365 tenant design, email migration, Entra ID, Intune, and ongoing administration. Local engineers, hardened by default.',
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(([question, answer]) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer },
+  })),
+};
+---
+
+<BaseLayout
+  title="Microsoft 365 & Cloud"
+  description="Microsoft 365 tenant design, email migration, Entra ID, Intune, and ongoing administration for Northern Utah businesses. Local engineers, hardened by default."
+  canonical={`${site.url}/services/cloud-microsoft-365`}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">Service · Microsoft 365 &amp; Cloud</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          Microsoft 365,<br />
+          <span style="color: var(--color-amber-400);">set up the way it should have been.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">
+          Most tenants we inherit were stood up once, years ago, by whoever was available — then
+          never touched again. We design the tenant, move the mail without losing a weekend, lock
+          down identity, and manage it from there.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Scope an engagement <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+        <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
+          <div>Tenant design</div>
+          <div>Email migration</div>
+          <div>Entra ID &amp; Intune</div>
+          <div>Ongoing administration</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 · The problem -->
+  <section id="m365" class="surface-dark py-16 lg:py-20 scroll-mt-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">01 · The problem</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          A license is not a configuration.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Buying Microsoft 365 gets you mailboxes and Office apps. It does not get you MFA on every
+          account, a working backup, sane sharing rules, or any idea who has access to what. Those
+          are decisions someone has to make — and in most of the tenants we take over, nobody ever
+          did. What we find on a typical takeover:
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-x-10 gap-y-3 max-w-5xl">
+        {findings.map((item) => (
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="leading-snug text-muted">{item}</span>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        None of that is exotic. It's what happens when M365 is bought as a product instead of built
+        as a system.
+      </p>
+    </div>
+  </section>
+
+  <!-- 02 · Tenant design -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">02 · Tenant design &amp; buildout</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Built once, correctly, so it stays that way.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Whether you're new to Microsoft 365 or replacing a tenant that grew sideways, we start
+          with the same structure.
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {tenantDesign.map(([area, body]) => (
+          <div class="card">
+            <h3 class="font-display text-base font-bold mb-2" style="color: var(--color-text-primary);">{area}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        Every tenant we build gets documented and handed to you. It's your tenant, your data, and
+        your admin credentials — we just run it.
+      </p>
+    </div>
+  </section>
+
+  <!-- 03 · Migration -->
+  <section id="migration" class="surface-dark py-16 lg:py-20 scroll-mt-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">03 · Migration</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Move the mail. Keep the business open.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          We've migrated from Google Workspace, on-prem Exchange, IMAP hosts, GoDaddy, and other
+          MSPs' tenants. The mechanics differ; the standard doesn't.
+        </p>
+      </div>
+      <ol class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 list-none p-0 m-0">
+        {migrationSteps.map(([n, title, body]) => (
+          <li class="card">
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-amber-600);">{n}</div>
+            <h3 class="font-display text-lg font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </li>
+        ))}
+      </ol>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        <span class="font-display font-bold" style="color: var(--color-text-primary);">What we plan for that people forget:</span>{' '}
+        the copier that emails scans, the alarm system that sends alerts, the accounting software
+        with SMTP credentials saved in 2017, and the shared calendar the whole front office lives
+        in.
+      </p>
+    </div>
+  </section>
+
+  <!-- 04 · Entra ID & Intune -->
+  <section id="intune" class="surface-dark py-16 lg:py-20 scroll-mt-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">04 · Entra ID &amp; Intune</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          One identity, every device, one set of rules.
+        </h2>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="card">
+          <h3 class="font-display text-xl font-bold mb-4" style="color: var(--color-amber-600);">Entra ID — identity</h3>
+          <ul class="space-y-2.5 list-none p-0 m-0">
+            {entra.map((i) => (
+              <li class="flex items-start gap-2.5">
+                <svg class="w-4 h-4 mt-1 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span class="text-sm leading-snug" style="color: var(--color-text-default);">{i}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div class="card">
+          <h3 class="font-display text-xl font-bold mb-4" style="color: var(--color-amber-600);">Intune — devices</h3>
+          <ul class="space-y-2.5 list-none p-0 m-0">
+            {intune.map((i) => (
+              <li class="flex items-start gap-2.5">
+                <svg class="w-4 h-4 mt-1 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span class="text-sm leading-snug" style="color: var(--color-text-default);">{i}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        The point of both is the same: access follows the person and the device, not the network
+        they happen to be sitting on. For the full identity engagement, see
+        <a href="/services/entra-id-intune" class="font-medium" style="color: var(--color-amber-600);">Entra ID &amp; Intune</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- 05 · Securing the tenant -->
+  <section id="security" class="surface-dark py-16 lg:py-20 scroll-mt-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">05 · Securing the tenant</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The controls that actually stop the attacks we see.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Business email compromise is the most common incident we respond to for small business. It
+          rarely involves malware. Someone gets a password, sets an inbox rule, waits for an invoice,
+          and changes the bank details.
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {securityControls.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-base font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        If you carry cyber insurance, most of this is now on the application form. We can map what
+        you have against what your carrier is asking for. Related:
+        <a href="/services/email-security" class="font-medium" style="color: var(--color-amber-600);">Email Security</a>,
+        <a href="/services/backup-disaster-recovery" class="font-medium" style="color: var(--color-amber-600);">Backup &amp; Disaster Recovery</a>,
+        and the <a href="/services/alltech-top-10" class="font-medium" style="color: var(--color-amber-600);">AllTech Top 10</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- 06 · Licensing -->
+  <section id="licensing" class="surface-dark py-16 lg:py-20 scroll-mt-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide grid lg:grid-cols-12 gap-10">
+      <div class="lg:col-span-5">
+        <div class="eyebrow mb-4">06 · Licensing</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Pay for what you use. Use what you pay for.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Microsoft's licensing is genuinely confusing, and most organizations land in one of two
+          ditches: paying Business Premium prices for features nobody turned on, or running Business
+          Basic and wondering why security is thin.
+        </p>
+      </div>
+      <div class="lg:col-span-7">
+        <p class="font-mono text-xs tracking-wider mb-4" style="color: var(--color-text-subtle);">
+          WE DO A LICENSING REVIEW AS PART OF EVERY ENGAGEMENT
+        </p>
+        <div class="grid gap-3">
+          {licensing.map((i) => (
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <span class="leading-snug text-muted">{i}</span>
+            </div>
+          ))}
+        </div>
+        <p class="mt-6 leading-relaxed text-muted">
+          We're not a licensing reseller with a quota. If the answer is "keep what you have and turn
+          three things on," that's the answer.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 · Ongoing administration -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">07 · Ongoing administration</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Someone responsible for it, permanently.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-x-10 gap-y-3 max-w-5xl">
+        {ongoing.map((i) => (
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="leading-snug text-muted">{i}</span>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        This runs as part of <a href="/services/managed-it" class="font-medium" style="color: var(--color-amber-600);">Managed IT</a>,
+        or standalone if you already have internal IT and just want the tenant handled.
+      </p>
+    </div>
+  </section>
+
+  <!-- 08 · FAQ -->
+  <section id="faq" class="surface-dark py-16 lg:py-20 scroll-mt-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">08 · FAQ</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Common questions
+      </h2>
+      <div class="mt-8 space-y-6 not-prose">
+        {faqs.map(([q, a]) => (
+          <div>
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{q}</h3>
+            <p class="leading-relaxed text-muted">{a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 · Related services -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">09 · Related services</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The rest of the stack it plugs into
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {related.map(([title, body, href]) => (
+          <a href={href} class="card group block">
+            <h3 class="font-display text-lg font-bold mb-2 group-hover:text-[var(--color-amber-600)] transition" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+            <span class="mt-3 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">Learn more <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="surface-dark py-16 lg:py-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Start with a tenant assessment.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          We'll review your existing Microsoft 365 environment — identity, mail flow, sharing,
+          licensing, and backup — and give you a written summary of what's solid, what's exposed,
+          and what we'd fix first. No obligation to move anything.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Scope an engagement <span aria-hidden="true">→</span></a>
+          <a href="/assessment" class="btn btn-ghost">Take the free security gap assessment</a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
