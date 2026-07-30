@@ -23,6 +23,16 @@ const { title, description, image, noindex, canonical } = Astro.props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
+    <!-- Sets .dark before first paint so there's no flash of the wrong theme.
+         Runs synchronously, blocking, before any CSS renders — must stay
+         inline and tiny. Mirrors what ThemeToggle.astro writes on click. -->
+    <script is:inline>
+      (function () {
+        var stored = localStorage.getItem('theme');
+        var dark = stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.classList.toggle('dark', dark);
+      })();
+    </script>
     <!-- Favicon: the AllTech logo, square-padded from /public/logo.webp.
          (The old generic favicon.svg — dark square + amber dot — was listed
          last, so browsers preferred it over the real logo.) -->
