@@ -6,7 +6,7 @@ export function getStaticPaths() {
   return services
     // Slugs with a real hand-authored page at src/pages/services/<slug>.astro
     // must be excluded here, or Astro sees two routes for the same path.
-    .filter((s) => !['cloudflare-zero-trust', 'cybersecurity', 'alltech-top-10', 'utah-data-recovery', 'cloud-microsoft-365'].includes(s.slug))
+    .filter((s) => !['cloudflare-zero-trust', 'cybersecurity', 'alltech-top-10', 'utah-data-recovery', 'cloud-microsoft-365', 'network-design'].includes(s.slug))
     .map((s) => ({ params: { service: s.slug }, props: { service: s } }));
 }
 
