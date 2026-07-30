@@ -1,0 +1,411 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * NETWORK family — teal accent, matching the other Network pages.
+ *
+ * HELD BACK from the supplied copy: "24/7 emergency response" in the closing
+ * trust line. The site claims 24/7 SOC *monitoring*, which is a different
+ * product; a round-the-clock response commitment for network engineering is a
+ * service level, and this page's own copy checks say no SLAs are claimed on
+ * purpose. Restore only if AllTech actually offers it contractually.
+ *
+ * No performance numbers, uptime percentages, or failover-second figures
+ * anywhere — per-install facts, not marketing claims. Do not add them.
+ *
+ * Section 05 examples are generic by industry and name no client. Keep them
+ * that way unless written permission exists.
+ *
+ * UniFi Site Magic and Cloudflare Magic WAN are named as product lines only,
+ * with no feature-level specifics, because both rename features regularly.
+ * Still worth a check against vendor docs before publish.
+ *
+ * The supplied canonical ended in .html; Pages serves these routes
+ * extensionless, so the canonical is extensionless like the rest.
+ */
+
+const problems = [
+  ['A single IPsec tunnel with no failover', 'One ISP outage takes the remote site fully offline — no files, no ERP, no phones.'],
+  ['Overlapping subnets (both sites on 192.168.1.0/24)', 'The tunnel comes up but nothing routes; classic "connected but can\'t reach anything".'],
+  ['Mismatched hardware at each site', 'A consumer router at the small office, an enterprise firewall at HQ, no shared policy.'],
+  ['Nobody monitoring tunnel state', 'The tunnel dropped Tuesday night. You found out Wednesday morning from an employee.'],
+  ['All traffic hairpinned through HQ', "Cloud apps and Microsoft 365 take a detour they don't need."],
+  ['No documentation', 'Every change is archaeology before it is engineering.'],
+];
+
+const build = [
+  ['01', 'Site-to-site tunnels', 'IPsec or WireGuard between every location, terminated on business-grade gateways. Consistent addressing plan, no overlapping subnets, documented routing.'],
+  ['02', 'UniFi Site Magic', 'For clients standardized on UniFi, Site Magic builds a full mesh between sites from the controller — every site reaching every other site directly, without manually maintaining a tunnel matrix that grows quadratically.'],
+  ['03', 'Cloudflare Magic WAN & tunnels', "As a Cloudflare Partner we can route site traffic through Cloudflare's network instead of point-to-point, so security policy, filtering, and access control apply identically at every location. Works well when sites are far apart or when remote users need the same policy as in-office staff."],
+  ['04', 'Multi-WAN and failover', 'A second circuit at each critical site, with automatic failover on the gateway. We test failover during the install — pull the primary, confirm the tunnel and the phone calls survive it, and document the actual recovery time.'],
+  ['05', 'Application-aware routing', "Voice and ERP traffic prioritized. Microsoft 365 and other SaaS sent out the local circuit rather than hairpinned through HQ. Backup replication rate-limited so it can't saturate the link during business hours."],
+  ['06', 'Monitoring and management', "Tunnel state, circuit health, and latency monitored continuously. We open the ticket when a path degrades — you don't have to notice first."],
+];
+
+const shapes = [
+  ['Manufacturer, two plants + office', 'Production data replicating between sites overnight, ERP served from one location, tunnel failover onto a backup circuit so a shift never stops for an ISP outage.'],
+  ['Clinic group, four locations', "One patient-records system, one identity source, identical security policy at every front desk regardless of which building it's in."],
+  ['Title company, main office + satellite', 'Two-person satellite office with the same file access and phone extensions as headquarters, no local server to secure.'],
+  ['Municipality, city hall + public works + shop', 'Wireless bridge to the shop where there was no circuit, VPN to public works, cameras and door access reporting back to one controller.'],
+  ['Growing business opening site number two', 'Built right the first time, so site three is a repeat of a documented standard instead of a new project.'],
+];
+
+const limitations = [
+  ['A tunnel cannot beat physics.', 'If the remote site has 10 Mbps upload, moving 200 GB of CAD files across it will be slow no matter how we configure the gateway. Sometimes the answer is a better circuit, not a better tunnel.'],
+  ['Failover is not seamless for everything.', 'Active voice calls and long-running database sessions can drop during a WAN cutover. Most other traffic recovers transparently. We tell you which of your applications sit in which category.'],
+  ["SD-WAN doesn't fix an application that was never built for WAN.", "Some legacy line-of-business software assumes it's on the same LAN as its database. The right fix there is usually to relocate or publish the application, not to route harder."],
+  ['Satellite and LTE backup have real trade-offs.', 'Latency and data caps make them a viable emergency path, not a full-time primary.'],
+];
+
+const phases = [
+  ['Phase 1', 'Assess', 'We document what exists at every site: circuits, gateways, addressing, current tunnels, and what actually has to reach what. Usually one on-site visit per location plus remote review.'],
+  ['Phase 2', 'Design', 'An addressing plan, a hardware list, a routing and failover design, and a written cutover plan with a rollback. You see the design before anything is ordered.'],
+  ['Phase 3', 'Deploy', 'Staged and configured in our shop where possible, installed on-site after hours or on a weekend. Failover tested live before we leave.'],
+  ['Phase 4', 'Operate', "Monitoring, firmware, config backups, and quarterly review. When you open the next site, it's a template — not a project."],
+];
+
+const faqs = [
+  ['Do we need SD-WAN, or is a plain VPN enough?', 'If you have one circuit per site and downtime is survivable, a well-built VPN with monitoring is often the right answer. SD-WAN earns its cost when a site has two circuits, when voice runs over the WAN, or when an outage stops revenue.'],
+  ['Can you connect sites that use different internet providers?', "Yes. Different ISPs, different circuit types, even a wireless bridge as one leg — the tunnel doesn't care as long as each site has a usable public path."],
+  ['Do all our sites need the same hardware?', 'Not strictly, but standardizing makes support faster and cheaper. We generally recommend one gateway family across all locations, sized per site.'],
+  ['Does this replace our remote-access VPN for employees?', "No — that's a different problem, and usually a better-solved one. Site-to-site connects networks; Zero Trust Access connects people. Most of our multi-site clients run both."],
+  ['What happens when a tunnel drops at 2 a.m.?', 'We get the alert, not you. Depending on the fault we either fail traffic to the backup path automatically or work the ISP ticket before your staff arrives.'],
+  ['How long does a two-site deployment take?', "Typically two to four weeks from signed design to cutover, most of it hardware lead time. Rushed timelines are possible; we'll tell you what gets compromised."],
+];
+
+const related = [
+  ['Firewall & Routing', 'The edge device and multi-WAN failover each site depends on.', '/services/firewall-routing'],
+  ['Switching & Gateways', 'The wired fabric underneath, and the addressing plan that keeps sites from colliding.', '/services/switching-and-gateways'],
+  ['Wi-Fi Design', 'Coverage and SSID architecture at each location.', '/services/wifi-design'],
+  ['Private Cloud Routing', 'Reach internal resources without opening inbound ports at any site.', '/services/private-cloud-routing'],
+  ['Zero Trust Access (ZTNA)', 'Site-to-site connects networks; this connects people. Most multi-site clients run both.', '/services/zero-trust-access'],
+  ['Network & Infrastructure', 'Structured cabling, racks, and the physical layer at every location.', '/services/network-design'],
+];
+
+// The copy specifies ?service=Site-to-Site%20%26%20SD-WAN, but ContactForm.tsx
+// has no such checkbox and a non-matching value silently pre-checks nothing.
+const contactHref = '/contact?service=Network%20%26%20Infrastructure';
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'SD-WAN and site-to-site VPN',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Site-to-Site VPN & SD-WAN — Multi-Site Networking',
+  description:
+    'AllTech designs and manages site-to-site VPN and SD-WAN for multi-location businesses — IPsec and WireGuard tunnels, UniFi Site Magic, Cloudflare Magic WAN, and multi-WAN failover.',
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(([question, answer]) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer },
+  })),
+};
+---
+
+<BaseLayout
+  title="Site-to-Site VPN & SD-WAN — Multi-Site Networking"
+  description="AllTech designs and manages site-to-site VPN and SD-WAN for multi-location businesses in Northern Utah — IPsec and WireGuard tunnels, UniFi Site Magic, Cloudflare Magic WAN, multi-WAN failover, and one consistent network across every office."
+  canonical={`${site.url}/services/site-to-site-sd-wan`}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden net-family">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">UniFi Specialist · Cloudflare Partner · Network &amp; Infrastructure</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          Two offices. One network.<br />
+          <span style="color: var(--color-teal-400);">No excuses.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">
+          When you open a second location, the shared drive stops working, the phones develop a
+          delay, and the ERP client at the new site times out at 4 p.m. every day. That's not bad
+          luck — it's two separate networks pretending to be one. AllTech builds the tunnel between
+          them, adds a second circuit so it survives an outage, and monitors both so you hear about
+          a drop from us instead of from your staff.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Connect our sites <span aria-hidden="true">→</span></a>
+          <a href="#how" class="btn btn-ghost">See how it works</a>
+        </div>
+        <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
+          <div>UniFi Site Magic</div>
+          <div>Cloudflare Magic WAN</div>
+          <div>Multi-WAN failover</div>
+          <div>Local engineers</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 · The problem -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">01 · The problem</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          "It works, until it doesn't."
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Most multi-site networks we inherit were built one site at a time. Someone stood up a VPN
+          between two firewalls once, it worked, and nobody touched it again. Then a third site
+          opened, a fiber install got delayed, an ISP swapped the modem, and the whole thing turned
+          into a shape nobody can draw on a whiteboard. What we usually find:
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {problems.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-base font-bold mb-3 leading-snug" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed pt-3" style="color: var(--color-text-default); border-top: 1px solid var(--color-line-faint);">
+              <span class="font-mono text-[10px] tracking-wider block mb-1" style="color: var(--color-text-subtle);">WHY IT HURTS</span>
+              {body}
+            </p>
+          </div>
+        ))}
+      </div>
+      <blockquote
+        class="mt-10 max-w-3xl pl-5 italic leading-relaxed text-muted"
+        style="border-left: 3px solid var(--color-teal-500);"
+      >
+        "A site-to-site connection between two offices that dropped again" — this is on our list of
+        what a normal week looks like. We fix a lot of them.
+      </blockquote>
+    </div>
+  </section>
+
+  <!-- 02 · What the terms mean -->
+  <section id="how" class="surface-dark py-16 lg:py-20 scroll-mt-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">02 · What the terms mean</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Two ideas people use interchangeably. They aren't the same thing.
+        </h2>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="card">
+          <h3 class="font-display text-xl font-bold mb-3" style="color: var(--color-teal-600);">Site-to-site VPN</h3>
+          <p class="leading-relaxed" style="color: var(--color-text-default);">
+            The tunnel. An encrypted link between two networks that lets a workstation in Brigham
+            City reach a server in Logan as if they were in the same building. Usually IPsec or
+            WireGuard, terminated on the gateway at each end. It's a pipe. It either works or it
+            doesn't.
+          </p>
+        </div>
+        <div class="card">
+          <h3 class="font-display text-xl font-bold mb-3" style="color: var(--color-teal-600);">SD-WAN</h3>
+          <p class="leading-relaxed" style="color: var(--color-text-default);">
+            The intelligence on top of the pipes. When a site has two circuits — say a fiber primary
+            and a cable or LTE backup — SD-WAN decides which traffic goes where, watches both paths
+            for loss, latency, and jitter, and moves sessions off a degrading circuit before users
+            notice. It also lets cloud traffic go straight out the local internet instead of
+            hairpinning through headquarters.
+          </p>
+        </div>
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        Simple version: the VPN connects your sites. SD-WAN keeps the connection good.
+      </p>
+    </div>
+  </section>
+
+  <!-- 03 · How we build it -->
+  <section id="build" class="surface-dark py-16 lg:py-20 scroll-mt-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">03 · How we build it</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Six things we deliver. Nothing here is subcontracted.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {build.map(([n, title, body]) => (
+          <div class="card">
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-teal-600);">{n}</div>
+            <h3 class="font-display text-lg font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · Point-to-point wireless -->
+  <section id="wireless" class="surface-dark py-16 lg:py-20 scroll-mt-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide grid lg:grid-cols-12 gap-10">
+      <div class="lg:col-span-5">
+        <div class="eyebrow mb-4">04 · Point-to-point wireless</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          When there's no circuit to rent.
+        </h2>
+      </div>
+      <div class="lg:col-span-7 space-y-4 leading-relaxed text-muted">
+        <p>
+          Not every site needs an ISP. If two buildings are within line of sight — a shop across the
+          yard, a second warehouse, a leased suite across the street — a licensed or unlicensed
+          wireless bridge often delivers more bandwidth than the fiber quote, at a one-time hardware
+          cost instead of a second monthly bill.
+        </p>
+        <p>
+          We survey the path first: line of sight, Fresnel clearance, distance, interference, and
+          mounting options at both ends. If it won't hold up in weather or through the next tree
+          growth season, we say so before you buy the radios.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 · In practice -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">05 · In practice</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Real shapes we support.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {shapes.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-base font-bold mb-2 leading-snug" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 · Honest limitations -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">06 · Honest limitations</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          We'd rather tell you now than in month three.
+        </h2>
+      </div>
+      <div class="max-w-4xl space-y-6">
+        {limitations.map(([title, body]) => (
+          <div class="flex items-start gap-4">
+            <svg class="w-5 h-5 mt-1 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <circle cx="10" cy="10" r="7.5" stroke="var(--color-teal-500)" stroke-width="1.75" />
+              <line x1="10" y1="6" x2="10" y2="11" stroke="var(--color-teal-500)" stroke-width="1.75" stroke-linecap="round" />
+              <circle cx="10" cy="14" r="0.9" fill="var(--color-teal-500)" />
+            </svg>
+            <p class="leading-relaxed" style="color: var(--color-text-default);">
+              <span class="font-display font-bold" style="color: var(--color-text-primary);">{title}</span>{' '}
+              {body}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 · How the engagement works -->
+  <section id="process" class="surface-dark py-16 lg:py-20 scroll-mt-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">07 · How the engagement works</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Four phases, and the next site is a template.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {phases.map(([phase, title, body]) => (
+          <div class="card">
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-teal-600);">{phase}</div>
+            <h3 class="font-display text-lg font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 · FAQ -->
+  <section id="faq" class="surface-dark py-16 lg:py-20 scroll-mt-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">08 · FAQ</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Common questions
+      </h2>
+      <div class="mt-8 space-y-6 not-prose">
+        {faqs.map(([q, a]) => (
+          <div>
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{q}</h3>
+            <p class="leading-relaxed text-muted">{a}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 leading-relaxed text-muted">
+        On the remote-access question, see
+        <a href="/services/zero-trust-access" class="font-medium" style="color: var(--color-teal-600);">Zero Trust Access (ZTNA)</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- 09 · Related services -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">09 · Related services</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The rest of the stack it plugs into
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {related.map(([title, body, href]) => (
+          <a href={href} class="card group block">
+            <h3 class="font-display text-lg font-bold mb-2 group-hover:text-[var(--color-teal-600)] transition" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+            <span class="mt-3 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-teal-600);">Learn more <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="surface-dark py-16 lg:py-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Draw us your network. We'll tell you what's wrong with it.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          If you run more than one location — or you're about to — a 30-minute conversation is
+          usually enough for us to spot the failure point. Local engineers, no sales engineer flown
+          in from out of state.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Talk to an engineer <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+        <div class="mt-8 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
+          <div>Local since 2009</div>
+          <div>UniFi specialist</div>
+          <div>Cloudflare Partner</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Network-family accent, matching the other Network pages. */
+  .net-family :global(.eyebrow) {
+    color: var(--color-teal-600);
+  }
+</style>

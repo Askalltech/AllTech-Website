@@ -1,0 +1,554 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * IT & CLOUD family. Keeps the site's default amber accent — the teal accent is
+ * the Network/Install family marker, and this page is neither.
+ *
+ * HELD BACK from the supplied copy:
+ *
+ * 1. "24/7 emergency response". It appeared three times (trust chips, the
+ *    OPERATE tier, and the FAQ definition of an emergency). This page's own
+ *    build notes say response-time commitments and the business-hours window
+ *    are contract terms that must not be hard-coded, and a 24/7 coverage
+ *    window is exactly that. The same claim was held on site-to-site-sd-wan
+ *    and door-access-control. THIS IS ONE DECISION, NOT THREE — if AllTech
+ *    offers it contractually, restore it in all three places at once.
+ * 2. The remote-assistance URL (remote.askalltech.com on a non-standard port).
+ *    The build notes say to confirm it is still the supported entry point and
+ *    that the certificate is valid, because a browser warning there costs more
+ *    trust than the link earns. Cut until someone loads it.
+ *
+ * The client portal link IS published — it already ships on the home page hero,
+ * so it is not a new claim.
+ *
+ * Nothing on this page states a response time, a business-hours window, a
+ * price, a per-seat figure, or a headcount. Do not add them; they are contract
+ * terms and the team page owns headcount.
+ *
+ * Remote Monitoring and Vendor Management are still anchors on a managed-it
+ * page that has no such anchors, so those links point at the parent page
+ * instead of a fragment that silently lands at the top.
+ */
+
+const portalHref = 'https://askalltech.itclientportal.com/ClientPortal/Login.aspx';
+
+const problems = [
+  ['A queue that routes to a different tech every time', 'You explain your environment from scratch on every ticket.'],
+  ['Tier-one scripts written for consumer hardware', 'Three days of "have you restarted it?" before anyone competent sees it.'],
+  ["The one IT guy who's on vacation", "Nothing moves until Monday, including the things that can't wait."],
+  ['A vendor with no documentation of your setup', 'Every fix is a guess, and half of them break something else.'],
+  ['Remote-only support with no local presence', 'A failed switch means shipping hardware and waiting.'],
+];
+
+const askedFor: [string, string[]][] = [
+  ['People and access', [
+    'New hire needs a laptop, logins, and M365 access by Monday',
+    "Someone locked out of email before a meeting they can't miss",
+    'Departing employee needs access revoked and mailbox preserved',
+    'MFA reset after a lost or replaced phone',
+    'Shared drive or SharePoint permissions that are wrong for a new role',
+  ]],
+  ['Workstations and devices', [
+    "Machine running slow enough that it's costing real hours",
+    'Printer, scanner, or label printer that stopped talking to the network',
+    "Failed drive, failed update, or a laptop that won't boot",
+    'Software installs, license moves, and profile migrations onto new hardware',
+  ]],
+  ['Email and Microsoft 365', [
+    'Suspected phishing message forwarded for review',
+    'Mail flow problems, quarantine releases, distribution list changes',
+    'Calendar sharing, room resources, and delegate access',
+    'Teams and OneDrive sync problems',
+  ]],
+  ['Network and connectivity', [
+    'Wi-Fi dead spot in the part of the building nobody thought about',
+    'VPN or Zero Trust access failing for one remote user',
+    'Site-to-site connection that dropped again',
+    'Slow application performance that may or may not be the network',
+  ]],
+  ['Servers, apps, and vendors', [
+    'Application server errors, service restarts, scheduled job failures',
+    'Coordinating with your ERP, EHR, or practice-management vendor',
+    'Restoring a file or folder someone deleted three days ago',
+  ]],
+];
+
+const ticketFlow = [
+  ['Intake and triage', 'Every request gets logged, categorized, and prioritized against business impact — one person inconvenienced versus a department stopped. Urgent items skip the queue.'],
+  ['Assignment with context', 'The ticket goes to an engineer with access to your documentation: your network diagram, your naming conventions, your quirks, your last six months of tickets.'],
+  ['Diagnosis and fix', "Remote first, because it's faster. On-site when the problem is physical or the remote path isn't working."],
+  ['Escalation with a warm handoff', 'Deeper problems move to the engineer who specializes in that layer — network, identity, security, backup — with the history attached, not a summary you have to re-explain.'],
+  ['Documentation and close', 'What broke, what fixed it, and what we changed goes into your record. The next ticket on the same system starts from that, not from zero.'],
+  ['Pattern review', 'Recurring tickets get escalated out of the help desk and into a project. Five printer tickets a month is a print-server problem, not a printer problem.'],
+];
+
+const tiers: [string, string, string, string[]][] = [
+  ['01', 'ASSESS', 'Where you are today', [
+    'Review of your current support model, ticket history, and open backlog',
+    'Documentation audit — what exists, what is missing, what is wrong',
+    'Environment discovery: endpoints, servers, network, M365 tenant, licensing',
+    'Findings and a recommended support scope, in writing',
+  ]],
+  ['02', 'DEPLOY', 'Onboarding and handover', [
+    'Full documentation build, asset inventory, contact and approval matrix',
+    'Client portal accounts for your staff, with escalation contacts defined',
+    'Monitoring and management agents deployed',
+    'Named engineers assigned to your account, with a kickoff walkthrough',
+  ]],
+  ['03', 'OPERATE', 'The ongoing engagement', [
+    'Unlimited ticket intake by phone, portal, and email',
+    'Remote and on-site support included in scope',
+    'Proactive maintenance, patching, and monthly reporting on ticket volume and trends',
+    'Quarterly review of recurring issues and infrastructure that should be replaced',
+  ]],
+];
+
+const onboarding = [
+  ['Discovery', 'Week 1', 'Walkthrough of every site. Inventory of endpoints, servers, network gear, licenses, and vendors. Credential handover and secure storage.'],
+  ['Stabilize', 'Week 1–2', 'Monitoring agents deployed. Backup status verified — this is where we usually find the first real problem. Critical gaps triaged immediately.'],
+  ['Document', 'Week 2–3', 'Network diagram, asset register, runbooks, escalation contacts, approval matrix. Your staff get portal accounts and a one-page "how to reach us."'],
+  ['Operate', 'Week 3–4', 'Full ticket intake live. First monthly report scheduled. Backlog from the previous provider worked down.'],
+  ['Review', 'Day 30', 'What we found, what we fixed, and the short list of things that need to become projects.'],
+];
+
+const audience = [
+  ['Businesses with no internal IT', 'You need a department, not a contractor.'],
+  ['One overloaded internal IT person', 'We take the ticket queue so they can do projects.'],
+  ['Multi-site organizations', 'One standard of support at every location, including the small ones.'],
+  ['Regulated environments', 'Clinics, law firms, title companies, and accounting practices where access changes need a paper trail.'],
+  ['Manufacturers', 'Production floors where a patch at the wrong hour is worse than the bug.'],
+  ['Businesses outgrowing consumer tools', 'The point where a shared drive and free email stop holding.'],
+];
+
+const limitations = [
+  ["We don't write your line-of-business software.", "We support it, patch it, and fight with its vendor on your behalf. We don't fix bugs inside it."],
+  ['Some vendors will only talk to you.', "We'll be on the call, but a few software vendors require the license holder on the line."],
+  ['On-site has drive time.', "We're in Hyde Park. Logan is minutes; Preston, Tremonton, and Brigham City are longer. Remote fixes are always faster."],
+  ["Unlimited tickets isn't unlimited projects.", 'A server migration, an office move, or a full Wi-Fi redesign is scoped work, not a help desk ticket.'],
+  ["We can't fix what we can't see.", 'Devices outside monitoring, shadow-IT SaaS nobody told us about, and personal equipment fall outside normal scope.'],
+  ['Fastest response requires the phone.', "Portal and email are triaged promptly, but if it's stopping work right now, call."],
+];
+
+const faqs = [
+  ['Do I get the same person every time?', 'You get the same small team, all of whom have access to your documentation. For anything ongoing, named engineers own your account.'],
+  ['Is there a limit on how many tickets we can open?', "Under an OPERATE agreement, no — ticket intake is unlimited. Project work is scoped separately. We'd rather you call about something small than sit on it."],
+  ['What counts as an emergency?', 'Outages affecting multiple users or a whole site, suspected security incidents, ransomware indicators, and anything stopping production or patient care. A single stuck print job does not.'],
+  ['Can our staff contact you directly, or does it go through a manager?', 'Your call. Most clients let everyone open tickets and reserve approvals — new hardware, access changes, spending — for a defined approver list.'],
+  ['Do you support remote and home-office workers?', 'Yes. Company-managed devices anywhere get the same support, secured through Zero Trust Access rather than a legacy VPN.'],
+  ['What happens to our existing tickets and documentation when we switch?', "We import what the previous provider hands over and rebuild what they don't. Assume the documentation is incomplete — it usually is — and budget week two for it."],
+  ['Do you resell hardware?', "Yes, we procure and configure it. You can also buy your own; we'll deploy it either way, though we'll tell you if the model you picked is going to be a problem."],
+];
+
+const related = [
+  ['Managed IT', 'The full outsourced-IT engagement this sits inside, including remote monitoring and vendor management.', '/services/managed-it'],
+  ['Microsoft 365 & Cloud', 'Tenant, licensing, Intune, and Entra ID.', '/services/cloud-microsoft-365'],
+  ['Endpoint Security', 'EDR and ransomware protection on every device we support.', '/services/endpoint-security'],
+  ['Backup & Disaster Recovery', 'Immutable copies and tested restores.', '/services/backup-disaster-recovery'],
+  ['Zero Trust Access (ZTNA)', 'How remote and home-office staff reach internal resources.', '/services/zero-trust-access'],
+  ['AllTech Top 10', 'The ten controls we deploy first.', '/services/alltech-top-10'],
+];
+
+// Must match a ContactForm.tsx checkbox label exactly.
+const contactHref = '/contact?service=Managed%20IT';
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'IT Help Desk',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'IT Help Desk Support',
+  description:
+    'Local IT help desk for Northern Utah businesses. Call, email, or submit a ticket and reach an AllTech engineer who already knows your network.',
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(([question, answer]) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer },
+  })),
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: site.url },
+    { '@type': 'ListItem', position: 2, name: 'Services', item: `${site.url}/services` },
+    { '@type': 'ListItem', position: 3, name: 'Managed IT', item: `${site.url}/services/managed-it` },
+    { '@type': 'ListItem', position: 4, name: 'Help Desk', item: `${site.url}/services/help-desk` },
+  ],
+};
+---
+
+<BaseLayout
+  title="IT Help Desk Support — Northern Utah"
+  description="Local IT help desk for Northern Utah businesses. Call, email, or submit a ticket and reach an AllTech engineer who already knows your network — not an overseas queue. Logan, Hyde Park, Brigham City, Tremonton, Preston."
+  canonical={`${site.url}/services/help-desk`}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">Managed IT · Local Engineers Since 2009</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          When something breaks, you get an engineer who
+          <span style="color: var(--color-amber-400);">already knows your network.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">
+          No tier-one script. No overseas queue. No repeating your company name three times before
+          anyone opens a ticket. The people who answer the phone at AllTech are the same people who
+          built your network, documented your servers, and set up your mailboxes — so the first
+          question isn't "what do you do?", it's "what changed?"
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Talk to an engineer <span aria-hidden="true">→</span></a>
+          <a href={portalHref} target="_blank" rel="noopener noreferrer" class="btn btn-ghost">
+            Submit a ticket <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+        <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
+          <div>Local since 2009</div>
+          <div>Same engineers, every call</div>
+          <div>Remote + on-site</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 · The problem -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">01 · The problem</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Support that costs more time than it saves.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Most businesses don't lose days to catastrophic outages. They lose them fifteen minutes at
+          a time — and the support model is usually what makes it worse.
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {problems.map(([hit, cost]) => (
+          <div class="card">
+            <h3 class="font-display text-base font-bold mb-3 leading-snug" style="color: var(--color-text-primary);">{hit}</h3>
+            <p class="text-sm leading-relaxed pt-3" style="color: var(--color-text-default); border-top: 1px solid var(--color-line-faint);">
+              <span class="font-mono text-[10px] tracking-wider block mb-1" style="color: var(--color-text-subtle);">WHAT IT COSTS</span>
+              {cost}
+            </p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        Help desk isn't a call center. It's the daily, unglamorous work of keeping a business
+        running — and it only works when the person on the other end has context.
+      </p>
+    </div>
+  </section>
+
+  <!-- 02 · How to reach us -->
+  <section id="reach" class="surface-dark py-16 lg:py-20 scroll-mt-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">02 · How to reach us</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Three doors, one team behind all of them.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">Use whichever is fastest for you.</p>
+      </div>
+      <ul class="grid md:grid-cols-3 gap-4 list-none p-0 m-0">
+        <li class="card">
+          <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">Phone</h3>
+          <a href={`tel:${site.phoneE164}`} class="font-mono text-sm" style="color: var(--color-amber-600);">
+            Call AllTech support on {site.phone}
+          </a>
+          <p class="text-sm leading-relaxed mt-3" style="color: var(--color-text-default);">
+            A person answers. For anything urgent — someone locked out before a meeting, a line
+            down, a site offline — call. It's the fastest path to a live engineer.
+          </p>
+        </li>
+        <li class="card">
+          <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">Client portal</h3>
+          <a href={portalHref} target="_blank" rel="noopener noreferrer" class="text-sm font-medium" style="color: var(--color-amber-600);">
+            Submit and track a ticket in the client portal <span aria-hidden="true">↗</span>
+          </a>
+          <p class="text-sm leading-relaxed mt-3" style="color: var(--color-text-default);">
+            Best for non-urgent requests, new-hire onboarding, and anything you want a written
+            record of. You can see status and history on every ticket your team has opened.
+          </p>
+        </li>
+        <li class="card">
+          <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">Email</h3>
+          <a href={`mailto:${site.email}`} class="text-sm font-medium" style="color: var(--color-amber-600);">
+            Email AllTech support at {site.email}
+          </a>
+          <p class="text-sm leading-relaxed mt-3" style="color: var(--color-text-default);">
+            Forward the phishing email, paste the error, attach the screenshot. It lands in the same
+            queue as everything else and gets triaged the same way.
+          </p>
+        </li>
+      </ul>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        On-site is included in the model, not billed as an escape hatch. If the fix needs hands on
+        the hardware, an engineer drives out. When it's faster for us to look at the screen than to
+        describe the fix, we connect remotely — with your permission, on your machine, while you
+        watch.
+      </p>
+    </div>
+  </section>
+
+  <!-- 03 · What we get asked -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">03 · What we actually get asked</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          A representative week.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          So you know what falls inside scope before you ask.
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {askedFor.map(([group, items]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-3" style="color: var(--color-text-primary);">{group}</h3>
+            <ul class="space-y-2 list-none p-0 m-0">
+              {items.map((i) => (
+                <li class="flex items-start gap-2.5">
+                  <svg class="w-4 h-4 mt-1 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <span class="text-sm leading-snug" style="color: var(--color-text-default);">{i}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        If it's technology and it's stopping work, open a ticket. If it turns out to be someone
+        else's product, we own the call to that vendor — see
+        <a href="/services/managed-it" class="font-medium" style="color: var(--color-amber-600);">Managed IT</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- 04 · How a ticket moves -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">04 · How a ticket moves</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Same path every time, so nothing sits in a queue nobody owns.
+        </h2>
+      </div>
+      <ol class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 list-none p-0 m-0">
+        {ticketFlow.map(([title, body], i) => (
+          <li class="card">
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-amber-600);">{String(i + 1).padStart(2, '0')}</div>
+            <h3 class="font-display text-lg font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- 05 · Engagement tiers -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">05 · How we engage</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Three ways to work with us.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Depending on how much of IT you want to own.
+        </p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4">
+        {tiers.map(([n, label, title, items], i) => (
+          <div class="card" style={i === 2 ? 'border-color: var(--color-amber-400);' : ''}>
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-amber-600);">{n} · {label}</div>
+            <h3 class="font-display text-xl font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <ul class="space-y-2 list-none p-0 m-0">
+              {items.map((it) => (
+                <li class="flex items-start gap-2.5">
+                  <svg class="w-4 h-4 mt-1 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <span class="text-sm leading-snug" style="color: var(--color-text-default);">{it}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        Coverage windows, response commitments, and per-seat pricing are contract terms rather than
+        web-page terms. <a href={contactHref} class="font-medium" style="color: var(--color-amber-600);">Ask us for a quote</a> and
+        you'll get them in writing.
+      </p>
+    </div>
+  </section>
+
+  <!-- 06 · Onboarding -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">06 · Onboarding</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The first 30 days.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Switching IT providers is the part everyone dreads. Here's the sequence.
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        {onboarding.map(([phase, window, body]) => (
+          <div class="card">
+            <div class="flex items-baseline justify-between gap-2 mb-3">
+              <span class="font-mono text-xs tracking-wider" style="color: var(--color-amber-600);">{phase}</span>
+              <span class="font-mono text-xs" style="color: var(--color-text-subtle);">{window}</span>
+            </div>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        The outgoing provider doesn't have to cooperate for this to work — it's easier if they do,
+        but we've onboarded plenty of clients with nothing but physical access and admin
+        credentials.
+      </p>
+    </div>
+  </section>
+
+  <!-- 07 · Who this is for -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">07 · Who this is for</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Where this fits.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {audience.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        <span class="font-display font-bold" style="color: var(--color-text-primary);">Not a fit if</span>{' '}
+        you need on-site staff physically present all day, you're looking for break-fix hourly work
+        with no monitoring or documentation, or your environment is entirely developer-managed cloud
+        infrastructure with no end users.
+      </p>
+    </div>
+  </section>
+
+  <!-- 08 · Honest limitations -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">08 · Honest limitations</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What the help desk won't cover.
+        </h2>
+      </div>
+      <div class="max-w-4xl space-y-6">
+        {limitations.map(([title, body]) => (
+          <div class="flex items-start gap-4">
+            <svg class="w-5 h-5 mt-1 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <circle cx="10" cy="10" r="7.5" stroke="var(--color-amber-500)" stroke-width="1.75" />
+              <line x1="10" y1="6" x2="10" y2="11" stroke="var(--color-amber-500)" stroke-width="1.75" stroke-linecap="round" />
+              <circle cx="10" cy="14" r="0.9" fill="var(--color-amber-500)" />
+            </svg>
+            <p class="leading-relaxed" style="color: var(--color-text-default);">
+              <span class="font-display font-bold" style="color: var(--color-text-primary);">{title}</span>{' '}
+              {body}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 · FAQ -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">09 · FAQ</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Common questions
+      </h2>
+      <div class="mt-8 space-y-6 not-prose">
+        {faqs.map(([q, a]) => (
+          <div>
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{q}</h3>
+            <p class="leading-relaxed text-muted">{a}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 leading-relaxed text-muted">
+        On remote workers, see
+        <a href="/services/zero-trust-access" class="font-medium" style="color: var(--color-amber-600);">Zero Trust Access (ZTNA)</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- 10 · Related services -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">10 · Related services</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The rest of the stack it plugs into
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {related.map(([title, body, href]) => (
+          <a href={href} class="card group block">
+            <h3 class="font-display text-lg font-bold mb-2 group-hover:text-[var(--color-amber-600)] transition" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+            <span class="mt-3 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">Learn more <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="surface-dark py-16 lg:py-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Stop being your own help desk.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          If you're the person everyone walks over to when the printer stops, that's a job you
+          already have on top of the one you were hired for. Tell us what your week looks like and
+          we'll tell you what we'd take off your plate.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Talk to an engineer <span aria-hidden="true">→</span></a>
+          <a href="/assessment" class="btn btn-ghost">Take the free security gap assessment</a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
