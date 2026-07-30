@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
+import { TeamGrid } from '@/components/TeamGrid';
 
 /**
  * Our Team — roster in the shadcnblocks "team11" pattern.
@@ -216,36 +217,17 @@ const initials = (name: string) =>
             </p>
           </div>
 
-          <ul class="team-grid" role="list">
-            {team.map((m) => (
-              <li class="team-cell">
-                <a class="team-inner" href={`#bio-${slugify(m.name)}`}>
-                  <span class="team-accent" aria-hidden="true"></span>
-
-                  {m.photo ? (
-                    <img src={m.photo} alt="" class="team-photo" loading="lazy" />
-                  ) : (
-                    <span class="team-monogram" aria-hidden="true">{initials(m.name)}</span>
-                  )}
-
-                  <h3 class="font-display text-lg font-bold mt-4" style="color: var(--color-text-primary);">
-                    {m.name}
-                  </h3>
-                  <p class="text-sm font-medium" style="color: var(--color-amber-600);">{m.role}</p>
-                  {m.tagline && (
-                    <p class="text-xs italic mt-0.5" style="color: var(--color-text-subtle);">{m.tagline}</p>
-                  )}
-
-                  <div class="team-reveal">
-                    <div>
-                      <p class="team-bio text-sm leading-relaxed mt-3" style="color: var(--color-text-default);">{m.bio[0]}</p>
-                      <span class="team-more">Read full bio <span aria-hidden="true">↓</span></span>
-                    </div>
-                  </div>
-                </a>
-              </li>
-            ))}
-          </ul>
+          <TeamGrid
+            client:visible
+            members={team.map((m) => ({
+              name: m.name,
+              role: m.role,
+              description: m.bio[0],
+              href: `#bio-${slugify(m.name)}`,
+              image: m.photo,
+              tagline: m.tagline,
+            }))}
+          />
         </div>
       </section>
 
@@ -308,151 +290,6 @@ const initials = (name: string) =>
 </BaseLayout>
 
 <style>
-  /* Dense bordered grid. Cell borders are drawn with a shared 1px gap so the
-     grid reads as one ruled table rather than separate boxes. */
-  .team-grid {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1px;
-    background: var(--color-border-subtle);
-    border: 1px solid var(--color-border-subtle);
-    border-radius: 12px;
-    overflow: hidden;
-  }
-  @media (min-width: 768px) {
-    .team-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  }
-  @media (min-width: 1024px) {
-    .team-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  }
-
-  .team-cell {
-    position: relative;
-    background: var(--color-bg-page);
-    min-height: 100%;
-  }
-
-  .team-inner {
-    display: block;
-    padding: 1.75rem 1.5rem;
-    height: 100%;
-    background: var(--color-bg-page);
-    text-decoration: none;
-    transition:
-      background-color 0.2s var(--ease-out-soft),
-      box-shadow 0.2s var(--ease-out-soft);
-  }
-
-  /* The amber accent line that appears with the raised card. */
-  .team-accent {
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 3px;
-    width: 100%;
-    transform: scaleX(0);
-    transform-origin: left;
-    background: linear-gradient(
-      90deg,
-      var(--color-amber-400),
-      var(--color-amber-500) 55%,
-      var(--color-teal-400)
-    );
-    transition: transform 0.25s var(--ease-out-soft);
-  }
-
-  .team-photo,
-  .team-monogram {
-    display: block;
-    width: 4.5rem;
-    height: 4.5rem;
-    border-radius: 10px;
-    object-fit: cover;
-  }
-  .team-monogram {
-    display: grid;
-    place-items: center;
-    background: var(--color-bg-tint);
-    border: 1px solid var(--color-border-default);
-    color: var(--color-amber-600);
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 1.35rem;
-    letter-spacing: 0.02em;
-  }
-
-  /* The preview is clamped to two lines — the full text lives below. */
-  .team-bio {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    overflow: hidden;
-  }
-
-  .team-more {
-    display: inline-block;
-    margin-top: 0.6rem;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    color: var(--color-amber-600);
-  }
-
-  /* Mobile / touch: the preview is simply always visible — a scannable list. */
-  .team-reveal { display: block; }
-
-  @media (min-width: 768px) {
-    /* Desktop: the card is absolutely positioned in BOTH states, and the cell
-       reserves its own height. That's what keeps neighbours perfectly still —
-       if the card only went absolute on hover, its cell would collapse and
-       reflow the whole grid. At rest the card fills the cell (inset: 0); when
-       active it releases its bottom edge so it can grow downward. */
-    .team-cell { min-height: 15rem; }
-    .team-inner {
-      position: absolute;
-      inset: 0;
-      height: auto;
-    }
-
-    .team-reveal {
-      display: grid;
-      grid-template-rows: 0fr;
-      opacity: 0;
-      transition:
-        grid-template-rows 0.25s var(--ease-out-soft),
-        opacity 0.2s var(--ease-out-soft);
-    }
-    .team-reveal > * { overflow: hidden; }
-
-    .team-cell:hover .team-inner,
-    .team-cell:focus-within .team-inner {
-      inset: 0 0 auto 0;
-      z-index: 20;
-      background: var(--color-bg-surface);
-      border-radius: 12px;
-      box-shadow:
-        0 18px 40px -12px rgba(10, 15, 26, 0.18),
-        0 0 0 1px var(--color-border-default);
-    }
-    .team-cell:hover .team-reveal,
-    .team-cell:focus-within .team-reveal {
-      grid-template-rows: 1fr;
-      opacity: 1;
-    }
-    .team-cell:hover .team-accent,
-    .team-cell:focus-within .team-accent {
-      transform: scaleX(1);
-    }
-    .team-cell:focus-within .team-inner {
-      box-shadow:
-        0 18px 40px -12px rgba(10, 15, 26, 0.18),
-        0 0 0 2px var(--color-amber-400);
-    }
-  }
-
   /* ---- Full bios ---- */
   .team-bios {
     display: grid;
@@ -516,11 +353,6 @@ const initials = (name: string) =>
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .team-inner,
-    .team-reveal,
-    .team-accent {
-      transition: none;
-    }
     html { scroll-behavior: auto; }
   }
 </style>
