@@ -175,16 +175,16 @@
     transition-timing-function: var(--ease-out-soft);
   }
   .btn-primary {
+    /* Flat solid + neutral shadow, replacing the earlier amber inset/ring
+       glow to match the flatter language adopted from landing-page20. */
     background: var(--color-amber-400);
     color: var(--color-ink-950);
-    box-shadow: 0 1px 0 rgba(255,255,255,0.15) inset, 0 0 0 1px rgba(255,170,51,0.4);
+    box-shadow: var(--shadow-raw-sm);
   }
   .btn-primary:hover {
     background: var(--color-amber-500);
     transform: translateY(-1px);
-    box-shadow: 0 1px 0 rgba(255,255,255,0.2) inset,
-                0 0 0 1px rgba(236,140,0,0.6),
-                0 8px 24px -8px rgba(236,140,0,0.35);
+    box-shadow: var(--shadow-raw-md);
   }
   .btn-secondary {
     background: var(--color-bg-elevated);
@@ -226,11 +226,13 @@
     @apply rounded-lg p-6 transition-all duration-200;
     background: var(--color-bg-surface);
     border: 1px solid var(--color-border-subtle);
+    box-shadow: var(--shadow-raw-sm);
     transition-timing-function: var(--ease-out-soft);
   }
   .card:hover {
     background: var(--color-bg-elevated);
     border-color: var(--color-border-strong);
+    box-shadow: var(--shadow-raw-md);
     transform: translateY(-2px);
   }
   .surface-inverse .card {
@@ -468,7 +470,28 @@
   --border:                var(--color-border-default);
   --input:                 var(--color-border-default);
   --ring:                  var(--color-amber-500);
-  --radius:                0.625rem;
+
+  /* Adopted from shadcnblocks landing-page20's theme (radius + shadow scale
+     only — see file header). 8px base radius, tighter/flatter than the
+     0.625rem this bridge shipped with originally.
+
+     Raw shadow values live here under non-Tailwind names (--shadow-raw-*)
+     rather than the real utility names (--shadow-sm etc). Tailwind v4 only
+     swaps a utility's compiled output for a value registered inside an
+     @theme block — a same-named plain :root custom property elsewhere in
+     the cascade does NOT override it, verified by inspecting computed
+     box-shadow on a live shadow-sm element before this fix (it still
+     rendered Tailwind's stock default). The @theme inline block below does
+     the actual registration, the same way --radius-lg already does. */
+  --radius:                0.5rem;
+  --shadow-raw-2xs: 0 1px 3px 0px rgba(10, 15, 26, 0.05);
+  --shadow-raw-xs:  0 1px 3px 0px rgba(10, 15, 26, 0.05);
+  --shadow-raw-sm:  0 1px 3px 0px rgba(10, 15, 26, 0.10), 0 1px 2px -1px rgba(10, 15, 26, 0.10);
+  --shadow-raw:     0 1px 3px 0px rgba(10, 15, 26, 0.10), 0 1px 2px -1px rgba(10, 15, 26, 0.10);
+  --shadow-raw-md:  0 1px 3px 0px rgba(10, 15, 26, 0.10), 0 2px 4px -1px rgba(10, 15, 26, 0.10);
+  --shadow-raw-lg:  0 1px 3px 0px rgba(10, 15, 26, 0.10), 0 4px 6px -1px rgba(10, 15, 26, 0.10);
+  --shadow-raw-xl:  0 1px 3px 0px rgba(10, 15, 26, 0.10), 0 8px 10px -1px rgba(10, 15, 26, 0.10);
+  --shadow-raw-2xl: 0 1px 3px 0px rgba(10, 15, 26, 0.25);
 }
 
 @theme inline {
@@ -496,6 +519,16 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  --shadow-2xs: var(--shadow-raw-2xs);
+  --shadow-xs:  var(--shadow-raw-xs);
+  --shadow-sm:  var(--shadow-raw-sm);
+  --shadow:     var(--shadow-raw);
+  --shadow-md:  var(--shadow-raw-md);
+  --shadow-lg:  var(--shadow-raw-lg);
+  --shadow-xl:  var(--shadow-raw-xl);
+  --shadow-2xl: var(--shadow-raw-2xl);
+
   --animate-shadow-ping:  shadow-ping 1.5s ease-in-out infinite;
   @keyframes shadow-ping {
   0% {
