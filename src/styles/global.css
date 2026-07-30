@@ -534,7 +534,17 @@
   --color-primary-foreground:    var(--primary-foreground);
   --color-secondary:             var(--secondary);
   --color-secondary-foreground:  var(--secondary-foreground);
-  --color-muted:                 var(--muted);
+  /* --color-muted is deliberately NOT registered here. Tailwind v4
+     auto-generates a `.text-muted`/`.bg-muted`/`.border-muted` utility for
+     any --color-* key in an @theme block, and `.text-muted` is also the name
+     of this site's pre-existing body-copy class (@layer components, below).
+     Utilities always beat components in Tailwind's layer order, so
+     registering --color-muted silently made every `.text-muted` element
+     site-wide render in --muted's near-white tone instead of the intended
+     dark gray. No shadcn/shadcnblocks component here uses bare
+     bg-muted/text-muted (only the -foreground variant), so leaving this
+     unregistered costs nothing. --muted itself (the raw value) still exists
+     in :root above for anything that needs it directly. */
   --color-muted-foreground:      var(--muted-foreground);
   --color-accent:                var(--accent);
   --color-accent-foreground:     var(--accent-foreground);
