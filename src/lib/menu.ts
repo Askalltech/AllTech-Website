@@ -48,7 +48,7 @@ export const menuCategories: MenuCategory[] = [
       { title: 'Secure Web Gateway',       description: 'Cloud-delivered DNS and HTTP threat filtering',   href: '/services/secure-web-gateway' },
       { title: 'Email Security',           description: 'Pre-inbox phishing defense for cloud mailboxes',  href: '/services/email-security' },
       { title: 'DNS & DDoS Protection',    description: 'Authoritative DNS and automated attack mitigation', href: '/services/dns-ddos-protection' },
-      { title: 'Private Cloud Routing',    description: 'Connect infrastructure without public IP exposure', href: '/services/cloudflare-zero-trust#tunnel' },
+      { title: 'Private Cloud Routing',    description: 'Connect infrastructure without public IP exposure', href: '/services/private-cloud-routing' },
     ],
   },
   {

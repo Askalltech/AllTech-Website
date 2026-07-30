@@ -311,11 +311,32 @@ const faqSchema = {
     </div>
   </section>
 
-  <!-- 04 · Migration -->
+  <!-- 04 · How we engage -->
   <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
     <div class="container-wide">
       <div class="max-w-2xl mb-12">
-        <div class="eyebrow mb-4">04 · Migration</div>
+        <div class="eyebrow mb-4">04 · How we engage</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Three ways to start.
+        </h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4">
+        {engage.map(([n, label, title, body], i) => (
+          <div class="card" style={i === 1 ? 'border-color: var(--color-amber-400);' : ''}>
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-amber-600);">{n} · {label}</div>
+            <h3 class="font-display text-xl font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 · Migration -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">05 · Migration</div>
         <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
           Four steps, and the risky one is the one everyone skips.
         </h2>
@@ -343,11 +364,11 @@ const faqSchema = {
     </div>
   </section>
 
-  <!-- 05 · Under attack -->
+  <!-- 06 · Under attack -->
   <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
     <div class="container-wide">
       <div class="max-w-2xl mb-12">
-        <div class="eyebrow mb-4">05 · Under attack</div>
+        <div class="eyebrow mb-4">06 · Under attack</div>
         <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
           What actually happens when it starts.
         </h2>
@@ -362,17 +383,17 @@ const faqSchema = {
       </div>
       <p class="mt-8 max-w-3xl leading-relaxed text-muted">
         If we run your <a href="/services/managed-soc" class="font-medium" style="color: var(--color-amber-600);">Managed SOC</a>,
-        this is already in scope. If we don't, it's still covered under managed DNS — see the
-        OPERATE tier below.
+        this is already in scope. If we don't, it's still covered under managed DNS — the OPERATE
+        tier above.
       </p>
     </div>
   </section>
 
-  <!-- 06 · Who this is for -->
+  <!-- 07 · Who this is for -->
   <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
     <div class="container-wide">
       <div class="max-w-2xl mb-10">
-        <div class="eyebrow mb-4">06 · Who this is for</div>
+        <div class="eyebrow mb-4">07 · Who this is for</div>
         <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
           Where it makes the most difference.
         </h2>
@@ -381,27 +402,6 @@ const faqSchema = {
         {audience.map(([title, body]) => (
           <div class="card">
             <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
-            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
-
-  <!-- 07 · How we engage -->
-  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
-    <div class="container-wide">
-      <div class="max-w-2xl mb-12">
-        <div class="eyebrow mb-4">07 · How we engage</div>
-        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
-          Three ways to start.
-        </h2>
-      </div>
-      <div class="grid md:grid-cols-3 gap-4">
-        {engage.map(([n, label, title, body], i) => (
-          <div class="card" style={i === 1 ? 'border-color: var(--color-amber-400);' : ''}>
-            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-amber-600);">{n} · {label}</div>
-            <h3 class="font-display text-xl font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
             <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
           </div>
         ))}
