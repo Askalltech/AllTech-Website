@@ -78,7 +78,7 @@ export const menuCategories: MenuCategory[] = [
     href: '/services/managed-it',
     tiles: [
       { title: 'Help Desk',             description: 'Local engineers, fast response',         href: '/services/help-desk' },
-      { title: 'Remote Monitoring',     description: 'Datto RMM, patching, automation',        href: '/services/managed-it#rmm' },
+      { title: 'Remote Monitoring',     description: 'Datto RMM, patching, automation',        href: '/services/remote-monitoring' },
       { title: 'Vendor Management',     description: 'One number for all your tech vendors',   href: '/services/managed-it#vendors' },
       { title: 'Microsoft 365',         description: 'Tenant design, licensing, migration',    href: '/services/cloud-microsoft-365#m365' },
       { title: 'Entra ID & Intune',     description: 'Identity & device management',           href: '/services/cloud-microsoft-365#intune' },

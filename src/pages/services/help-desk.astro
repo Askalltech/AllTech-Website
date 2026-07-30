@@ -6,16 +6,15 @@ import { site } from '~/lib/site';
  * IT & CLOUD family. Keeps the site's default amber accent — the teal accent is
  * the Network/Install family marker, and this page is neither.
  *
+ * "24/7 emergency response" is CONFIRMED contractual (AllTech offers
+ * after-hours emergency response under agreement) and appears in the trust
+ * chips, the OPERATE tier, and the FAQ. It is a coverage commitment, not an
+ * SLA figure — no response-time number, business-hours window, or price is
+ * stated anywhere on this page, and none should be added.
+ *
  * HELD BACK from the supplied copy:
  *
- * 1. "24/7 emergency response". It appeared three times (trust chips, the
- *    OPERATE tier, and the FAQ definition of an emergency). This page's own
- *    build notes say response-time commitments and the business-hours window
- *    are contract terms that must not be hard-coded, and a 24/7 coverage
- *    window is exactly that. The same claim was held on site-to-site-sd-wan
- *    and door-access-control. THIS IS ONE DECISION, NOT THREE — if AllTech
- *    offers it contractually, restore it in all three places at once.
- * 2. The remote-assistance URL (remote.askalltech.com on a non-standard port).
+ * 1. The remote-assistance URL (remote.askalltech.com on a non-standard port).
  *    The build notes say to confirm it is still the supported entry point and
  *    that the certificate is valid, because a browser warning there costs more
  *    trust than the link earns. Cut until someone loads it.
@@ -99,6 +98,7 @@ const tiers: [string, string, string, string[]][] = [
   ]],
   ['03', 'OPERATE', 'The ongoing engagement', [
     'Unlimited ticket intake by phone, portal, and email',
+    '24/7 emergency response for outages and security events',
     'Remote and on-site support included in scope',
     'Proactive maintenance, patching, and monthly reporting on ticket volume and trends',
     'Quarterly review of recurring issues and infrastructure that should be replaced',
@@ -134,7 +134,7 @@ const limitations = [
 const faqs = [
   ['Do I get the same person every time?', 'You get the same small team, all of whom have access to your documentation. For anything ongoing, named engineers own your account.'],
   ['Is there a limit on how many tickets we can open?', "Under an OPERATE agreement, no — ticket intake is unlimited. Project work is scoped separately. We'd rather you call about something small than sit on it."],
-  ['What counts as an emergency?', 'Outages affecting multiple users or a whole site, suspected security incidents, ransomware indicators, and anything stopping production or patient care. A single stuck print job does not.'],
+  ['What counts as an emergency?', 'Outages affecting multiple users or a whole site, suspected security incidents, ransomware indicators, and anything stopping production or patient care. Those get 24/7 response. A single stuck print job does not.'],
   ['Can our staff contact you directly, or does it go through a manager?', 'Your call. Most clients let everyone open tickets and reserve approvals — new hardware, access changes, spending — for a defined approver list.'],
   ['Do you support remote and home-office workers?', 'Yes. Company-managed devices anywhere get the same support, secured through Zero Trust Access rather than a legacy VPN.'],
   ['What happens to our existing tickets and documentation when we switch?', "We import what the previous provider hands over and rebuild what they don't. Assume the documentation is incomplete — it usually is — and budget week two for it."],
@@ -221,6 +221,7 @@ const breadcrumbSchema = {
           <div>Local since 2009</div>
           <div>Same engineers, every call</div>
           <div>Remote + on-site</div>
+          <div>24/7 emergency response</div>
         </div>
       </div>
     </div>
