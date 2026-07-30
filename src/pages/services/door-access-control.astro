@@ -1,0 +1,355 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * NETWORK / INSTALL family — teal accent, matching the other Network pages.
+ *
+ * "24/7 emergency response" is CONFIRMED contractual and appears in the hero
+ * trust row. No response-time figure is stated; that stays a contract term.
+ *
+ * HELD BACK from the supplied copy:
+ *  1. The section 7 placeholder client quote, and the named client suggested
+ *     as its source. A placeholder testimonial is worse than none, and no
+ *     client is named anywhere on this site without written permission. The
+ *     logo wall BaseLayout already renders covers the social-proof slot.
+ *
+ * Route note: the Security Cameras copy referred to /services/door-access.
+ * This page's own frontmatter specifies /services/door-access-control, which
+ * is what shipped; the cameras page points here.
+ *
+ * No compliance certifications (HIPAA, CJIS) are claimed, per the build notes —
+ * the copy says "a log you can produce during an audit" and stays there.
+ *
+ * No UniFi Access model names appear. Device class only, like the other
+ * Network pages, since the lineup turns over faster than the page will.
+ *
+ * The supplied canonical ended in .html; Pages serves these routes
+ * extensionless, so the canonical is extensionless like the rest.
+ */
+
+const pains = [
+  'No record of who opened which door, or when',
+  'Rekeying the building every time staff turns over',
+  'Server rooms, files, and cash areas secured by the same key as the break room',
+  'An access system nobody on staff can actually administer',
+];
+
+const benefits = [
+  ['Turn off a credential in ten seconds.', 'Someone leaves, you revoke access from a browser. No locksmith, no rekeying, no collecting anything.'],
+  ['Know what happened at the door.', 'Every unlock, denial, and door-held-open event is logged and tied to a person, and paired with camera footage from the same console.'],
+  ['Different doors, different rules.', 'Front lobby unlocks at 7:30 and locks at 6. The server room never unlocks on a schedule and only opens for four people.'],
+];
+
+const featureCards = [
+  ['Card, fob, and mobile unlock', 'Staff use a badge, a keypad code, or their phone over NFC or Bluetooth. Visitors and contractors get a PIN that expires on its own.'],
+  ['Controllers & PoE readers', 'One cable per door for data and power. Readers come in surface, mullion, and touchscreen styles, indoor or weather-rated.'],
+  ['Schedules, groups, and lockdown', 'Access by role and time of day, plus a one-tap lockdown that secures every door on the property at once.'],
+  ['Camera pairing', 'Each door links to a UniFi Protect camera, so an alert comes with the clip attached instead of just a timestamp.'],
+  ['Fail-safe or fail-secure by door', 'We spec electric strikes, maglocks, and electrified hardware per opening, tied into the fire alarm so egress works when it has to.'],
+  ['Multi-site under one console', 'Every location, every door, one login — with the same standard applied at the site you open next.'],
+];
+
+const audience = [
+  ['Manufacturing', 'Separate the production floor, shipping dock, and offices; give shift workers access only during their shift.'],
+  ['Healthcare & dental', 'Restrict records rooms and med storage, with a log you can produce during an audit.'],
+  ['Professional services', 'Client files and server rooms behind their own credential, not the same key the cleaning crew has.'],
+  ['Multi-location', 'One standard per site, administered centrally, no travel to add a user.'],
+  ['Municipalities & nonprofits', 'Shared and after-hours buildings where volunteers rotate constantly.'],
+];
+
+const process = [
+  ['1', 'Site walk', 'We look at every opening: existing hardware, frame type, door swing, power, and where cable can actually run.'],
+  ['2', 'Design & quote', 'Door-by-door scope with hardware, cabling, and labor itemized. No line item that says "misc."'],
+  ['3', 'Install', "Low-voltage cabling, readers, controllers, and door hardware. We stage after hours when a door can't be out of service during business hours."],
+  ['4', 'Configure & test', 'Users, groups, schedules, lockdown, camera pairing, and a physical test of every door, including fire release.'],
+  ['5', 'Handoff & manage', 'Documentation and admin training, plus ongoing management if you want us holding it.'],
+];
+
+const faqs = [
+  ['Can you use our existing doors and hardware?', 'Usually. Most commercial doors can take an electric strike or electrified hardware without replacing the door. We confirm on the site walk and tell you which openings need new hardware before you commit.'],
+  ['What happens if the internet goes down?', 'Doors keep working. Credentials and schedules are stored locally on the controller. You lose remote administration and live alerts until the connection returns, not the ability to get in.'],
+  ['Do people get locked in during a power outage or fire?', 'No. Egress hardware is mechanical and the system releases on fire alarm. Getting out never depends on power or network.'],
+  ['Can we use phones instead of cards?', "Yes. Mobile credentials work over NFC or Bluetooth, and most clients run a mix: phones for staff, cards or fobs for contractors and anyone who'd rather not install an app."],
+  ['Is there a monthly fee per door?', "Not with the UniFi platform we deploy. There's no per-door license. If you want us administering the system and handling adds, changes, and removals, that's part of a managed agreement."],
+  ['How many doors is worth doing?', "One is worth doing if it's the right door. Exterior entrances, server rooms, and record storage are where most clients start, then expand."],
+  ['Do you serve our area?', 'Cache Valley, Box Elder County, the Wasatch Front, and southern Idaho — Logan, Hyde Park, Smithfield, Brigham City, Tremonton, Preston, and out from there. Low-voltage work is our own crew, not a subcontractor.'],
+];
+
+const related = [
+  ['Security Cameras', 'The other half of the same console — every door alert arrives with the clip attached.', '/services/security-cameras'],
+  ['Network & Infrastructure', 'Structured cabling, racks, and the low-voltage work each opening depends on.', '/services/network-design'],
+  ['Switching & Gateways', 'The PoE switching that powers every reader and controller.', '/services/switching-and-gateways'],
+  ['Managed IT', 'Ongoing support for the whole environment, doors included.', '/services/managed-it'],
+  ['Zero Trust Access (ZTNA)', 'The same idea applied to your data rather than your doors.', '/services/zero-trust-access'],
+];
+
+// The copy specifies ?service=Door%20Access%20Control, but ContactForm.tsx has
+// no such checkbox and a non-matching value silently pre-checks nothing.
+const contactHref = '/contact?service=Network%20%26%20Infrastructure';
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Door Access Control',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Door Access Control Systems',
+  description:
+    'UniFi Access door entry for Northern Utah businesses. Card, fob, mobile, and keypad unlock, installed and managed by local engineers.',
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(([question, answer]) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer },
+  })),
+};
+---
+
+<BaseLayout
+  title="Door Access Control Systems in Northern Utah"
+  description="UniFi Access door entry for Northern Utah businesses. Card, fob, mobile, and keypad unlock, installed and managed by local engineers. Logan, Brigham City, Tremonton, Preston."
+  canonical={`${site.url}/services/door-access-control`}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden net-family">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">Install · Ubiquiti UniFi Access</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          Door access control, installed and managed by
+          <span style="color: var(--color-teal-400);">the same team.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">
+          We design, wire, and run door entry systems for offices, clinics, production floors, and
+          multi-site organizations across Northern Utah. Cards, fobs, phones, or PIN — one
+          dashboard, one number to call, and no more rekeying the building because someone quit.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Scope a door access project <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+        <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
+          <div>Local since 2009</div>
+          <div>UniFi specialist</div>
+          <div>Low-voltage install in-house</div>
+          <div>24/7 emergency response</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 · The problem -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide grid lg:grid-cols-12 gap-10">
+      <div class="lg:col-span-5">
+        <div class="eyebrow mb-4">01 · The problem</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Keys don't scale.
+        </h2>
+      </div>
+      <div class="lg:col-span-7">
+        <div class="space-y-4 leading-relaxed text-muted">
+          <p>
+            Most buildings we walk into are running on brass. Nobody knows how many copies of the
+            front door key exist, the one person who knows the alarm code is on vacation, and a
+            departing employee means either trusting them or paying a locksmith to rekey every
+            cylinder.
+          </p>
+          <p>
+            Then there's the version that's worse: a system that was installed once, by someone who
+            has since moved on, and now nobody can add a user. The software runs on a PC under a
+            desk. Support means calling a number that no longer answers.
+          </p>
+        </div>
+        <div class="mt-6 grid gap-3">
+          {pains.map((item) => (
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <span class="leading-snug text-muted">{item}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 · What we install -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl mb-12">
+        <div class="eyebrow mb-4">02 · What we install</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          One platform, one console, one number to call.
+        </h2>
+        <div class="mt-4 space-y-4 text-muted leading-relaxed">
+          <p>
+            We build door access on Ubiquiti UniFi Access. It runs on the same UniFi platform as the
+            network and cameras we already deploy, which means one console instead of three, no
+            per-door cloud subscription, and hardware you can actually buy again in five years.
+          </p>
+          <p>
+            We handle the whole job: site walk, door hardware, low-voltage cabling, readers,
+            controllers, power, fire-alarm interface, and the software configuration behind it. Then
+            we keep administering it, or we train your team to, whichever you'd rather.
+          </p>
+        </div>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4">
+        {benefits.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · How it's built -->
+  <section id="built" class="surface-dark py-16 lg:py-20 scroll-mt-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">03 · How it's built</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Specified per opening.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {featureCards.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+
+      <div class="mt-8 max-w-4xl card" style="border-color: var(--color-teal-500);">
+        <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">Code and life safety</h3>
+        <p class="leading-relaxed" style="color: var(--color-text-default);">
+          Access control touches life safety. Every opening we install includes a request-to-exit
+          device and, where required, an ADA push button and fire-alarm release, so people can
+          always get out even if the system loses power or network. We pull the low-voltage work to
+          code and coordinate with your door hardware and fire vendors instead of leaving you to
+          referee.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · Where this earns its keep -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">04 · Who it's for</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Where this earns its keep.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {audience.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 · Process -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">05 · Process</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          How a project runs.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {process.map(([n, title, body]) => (
+          <div class="card">
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-teal-600);">{n}</div>
+            <h3 class="font-display text-lg font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 · FAQ -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">06 · FAQ</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Common questions
+      </h2>
+      <div class="mt-8 space-y-6 not-prose">
+        {faqs.map(([q, a]) => (
+          <div>
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{q}</h3>
+            <p class="leading-relaxed text-muted">{a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 · Related services -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">07 · Related services</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The rest of the stack it plugs into
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {related.map(([title, body, href]) => (
+          <a href={href} class="card group block">
+            <h3 class="font-display text-lg font-bold mb-2 group-hover:text-[var(--color-teal-600)] transition" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+            <span class="mt-3 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-teal-600);">Learn more <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="surface-dark py-16 lg:py-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Let's walk your doors.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          Tell us how many openings you're thinking about and we'll come look at them. You'll get a
+          door-by-door scope and a real number, not a per-seat estimate over the phone.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Scope a door access project <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Network-family accent, matching the other Network pages. */
+  .net-family :global(.eyebrow) {
+    color: var(--color-teal-600);
+  }
+</style>

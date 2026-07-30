@@ -1,0 +1,469 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * NETWORK family — teal accent, matching switching-and-gateways.astro. Buttons
+ * stay amber because btn-primary is shared sitewide.
+ *
+ * No Ubiquiti model numbers or specs. Standards and generations only (Wi-Fi
+ * 6/6E/7, WPA3, 802.1X), which age far more slowly than SKUs.
+ *
+ * Every technical claim here is standard 802.11 behaviour — three
+ * non-overlapping 2.4 GHz channels, DFS on parts of 5 GHz, per-hop throughput
+ * loss on repeaters, 6 GHz range and client-support tradeoffs. No performance
+ * figures, uptime numbers, or client counts are asserted anywhere, and none
+ * should be added without measured data from AllTech's own deployments.
+ *
+ * OPEN DECISIONS from the copy, left as supplied — raise before this ships:
+ *  1. No turnaround claim is stated in the hero. Deliberate; only add one if
+ *     AllTech will hold to it.
+ *  2. Section 04 names Meraki, Aruba, and Fortinet as platforms AllTech will
+ *     "design and manage too". That is an active capability claim, and the
+ *     copy's own notes flag it as undecided.
+ *  3. No Wi-Fi case study is linked; none exists yet.
+ *  4. Section 06 implies captive-portal guest access is standard rather than a
+ *     scoped add-on.
+ *
+ * The supplied canonical ended in .html "to match the existing convention".
+ * That convention is a site-wide bug — Pages serves these routes extensionless
+ * — so this page is extensionless like the other four recent ones.
+ */
+
+const symptoms = [
+  ['"It drops when I walk to the shop floor."', 'No overlap between APs. The client holds a dying association instead of roaming to the next radio.'],
+  ['"It’s slow every afternoon."', 'Airtime saturation — too many clients on too few radios, or legacy devices dragging the whole channel down.'],
+  ['"It’s fine on my phone but not the scanner."', 'Handhelds and IoT often support 2.4 GHz only, and 2.4 GHz was never planned.'],
+  ['"We added an extender."', 'Consumer mesh and extenders halve throughput per hop and create a second, competing network.'],
+];
+
+const whatWeDo = [
+  ['Predictive design', 'We start from a floor plan, wall construction, ceiling height, and where people actually work. Predictive modeling gives us AP count and placement before anyone runs a cable — which is the cheapest time to change your mind.'],
+  ['On-site site survey', "For warehouses, clinics, older buildings, and anywhere with block, brick, foil-backed insulation, cold storage, or steel racking, we survey in person. Drywall guesses don't survive contact with a masonry wall."],
+  ['Cabling and mounting', 'Every AP gets a proper drop and PoE — no daisy-chained extenders. Structured cabling, plenum where code requires it, and mounts that put the radio where the design says, not where it is convenient.'],
+  ['SSID and VLAN architecture', "Corporate, guest, and IoT get separate VLANs and separate rules. Guests reach the internet and nothing else. Cameras and door controllers don't share a broadcast domain with your file server."],
+  ['RF tuning and roaming', 'Channel plans, power levels, band steering, minimum data rates, and fast roaming so a laptop or handheld hands off cleanly between APs instead of clinging to the one it saw first.'],
+  ['Validation and monitoring', 'We walk the site after install and confirm signal, throughput, and roaming behavior against the design. Then the controller stays under monitoring, so we see a failing AP before you call about it.'],
+];
+
+const phases = [
+  ['1', 'Discovery', 'Floor plans, building construction, client device inventory (including the odd ones — scanners, tablets, VoIP handsets, machine HMIs), user counts per area, and what applications have to hold up. Wireless VoIP and real-time video have far tighter requirements than email.'],
+  ['2', 'Design', 'AP count, placement, mounting height, channel and power plan, band strategy, and the cabling runs to support it. You get a marked-up floor plan and a bill of materials before we order anything.'],
+  ['3', 'Deploy', "Cabling, mounting, switch and PoE provisioning, controller configuration, SSIDs, VLANs, firewall rules, and RADIUS or WPA3 as appropriate. Cutovers scheduled around production — we don't re-cable a shop floor mid-shift."],
+  ['4', 'Validate & operate', 'Post-install walk-through, roaming tests, documentation handed to you, and ongoing monitoring with firmware managed on a schedule rather than whenever something breaks.'],
+];
+
+const chips = [
+  'UniFi Network', 'Wi-Fi 6 / 6E / 7', 'WPA3', '802.1X / RADIUS',
+  'PoE / PoE+', 'VLAN segmentation', 'UniFi Protect', 'UniFi Access',
+];
+
+// The only tabular content on the page. Cards rather than a <table> so it
+// stacks under 768px without a horizontal scroll container.
+const bands = [
+  {
+    band: '2.4 GHz',
+    best: 'Range, IoT, scanners, older equipment',
+    watch: 'Only three non-overlapping channels; crowded and noisy everywhere',
+  },
+  {
+    band: '5 GHz',
+    best: 'Laptops, phones, video, the daily workhorse',
+    watch: 'Shorter range; some channels share spectrum with weather and military radar (DFS)',
+  },
+  {
+    band: '6 GHz (Wi-Fi 6E/7)',
+    best: 'High-density, clean spectrum, new hardware',
+    watch: 'Shortest range; needs 6E/7-capable clients, so it supplements rather than replaces 5 GHz',
+  },
+];
+
+const audience = [
+  ['Manufacturing', 'Racking, metal, forklifts, and handheld scanners that must stay associated end to end.'],
+  ['Healthcare & clinics', "Segmented guest Wi-Fi, reliable coverage in exam rooms, and equipment that can't drop mid-procedure."],
+  ['Professional services', 'Dense office floors, video calls, and confidential traffic that stays off the guest network.'],
+  ['Multi-site organizations', 'One design standard and one controller view across every location.'],
+  ['Warehouses & cold storage', 'Long spans, hard surfaces, and temperature ranges that eat consumer hardware.'],
+  ['Public-facing spaces', "Captive-portal guest access that's isolated from everything that matters."],
+];
+
+const wontDo = [
+  ['We won’t quote an AP count off a phone call.', 'Coverage depends on the building.'],
+  ['We won’t sell you more radios to fix an interference problem.', 'Sometimes the fix is fewer APs at lower power.'],
+  ['We won’t tell you Wi-Fi replaces cabling.', 'Anything stationary and bandwidth-hungry belongs on copper.'],
+  ['We won’t leave a network without documentation.', 'You get the floor plan, IP scheme, VLAN map, and credentials.'],
+  ['We won’t claim a number we haven’t measured.', 'Post-install validation numbers come from your site, not a datasheet.'],
+];
+
+const faqs = [
+  ['Do we need a site survey, or can you design from the floor plan?', "Standard offices with drywall interiors usually design fine predictively. Warehouses, industrial sites, masonry or historic buildings, cold storage, and multi-floor layouts get an on-site survey. We'll tell you which one you are before you pay for the other."],
+  ['How many access points do we need?', 'It depends on square footage, wall construction, ceiling height, and how many devices sit in each area. Coverage and capacity are separate problems — a conference room that seats 30 may need its own AP even if the signal already reaches it.'],
+  ['Should we upgrade to Wi-Fi 7?', "Only if your client devices can use it and your current design is actually the bottleneck. If the existing problem is placement or channel planning, a new standard won't fix it. We check that first."],
+  ['Can you make our guest Wi-Fi safe?', 'Yes — separate SSID, separate VLAN, client isolation, bandwidth limits, and firewall rules that allow internet access only. Guests should never be able to see a printer, a camera, or a server.'],
+  ['Do you install the cabling too?', 'Yes. Structured cabling, drops, PoE switching, racks, and server-room buildouts are in-house work, not subcontracted.'],
+  ['Will you manage it after install, or hand it off?', "Either. Many clients keep Wi-Fi under our managed IT agreement so firmware, monitoring, and changes stay with us. If you have internal IT, we'll document it and hand over cleanly."],
+];
+
+const related = [
+  ['Switching & Gateways', 'The wired foundation every AP depends on.', '/services/switching-and-gateways'],
+  ['Network & Infrastructure', 'Structured cabling, racks, point-to-point links, and the rest of the physical layer.', '/services/network-design'],
+  ['Network Detection (NDR)', 'Anomaly detection on the traffic your Wi-Fi carries.', '/services/network-detection'],
+  ['Private Cloud Routing', 'Reach these networks remotely without opening inbound ports.', '/services/private-cloud-routing'],
+  ['Managed IT', 'Ongoing monitoring, patching, and firmware management.', '/services/managed-it'],
+];
+
+// ContactForm.tsx has no "Wi-Fi Design" checkbox, and a value that doesn't match
+// one exactly silently pre-checks nothing. Using the closest real option.
+const contactHref = '/contact?service=Network%20%26%20Infrastructure';
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Wi-Fi Design and Installation',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Business Wi-Fi Design & Installation',
+  description:
+    'AllTech designs, installs, and manages business Wi-Fi — predictive and on-site surveys, UniFi access points, VLAN segmentation, and post-install validation.',
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(([question, answer]) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer },
+  })),
+};
+---
+
+<BaseLayout
+  title="Business Wi-Fi Design & Installation — Site Surveys, UniFi Deployment"
+  description="AllTech designs, installs, and manages business Wi-Fi across Northern Utah — predictive and on-site surveys, UniFi access points, VLAN segmentation, and post-install validation. UniFi specialists since 2009."
+  canonical={`${site.url}/services/wifi-design`}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden net-family">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="grid lg:grid-cols-12 gap-10 items-center">
+        <div class="lg:col-span-7">
+          <div class="eyebrow mb-4">UniFi Specialist · Network &amp; Infrastructure</div>
+          <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+            Wi-Fi that works in<br />
+            <span style="color: var(--color-teal-400);">the back of the warehouse.</span>
+          </h1>
+          <p class="mt-6 text-xl leading-relaxed text-muted">
+            Most business Wi-Fi problems are not bandwidth problems. They're design problems —
+            access points mounted where the electrician had a stud, channels fighting each other,
+            and one SSID carrying laptops, guests, printers, and a label maker from 2014. AllTech
+            designs coverage from the floor plan up, installs it, and then proves it works before we
+            leave.
+          </p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href={contactHref} class="btn btn-primary">Scope a Wi-Fi project <span aria-hidden="true">→</span></a>
+            <a href="#process" class="btn btn-ghost">See how we survey</a>
+          </div>
+          <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
+            <div>UniFi specialist</div>
+            <div>On-site surveys</div>
+            <div>Local since 2009</div>
+            <div>Post-install validation</div>
+          </div>
+        </div>
+
+        <!-- Stand-in for the annotated floor plan the copy asks for: AP
+             placements with overlapping coverage, drawn generically so it names
+             no client and no building. Replace with a real marked-up plan when
+             one is cleared for publication. -->
+        <div class="lg:col-span-5 hidden lg:block">
+          <svg viewBox="0 0 420 320" fill="none" aria-hidden="true" class="w-full h-auto">
+            <rect x="10" y="10" width="400" height="300" rx="8" fill="var(--color-bg-surface)" stroke="var(--color-border-default)" stroke-width="1.5" />
+            <!-- interior walls -->
+            <line x1="10" y1="120" x2="250" y2="120" stroke="var(--color-slate-400)" stroke-width="2" />
+            <line x1="250" y1="10" x2="250" y2="120" stroke="var(--color-slate-400)" stroke-width="2" />
+            <line x1="150" y1="120" x2="150" y2="310" stroke="var(--color-slate-400)" stroke-width="2" />
+            <line x1="310" y1="120" x2="310" y2="310" stroke="var(--color-slate-400)" stroke-width="2" />
+            <!-- racking, drawn as the hard surfaces that eat signal -->
+            {[190, 215, 240, 265].map((y) => (
+              <line x1="170" y1={y} x2="290" y2={y} stroke="var(--color-slate-500)" stroke-width="3" stroke-linecap="round" opacity="0.5" />
+            ))}
+            <!-- coverage rings, overlapping deliberately -->
+            {[
+              { cx: 120, cy: 65 },
+              { cx: 330, cy: 65 },
+              { cx: 78, cy: 215 },
+              { cx: 228, cy: 215 },
+              { cx: 362, cy: 215 },
+            ].map(({ cx, cy }) => (
+              <>
+                <circle cx={cx} cy={cy} r="72" fill="var(--color-teal-500)" opacity="0.09" />
+                <circle cx={cx} cy={cy} r="72" stroke="var(--color-teal-500)" stroke-width="1" stroke-dasharray="3 4" opacity="0.55" />
+                <circle cx={cx} cy={cy} r="8" fill="var(--color-bg-surface)" stroke="var(--color-teal-600)" stroke-width="2" />
+                <circle cx={cx} cy={cy} r="2.5" fill="var(--color-teal-600)" />
+              </>
+            ))}
+            <text x="210" y="300" text-anchor="middle" font-family="var(--font-mono)" font-size="10" letter-spacing="0.5" fill="var(--color-text-subtle)">
+              AP placement · overlapping coverage
+            </text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 · The problem -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">01 · The problem</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          "It works at my desk."
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Wi-Fi is the only part of the network your staff experiences directly, and the only one
+          they can't see. When it degrades, nobody files a ticket that says "co-channel
+          interference." They say the internet is slow, and they say it about the ISP.
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        {symptoms.map(([heard, cause]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-3 leading-snug" style="color: var(--color-text-primary);">{heard}</h3>
+            <p class="text-sm leading-relaxed pt-4" style="color: var(--color-text-default); border-top: 1px solid var(--color-line-faint);">
+              <span class="font-mono text-[10px] tracking-wider block mb-1" style="color: var(--color-text-subtle);">WHAT'S USUALLY HAPPENING</span>
+              {cause}
+            </p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        Adding an access point to a bad design gives you a worse design with more radios in it.
+      </p>
+    </div>
+  </section>
+
+  <!-- 02 · What we do -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">02 · What we do</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Designed, installed, and then proven.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {whatWeDo.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · How we design it -->
+  <section id="process" class="surface-dark py-16 lg:py-20 scroll-mt-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">03 · How we design it</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Four phases, floor plan first.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {phases.map(([n, title, body]) => (
+          <div class="card">
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-teal-600);">{n} · {title.toUpperCase()}</div>
+            <h3 class="font-display text-lg font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · Technology we standardize on -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide grid lg:grid-cols-12 gap-10">
+      <div class="lg:col-span-6">
+        <div class="eyebrow mb-4">04 · Technology we standardize on</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          UniFi specialists, limits included.
+        </h2>
+      </div>
+      <div class="lg:col-span-6 space-y-4 leading-relaxed text-muted">
+        <p>
+          We're Ubiquiti UniFi specialists, which means we know its limits as well as its strengths.
+          UniFi gives small and mid-sized businesses enterprise-grade capability — centralized
+          control, VLAN-aware SSIDs, per-AP RF control, and a single pane for Wi-Fi, switching,
+          cameras, and door access — without enterprise licensing overhead.
+        </p>
+        <p>
+          Where UniFi isn't the right answer, we say so. Very high-density venues, some healthcare
+          and industrial environments, and sites with existing Meraki, Aruba, or Fortinet
+          investments are better served staying on those platforms, and we'll design and manage
+          those too.
+        </p>
+        <div class="flex flex-wrap gap-2 pt-2">
+          {chips.map((c) => (
+            <span
+              class="font-mono text-xs px-3 py-1.5 rounded-full"
+              style="color: var(--color-teal-600); border: 1px solid var(--color-teal-500); background: var(--color-bg-surface);"
+            >{c}</span>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 · Bands, plainly -->
+  <section id="bands" class="surface-dark py-16 lg:py-20 scroll-mt-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">05 · Bands, plainly</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What each band is actually good for.
+        </h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4">
+        {bands.map(({ band, best, watch }) => (
+          <div class="card">
+            <h3 class="font-display text-xl font-bold mb-4" style="color: var(--color-teal-600);">{band}</h3>
+            <p class="text-sm leading-relaxed mb-4" style="color: var(--color-text-default);">
+              <span class="font-mono text-[10px] tracking-wider block mb-1" style="color: var(--color-text-subtle);">BEST FOR</span>
+              {best}
+            </p>
+            <p class="text-sm leading-relaxed pt-4" style="color: var(--color-text-default); border-top: 1px solid var(--color-line-faint);">
+              <span class="font-mono text-[10px] tracking-wider block mb-1" style="color: var(--color-text-subtle);">WATCH OUT FOR</span>
+              {watch}
+            </p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        6 GHz is genuinely useful and genuinely oversold. It only helps devices that support it, and
+        it needs more APs to cover the same square footage. We deploy it where the client mix
+        justifies it.
+      </p>
+    </div>
+  </section>
+
+  <!-- 06 · Where this matters most -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">06 · Where this matters most</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The buildings that punish a bad design.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {audience.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 · What we won't do -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">07 · What we won't do</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The parts we'd rather say up front.
+        </h2>
+      </div>
+      <div class="max-w-4xl space-y-6">
+        {wontDo.map(([title, body]) => (
+          <div class="flex items-start gap-4">
+            <svg class="w-5 h-5 mt-1 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <circle cx="10" cy="10" r="7.5" stroke="var(--color-teal-500)" stroke-width="1.75" />
+              <line x1="10" y1="6" x2="10" y2="11" stroke="var(--color-teal-500)" stroke-width="1.75" stroke-linecap="round" />
+              <circle cx="10" cy="14" r="0.9" fill="var(--color-teal-500)" />
+            </svg>
+            <p class="leading-relaxed" style="color: var(--color-text-default);">
+              <span class="font-display font-bold" style="color: var(--color-text-primary);">{title}</span>{' '}
+              {body}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 · FAQ -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">08 · FAQ</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Common questions
+      </h2>
+      <div class="mt-8 space-y-6 not-prose">
+        {faqs.map(([q, a]) => (
+          <div>
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{q}</h3>
+            <p class="leading-relaxed text-muted">{a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 · Related services -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">09 · Related services</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The rest of the stack it plugs into
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {related.map(([title, body, href]) => (
+          <a href={href} class="card group block">
+            <h3 class="font-display text-lg font-bold mb-2 group-hover:text-[var(--color-teal-600)] transition" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+            <span class="mt-3 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-teal-600);">Learn more <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="surface-dark py-16 lg:py-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Tell us where it drops.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          Send us a floor plan and the three places Wi-Fi gives you trouble. An engineer — not a
+          salesperson — will tell you whether it's a design problem, a hardware problem, or
+          something upstream entirely.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Scope a Wi-Fi project <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Network-family accent, matching switching-and-gateways.astro. */
+  .net-family :global(.eyebrow) {
+    color: var(--color-teal-600);
+  }
+</style>

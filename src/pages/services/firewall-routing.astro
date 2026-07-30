@@ -1,0 +1,323 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * NETWORK family — teal accent, matching switching-and-gateways.astro and
+ * wifi-design.astro. Buttons stay amber; btn-primary is shared sitewide.
+ *
+ * Vendor claims are limited to UniFi and Cloudflare, both already claimed
+ * across the site. No throughput numbers, uptime percentages, or SLA figures
+ * appear anywhere — the copy's own build notes say none are verified, and none
+ * should be added without measured data.
+ *
+ * Section 03's examples are described as "environments we've walked into". They
+ * are generic enough to name no client, no site, and no device, which is the
+ * bar the pentest and IR pages set. Left as written.
+ *
+ * The supplied canonical ended in .html; Pages serves these routes
+ * extensionless, so the canonical is extensionless like the rest.
+ */
+
+const features = [
+  ['Right-sized gateway', "Firewall throughput sized to your actual internet speed, user count, and VPN load — so the hardware isn't the bottleneck on the connection you're paying for."],
+  ['Network segmentation (VLANs)', "Staff, guests, cameras, VoIP, and production equipment separated into their own networks with rules controlling what can talk to what. A compromised guest laptop or camera doesn't reach your file server."],
+  ['Multi-WAN failover', 'A second internet connection configured to take over automatically when the primary fails. No phone call, no manual switchover, no waiting for someone to drive in.'],
+  ['Documented rule sets', "Inbound and outbound rules written intentionally, labeled, and documented — so six months from now anyone can tell what a rule does and whether it's still needed."],
+  ['Threat filtering at the edge', 'Intrusion detection and prevention, country and IP reputation blocking, and DNS filtering — applied before traffic reaches a workstation.'],
+  ['Secure remote access', 'Site-to-site VPN between locations, and Cloudflare Zero Trust access for staff instead of an open VPN with a shared password.'],
+  ['Traffic visibility', "Reporting on what's using the connection, which sites are being blocked, and when failover events happened — plain reporting, not raw logs."],
+  ['Firmware & rule maintenance', "Gateways get firmware updates, rule reviews, and configuration backups on a schedule. The edge doesn't quietly drift out of date."],
+];
+
+const flatNetwork = [
+  "A guest on the Wi-Fi able to browse to the accounting server's shared folders",
+  'Security cameras with default credentials reachable from any desk in the building',
+  "A vendor's laptop, plugged in for a day, with the same access as a full-time employee",
+  'Ransomware on one workstation reaching every other device on the same subnet',
+  'A production machine running unsupported software, exposed to the whole network',
+  'A smart TV or thermostat sitting on the same network as patient records',
+  'A printer with an open web interface accessible from the guest network',
+  'Point-of-sale traffic mixed in with general staff browsing',
+];
+
+const failover = [
+  ['01', 'The gateway notices', "The firewall continuously tests the primary connection. When it stops passing traffic, it doesn't wait for a person to notice."],
+  ['02', 'Traffic moves over', 'Sessions shift to the secondary connection — a second ISP, fiber-plus-cable, or a cellular backup, depending on what is available at your location.'],
+  ['03', 'Priority traffic keeps working', 'Backup circuits are usually slower. Rules prioritize what matters: phones, line-of-business applications, and card processing before large downloads.'],
+  ['04', 'We get alerted', 'The event opens automatically on our side. We start working the ISP problem while your staff keeps working.'],
+  ['05', 'It switches back', 'When the primary connection is stable again, traffic returns to it — verified, not assumed.'],
+  ['06', 'You get the record', "Failover events are logged, which is also what you hand your ISP when you're disputing a service credit."],
+];
+
+const audience = [
+  ['A manufacturer with a production floor', "Machines and controls that need network access but shouldn't share a subnet with office workstations — and a line that can't stop because the internet did."],
+  ['A clinic handling patient records', 'Segmentation between clinical systems, guest Wi-Fi, and connected devices, with the documentation an auditor or insurer will ask for.'],
+  ['A multi-site business', 'Site-to-site connectivity between locations with the same rule standard at each one, including the sites without IT staff.'],
+  ['A law firm or title company', 'Wire fraud and client confidentiality make the edge a real exposure. Filtering, segmentation, and controlled remote access matter more than raw throughput.'],
+  ['A business on one internet circuit', 'If a single ISP outage stops invoicing, phones, and card processing, a second connection costs less than the downtime it prevents.'],
+  ['An office with cameras and door access', 'UniFi Protect and Access devices belong on their own segments, not alongside workstations and financial data.'],
+  ['A growing team outgrowing consumer gear', 'The point where the ISP router can\'t handle the user count, VPN load, or guest traffic anymore — usually noticed as "the internet is slow."'],
+  ['An organization facing a cyber insurance renewal', 'Carriers ask about segmentation, firewall management, and remote access controls. We provide answers you can actually document.'],
+];
+
+const related = [
+  ['Switching & Gateways', 'Segmentation only works if the switches enforce it.', '/services/switching-and-gateways'],
+  ['Wi-Fi Design', 'Guest and staff SSIDs mapped to the right VLANs, with coverage that holds.', '/services/wifi-design'],
+  ['Network & Infrastructure', 'Site-to-site links, structured cabling, and the rest of the physical layer.', '/services/network-design'],
+  ['Cloudflare Zero Trust', 'Identity-aware access that reduces what has to be exposed at the edge at all.', '/services/cloudflare-zero-trust'],
+  ['Network Detection (NDR)', 'Anomaly detection for traffic that already made it inside.', '/services/network-detection'],
+];
+
+// The copy specifies ?service=Network, but ContactForm.tsx has no such option
+// and a non-matching value silently pre-checks nothing. Using the real label.
+const contactHref = '/contact?service=Network%20%26%20Infrastructure';
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Firewall & Routing',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Firewall & Routing — Edge Security & Multi-WAN Failover',
+  description:
+    'Business firewall configuration, VLAN segmentation, and multi-WAN failover. UniFi and Cloudflare-integrated edge security, deployed and managed by local engineers.',
+};
+---
+
+<BaseLayout
+  title="Firewall & Routing — Edge Security & Multi-WAN Failover"
+  description="Business firewall configuration, VLAN segmentation, and multi-WAN failover for Northern Utah businesses. UniFi and Cloudflare-integrated edge security, deployed and managed by local engineers."
+  canonical={`${site.url}/services/firewall-routing`}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden net-family">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">Firewall &amp; Routing</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          Your internet goes down.<br />
+          <span style="color: var(--color-teal-400);">Your business shouldn't.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">
+          The firewall at your edge decides what gets in, what gets out, and what keeps working when
+          a circuit fails. We design, configure, and manage that edge — segmented networks, real
+          rule sets, and automatic failover to a second connection — so an ISP outage becomes an
+          inconvenience instead of a closed day.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Schedule a network review <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 · The problem -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide grid lg:grid-cols-12 gap-10">
+      <div class="lg:col-span-5">
+        <div class="eyebrow mb-4">01 · The problem</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Most firewalls are doing less than you think.
+        </h2>
+      </div>
+      <div class="lg:col-span-7 space-y-4 leading-relaxed text-muted">
+        <p>
+          The box the ISP dropped off is a router with a firewall label on it. It passes traffic,
+          hands out addresses, and blocks unsolicited inbound connections — and that's usually where
+          it stops.
+        </p>
+        <p>
+          Everything on the network sits in one flat space: workstations next to the guest Wi-Fi,
+          next to the security cameras, next to the machine on the production floor. One compromised
+          device can reach all of it. Rules get added over the years by whoever was on-site that
+          day, and nobody documents them. When the circuit drops, someone unplugs things until it
+          comes back.
+        </p>
+        <p>
+          We replace that with a designed edge: documented rules, segmented traffic, a second
+          internet connection that takes over on its own, and an engineer who can tell you why every
+          rule exists.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 · What you get -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">02 · What you get</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          A designed edge, not a default configuration.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Built on UniFi gateways, integrated with Cloudflare where it makes sense — specified,
+          deployed, and managed by us.
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {features.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-base font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · Why segmentation matters -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">03 · Why segmentation matters</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What a flat network lets happen.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Segmentation sounds abstract until you look at what it stops. Real examples from
+          environments we've walked into:
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-x-10 gap-y-3 max-w-5xl">
+        {flatNetwork.map((item) => (
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="leading-snug text-muted">{item}</span>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        None of these require a sophisticated attacker. They require a flat network and one device
+        that shouldn't be trusted.
+      </p>
+    </div>
+  </section>
+
+  <!-- 04 · How failover works -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">04 · How it works</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What happens when your primary circuit drops.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {failover.map(([n, title, body]) => (
+          <div class="card">
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-teal-600);">{n}</div>
+            <h3 class="font-display text-lg font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 · Who this is for -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">05 · Who this is for</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Built for real environments.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {audience.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-base font-bold mb-2 leading-snug" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 · Honest expectations -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide grid lg:grid-cols-12 gap-10">
+      <div class="lg:col-span-5">
+        <div class="eyebrow mb-4">06 · Honest expectations</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What a firewall won't do.
+        </h2>
+      </div>
+      <div class="lg:col-span-7 space-y-4 leading-relaxed text-muted">
+        <p>
+          A firewall doesn't stop an employee from entering credentials on a convincing phishing
+          page, and it doesn't help much once an attacker is already using a valid login.
+        </p>
+        <p>
+          Multi-WAN failover also isn't magic. If both circuits run down the same pole and a backhoe
+          finds that pole, you're down — which is why we look at physical path diversity and, where
+          it makes sense, cellular backup instead of a second wired ISP.
+        </p>
+        <p>
+          The edge is one layer. It works alongside
+          <a href="/services/endpoint-security" class="font-medium" style="color: var(--color-teal-600);">endpoint monitoring</a>,
+          <a href="/services/email-security" class="font-medium" style="color: var(--color-teal-600);">email security</a>,
+          identity protections like MFA, and
+          <a href="/services/backup-disaster-recovery" class="font-medium" style="color: var(--color-teal-600);">tested backups</a>.
+          We'd rather tell you where the limits are than sell you a box and imply it covers
+          everything.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 · Related services -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">07 · Related services</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The edge is one layer
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {related.map(([title, body, href]) => (
+          <a href={href} class="card group block">
+            <h3 class="font-display text-lg font-bold mb-2 group-hover:text-[var(--color-teal-600)] transition" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+            <span class="mt-3 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-teal-600);">Learn more <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="surface-dark py-16 lg:py-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Find out what your firewall is actually doing.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          We'll review your gateway, rules, VLANs, and internet circuits, show you where a single
+          device could reach more than it should, and tell you what to fix first.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Schedule a network review <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Network-family accent, matching the other Network pages. */
+  .net-family :global(.eyebrow) {
+    color: var(--color-teal-600);
+  }
+</style>

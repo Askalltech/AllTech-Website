@@ -1,0 +1,372 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * IT & CLOUD family — amber accent, matching help-desk.astro. Teal is the
+ * Network/Install marker and this page is neither.
+ *
+ * Vendor claims limited to Datto RMM, consistent with the footer Technology
+ * list and the RMM claim already published on the ZTNA and Secure Web Gateway
+ * pages.
+ *
+ * No invented metrics, uptime percentages, device counts, or SLA numbers
+ * anywhere. The copy's implementation notes are explicit that none exist yet;
+ * add only what has been measured.
+ *
+ * Section 07 ("what monitoring doesn't do") is deliberately kept — it is a
+ * voice marker across every service page on this site.
+ *
+ * Help Desk and Vendor Management were referenced as managed-it fragments.
+ * Help Desk is now its own page. Vendor Management has no page and the
+ * managed-it stub has no #vendors anchor, so that link points at the parent.
+ */
+
+const whatYouGet = [
+  ['Every device accounted for', "We maintain a live inventory of your workstations, laptops, and servers: hardware, age, operating system, installed software, and warranty status. When it's time to plan a replacement or answer an insurance questionnaire, the answer already exists."],
+  ['Patching on a real schedule', 'Operating system and third-party application updates are tested and deployed on a schedule built around how your business runs — not whenever Windows decides. Production environments get maintenance windows, not surprise reboots.'],
+  ['Health alerts before failure', 'Disk errors, failing drives, memory faults, overheating, low storage, and services that have stopped are flagged automatically. We look at them before they become downtime.'],
+  ['Routine work automated', 'Temp file cleanup, log rotation, service restarts, agent health checks, and dozens of other small maintenance tasks run themselves. Automation handles the repetitive work so our engineers spend time on the things that need judgment.'],
+  ['Fixed without a ticket', 'Most of what monitoring catches is resolved remotely, often before anyone at your office knows there was something to catch. No one files a ticket, no one waits for a visit.'],
+  ['Reporting you can actually use', 'Patch compliance, device health, and what we handled during the month — written in plain language, suitable for a leadership meeting or a cyber-insurance renewal.'],
+];
+
+const signals = [
+  'A drive reporting SMART errors weeks before it fails',
+  'A backup job that has been failing silently overnight',
+  'Free disk space dropping toward the point where a server stops working',
+  'A security or antivirus agent that stopped checking in',
+  'Patches that repeatedly fail to install on a specific machine',
+  'A critical service stopped and not restarting on its own',
+  'A server or switch that rebooted when nothing was scheduled',
+  'Memory or CPU pinned on a machine nobody reported as slow',
+  "A device that hasn't come online in days — often a machine nobody told us was retired",
+  'Temperatures climbing in a closet where the cooling has quit',
+  'Unexpected software appearing on a managed device',
+  'A UPS running on battery, or reporting a battery near end of life',
+];
+
+const howItWorks = [
+  ['01', 'We deploy the agent', "A lightweight agent goes on every managed workstation and server. It reports health, inventory, and patch status continuously and stays out of the user's way."],
+  ['02', 'We set your baseline', 'We define what normal looks like for your environment — what should be running, what storage headroom matters, which machines can never reboot mid-shift.'],
+  ['03', 'Something deviates', 'A drive throws errors, a service stops, storage crosses a threshold, an update fails. The alert reaches us, not your staff.'],
+  ['04', 'Automation tries first', 'Where the fix is known and safe, a script handles it: restart the service, clear the space, re-run the patch. Many issues close here without a person involved.'],
+  ['05', 'An engineer takes over', "Anything automation can't resolve goes to a local engineer who looks at the actual machine, in context, before touching it."],
+  ['06', 'We fix it or schedule it', 'Urgent items are handled remotely, usually the same day. Hardware nearing end of life gets a replacement recommendation with enough lead time to budget for it.'],
+];
+
+const patching = [
+  ['Tested first', 'Updates are reviewed and rolled out in stages rather than pushed everywhere the day they release.'],
+  ['Scheduled around you', 'Maintenance windows are set per environment. Manufacturing floors, clinics, and servers each get a window that fits their reality.'],
+  ['Verified after', 'We confirm updates actually installed. A patch reported as deployed but silently failing is worse than a known gap, because nobody goes looking for it.'],
+];
+
+const audience = [
+  ['A business with no internal IT', 'Nobody on staff is checking whether backups ran or updates installed. Monitoring covers the work that would otherwise fall to whoever is best with computers.'],
+  ["A manufacturer that can't take a reboot", "Production systems get maintenance windows built around shift schedules. We don't push a patch in the middle of a run."],
+  ['A multi-site organization', "Every location is monitored to the same standard, including the sites without IT staff and the ones you haven't opened yet."],
+  ['A clinic or healthcare office', 'Patch documentation and device inventory are part of showing that patient data is handled the way regulators expect.'],
+  ['A law or accounting practice', 'Client files, email, and remote access have to work — and be demonstrably maintained when an insurer or client asks.'],
+  ['A growing business', "Once you're past a dozen machines, tracking device age, warranties, and patch status by memory stops working. Monitoring makes hardware planning a budget conversation instead of a scramble."],
+  ['A nonprofit running lean', "Aging donated hardware needs to be watched more closely, not less. Monitoring tells you which machine to replace first when there's only money for one."],
+  ['An organization with an existing IT person', 'Monitoring, patching, and after-hours coverage are handled for them, so your internal person spends their time on the work only they can do.'],
+];
+
+const related = [
+  ['Help Desk', 'When something does need a person, you reach the same local engineers who maintain your systems.', '/services/help-desk'],
+  ['Endpoint Security', "Patching closes known holes; EDR watches for the attacks that don't need one.", '/services/endpoint-security'],
+  ['Backup & Disaster Recovery', 'Monitoring tells us a backup failed. Tested, immutable backups are what make that recoverable.', '/services/backup-disaster-recovery'],
+  ['Managed IT', 'The full engagement this sits inside, including vendor management.', '/services/managed-it'],
+];
+
+// Matches a ContactForm.tsx checkbox label exactly, as the copy specified.
+const contactHref = '/contact?service=Managed%20IT';
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Remote Monitoring and Patch Management',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Remote Monitoring & Patch Management',
+  description:
+    'Remote monitoring, patch management, and IT automation. AllTech watches workstations and servers with Datto RMM and fixes small problems before they interrupt work.',
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: site.url },
+    { '@type': 'ListItem', position: 2, name: 'Services', item: `${site.url}/services` },
+    { '@type': 'ListItem', position: 3, name: 'Managed IT', item: `${site.url}/services/managed-it` },
+    { '@type': 'ListItem', position: 4, name: 'Remote Monitoring', item: `${site.url}/services/remote-monitoring` },
+  ],
+};
+---
+
+<BaseLayout
+  title="Remote Monitoring & Patch Management"
+  description="Remote monitoring, patch management, and IT automation for businesses across Northern Utah. AllTech watches your workstations and servers with Datto RMM, patches on a schedule that fits your operation, and fixes small problems before they interrupt work."
+  canonical={`${site.url}/services/remote-monitoring`}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">Remote Monitoring &amp; Patch Management</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          Most IT problems announce themselves.<br />
+          <span style="color: var(--color-amber-400);">Someone has to be listening.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">
+          Failing drives, backups that quietly stopped running, patches that never installed, a
+          server running out of disk space — these show up in the data days before anyone notices at
+          a desk. We monitor your workstations and servers around the clock, and handle the small
+          things before they turn into a call.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Schedule an IT review <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+        <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
+          <div>Datto RMM</div>
+          <div>Local engineers</div>
+          <div>Patching on your schedule</div>
+          <div>24/7 emergency response</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 · The problem -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide grid lg:grid-cols-12 gap-10">
+      <div class="lg:col-span-5">
+        <div class="eyebrow mb-4">01 · The problem</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Nobody notices a slow failure.
+        </h2>
+      </div>
+      <div class="lg:col-span-7 space-y-4 leading-relaxed text-muted">
+        <p>
+          A hard drive throwing errors, an antivirus agent that stopped reporting, a backup job
+          failing every night for three weeks — none of these interrupt anyone's work. They sit
+          there until the day they don't, and then they're an emergency.
+        </p>
+        <p>
+          Unpatched software is the same story. A missing update isn't visible to the person using
+          the computer, but it is visible to anyone scanning for a way in.
+        </p>
+        <p>
+          Reactive IT waits for the phone to ring. By then the drive is dead, the data is gone, or
+          the vulnerability has been used. Monitoring exists so the fix happens on a Tuesday
+          afternoon instead of during a shutdown.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 · What you get -->
+  <section id="included" class="surface-dark py-16 lg:py-20 scroll-mt-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">02 · What you get</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Visibility, patching, and quiet fixes.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Delivered through Datto RMM — deployed, tuned, and managed by us. There's nothing for your
+          team to configure or check.
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {whatYouGet.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · What we actually watch -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">03 · What we actually watch</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The signals that come before a problem.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Most of what monitoring reports is normal. A small fraction isn't, and those are worth
+          catching early. A sample of what lands on an engineer's desk:
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-3">
+        {signals.map((item) => (
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="leading-snug text-muted">{item}</span>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        None of these are dramatic on their own. Left alone, several of them become the reason for a
+        very bad week.
+      </p>
+    </div>
+  </section>
+
+  <!-- 04 · How it works -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">04 · How it works</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          From signal to resolved.
+        </h2>
+      </div>
+      <ol class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 list-none p-0 m-0">
+        {howItWorks.map(([n, title, body]) => (
+          <li class="card">
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-amber-600);">{n}</div>
+            <h3 class="font-display text-lg font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- 05 · Patching -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">05 · Patching</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Updates without the 2 p.m. reboot.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Patching is where monitoring earns most of its value and causes most of its friction.
+          Unpatched systems are how a large share of intrusions begin. Badly timed patches are how a
+          production line stops.
+        </p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4">
+        {patching.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        We also know specialty and line-of-business software is often picky about updates. Those
+        machines get handled deliberately, in coordination with your team — not pushed and hoped
+        for.
+      </p>
+    </div>
+  </section>
+
+  <!-- 06 · Who this is for -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">06 · Who this is for</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Built for real environments.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {audience.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-base font-bold mb-2 leading-snug" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 · Honest expectations -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide grid lg:grid-cols-12 gap-10">
+      <div class="lg:col-span-5">
+        <div class="eyebrow mb-4">07 · Honest expectations</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What monitoring doesn't do.
+        </h2>
+      </div>
+      <div class="lg:col-span-7 space-y-4 leading-relaxed text-muted">
+        <p>
+          Monitoring doesn't prevent hardware from failing. It gives us warning, most of the time,
+          and warning is what turns a replacement into a scheduled task instead of an outage.
+        </p>
+        <p>
+          It doesn't catch everything. A power supply can die without notice and a fiber cut doesn't
+          send an alert first. Some failures are instant, and no agent changes that.
+        </p>
+        <p>
+          It also isn't security on its own. Patching closes known holes, which matters a great
+          deal, but it works alongside
+          <a href="/services/endpoint-security" class="font-medium" style="color: var(--color-amber-600);">endpoint monitoring</a>,
+          <a href="/services/email-security" class="font-medium" style="color: var(--color-amber-600);">email security</a>,
+          <a href="/services/backup-disaster-recovery" class="font-medium" style="color: var(--color-amber-600);">tested backups</a>,
+          and multi-factor authentication. Any one of those alone leaves a gap.
+        </p>
+        <p>
+          What monitoring reliably does is shrink the number of problems you find out about from an
+          employee — and give us enough lead time to have real options on the rest.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 · Related services -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">08 · Related services</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Monitoring is one layer
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {related.map(([title, body, href]) => (
+          <a href={href} class="card group block">
+            <h3 class="font-display text-lg font-bold mb-2 group-hover:text-[var(--color-amber-600)] transition" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+            <span class="mt-3 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">Learn more <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="surface-dark py-16 lg:py-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Find out what's failing quietly.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          We'll review your workstations, servers, patch status, and backup jobs, tell you what's
+          actually at risk, and give you a straight list of what to fix first.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Schedule an IT review <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,506 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * NETWORK / INSTALL family — teal accent, matching the other Network pages.
+ *
+ * WORDING THAT MUST NOT BE "IMPROVED": "certified test results" refers to
+ * certification testing of the installed channel, NOT a personnel credential.
+ * No BICSI claim, no "RCDD on staff", no test-equipment brands, no cable
+ * manufacturer names or SKUs. The copy's build notes are explicit about all of
+ * these and so is this comment.
+ *
+ * No square-footage, drop-count, or price figures anywhere. Every number on the
+ * page is deliberately relative.
+ *
+ * Point-to-point wireless now has its own page. Section 05 here is kept as the
+ * short "when trenching isn't worth it" framing a cabling reader needs, and
+ * links out rather than competing with it. The Install menu tile points at
+ * /services/point-to-point-wireless. Section 04 of site-to-site-sd-wan.astro
+ * carries a third, shorter version — worth collapsing when someone has time.
+ */
+
+const symptoms = [
+  ['Intermittent drops on one device', 'Untested drop, marginal termination, or a kinked run.'],
+  ['A device negotiating at a lower speed', 'Split pairs, damaged conductors, or exceeded 100 m limit.'],
+  ['Cameras dropping in summer', 'Cable run through an unconditioned attic or against a heat source.'],
+  ['PoE devices rebooting under load', 'Undersized or damaged conductors, long runs, cheap cable.'],
+  ['Nobody knows what a port does', 'No labeling, no records, no as-built.'],
+  ['Failed fire inspection', 'Non-plenum cable in a plenum space, or unsealed penetrations.'],
+  ["A rack you can't work in", 'No cable management, no slack, no service loops.'],
+];
+
+const installs = [
+  ['Copper drops', 'Cat6 and Cat6A for data, voice, wireless access points, cameras, and door readers. Plenum-rated where the space requires it.'],
+  ['Fiber runs', "Single-mode and multimode for building-to-building links, between-floor backbones, and any run past copper's 100-meter limit."],
+  ['Terminations', 'Keystone jacks, patch panels, and fiber cassettes, dressed and strain-relieved.'],
+  ['Pathway', 'J-hooks, conduit, cable tray, raceway, and core drilling where the run demands it. Cable is supported, never draped over ceiling grid.'],
+  ['Firestopping', 'Rated penetrations sealed with the correct product for the assembly, not spray foam.'],
+  ['Labeling', 'Both ends of every run, matched to the patch panel and the as-built drawing.'],
+  ['Certification testing', 'Every drop tested and the results handed over as a file, not a verbal "it\'s good."'],
+  ['Remediation', "Existing installs cleaned up, re-terminated, re-labeled, and retested when a full replacement isn't warranted."],
+];
+
+const whyStructured = [
+  ["It's swappable.", "Change switches, add access points, move a department to a different VLAN — the physical layer doesn't need to be touched."],
+  ["It's diagnosable.", 'When something breaks, a labeled, documented, tested plant turns a half-day of tracing into a five-minute lookup.'],
+  ['It lasts.', 'Cabling installed to standard is a 15-to-20-year asset. Active gear is replaced two or three times inside that window.'],
+  ['It survives you.', "The whole point of documentation is that the person who installed it doesn't have to be the person who fixes it."],
+];
+
+// Comparison table rendered as cards so it stacks under 768px without a
+// horizontal scroll container, like every other table on the service pages.
+const categories = [
+  {
+    name: 'Cat6',
+    use: 'Workstations, phones, most APs, cameras',
+    tenGig: 'Short runs only',
+    cost: 'Lower',
+    when: 'Standard office drops',
+  },
+  {
+    name: 'Cat6A',
+    use: 'Long runs, 10 GbE, dense PoE, high-count APs',
+    tenGig: 'Full channel',
+    cost: 'Moderate',
+    when: "New builds, main runs, anything you don't want to redo",
+  },
+  {
+    name: 'Fiber',
+    use: 'Backbones, between buildings, past 100 m',
+    tenGig: 'Yes',
+    cost: 'Highest',
+    when: 'Building-to-building, floor-to-floor, distance limits',
+  },
+];
+
+const racks = [
+  'Wall-mount and floor-standing racks, sized with room to grow',
+  'Patch panels, horizontal and vertical management, and correct service loops',
+  'Switch, firewall, and server placement planned around airflow, not convenience',
+  'Power distribution and UPS placement, with load actually calculated',
+  'Grounding and bonding per code',
+  'Labeled uplinks and a rack elevation drawing that matches reality',
+  'Cleanup of existing rooms — re-dress, re-label, retest, and photograph',
+];
+
+const ptp = [
+  "It needs line of sight. Trees grow; we account for that, or we don't recommend it.",
+  'Weather, distance, and interference set the real throughput. We survey before quoting.',
+  "It's a link, not a network. It still terminates into cable, a switch, and a rack on both ends.",
+  "Where fiber is feasible and the trench is short, we'll say so and quote the fiber.",
+];
+
+const engage = [
+  ['01', 'ASSESS', 'Walk and test', "We walk the building, map what's already there, test a sample of existing drops, and give you a written picture: what's usable, what needs remediation, what needs replacement, and what a full plant would cost. Useful before a lease signing, a purchase, or a budget cycle."],
+  ['02', 'DEPLOY', 'Design through handover', 'Design, materials, pathway, install, terminate, test, label, and document. Fixed scope, fixed drop count, certification results at handover.'],
+  ['03', 'OPERATE', 'Adds, moves, and changes', 'As the space changes: new drops for a remodel, additional APs, camera relocations, and updated as-builts each time. Available standalone or inside a managed IT agreement.'],
+];
+
+const process = [
+  ['1', 'Walkthrough', 'We see the building, the ceilings, the pathways, and the obstacles. Photos and measurements, not assumptions from a floor plan.'],
+  ['2', 'Design and drop count', 'Where each drop lands, what category, what pathway, where it terminates. You approve the count before anything is ordered.'],
+  ['3', 'Coordination', 'Scheduling around your operations, and around other trades on new construction. Rough-in happens before drywall or it costs three times more.'],
+  ['4', 'Install', 'Pathway first, then pull, then dress and terminate. Firestopping as we go, not at the end.'],
+  ['5', 'Test and certify', 'Every drop tested; failures re-terminated and retested until they pass.'],
+  ['6', 'Document and hand over', 'Labeled panels, rack elevation, as-built drawing, port map, and the test result file. Yours to keep, whoever maintains it next.'],
+];
+
+const limitations = [
+  ["We won't quote a cable job over the phone.", 'Drop counts, ceiling types, and pathway obstacles decide the price. Anyone quoting sight-unseen is guessing or padding.'],
+  ["We won't work around a fire code problem.", "If a space needs plenum cable or rated penetrations, that's what goes in, even when it changes the number."],
+  ["We won't certify someone else's install as ours.", "We'll test it and tell you what it does, but our certification covers our work."],
+  ["We won't tell you Wi-Fi replaces cabling.", 'Access points, cameras, and anything stationary and bandwidth-hungry belong on copper.'],
+  ["We won't pull a run we know will fail.", 'Past 100 meters on copper, the answer is fiber or an intermediate closet — not "let\'s see if it works."'],
+  ["We won't leave a job undocumented.", "If it isn't labeled and drawn, it isn't finished."],
+];
+
+const faqs = [
+  ['How much does a drop cost?', 'It depends on run length, ceiling and wall construction, pathway, and how many drops share a pull. A 40-drop office with accessible ceilings has a very different per-drop cost than six drops through masonry. We price after the walkthrough.'],
+  ['Cat6 or Cat6A?', "Cat6 handles the great majority of office drops well. We recommend Cat6A for backbone and riser runs, longer runs, dense PoE, and anywhere you'd rather not reopen a wall in eight years. We'll tell you which drops actually justify it."],
+  ['Do we need fiber?', "If you're linking buildings, crossing floors, or exceeding 100 meters, yes. For runs inside a single floor, usually not."],
+  ['Can you work in an occupied building?', 'Yes. Most of our work is in operating offices, clinics, and production facilities. We schedule pulls and cutovers around your hours and coordinate noisy or disruptive work in advance.'],
+  ["We're building new — when should you be involved?", 'Before drywall. Rough-in during framing is the cheapest cabling you will ever buy. Bring us in when the electrical plan is being drawn, not after.'],
+  ['Can you fix cabling somebody else installed?', "Often, yes. We test what's there, re-terminate and re-label what's salvageable, and replace only the runs that genuinely fail. You get the test results either way."],
+  ['Do you subcontract this?', 'No. Structured cabling, racks, server rooms, and low-voltage are in-house crews.'],
+  ['Do you also configure the network on top of it?', 'Yes — switching, firewalls, Wi-Fi, cameras, and door access are all in-house, so the physical and logical layers are designed together rather than handed between vendors.'],
+];
+
+const related = [
+  ['Switching & Gateways', 'What the patch panel plugs into.', '/services/switching-and-gateways'],
+  ['Wi-Fi Design', 'AP placement drives where the drops go.', '/services/wifi-design'],
+  ['Firewall & Routing', 'Edge security and multi-WAN failover.', '/services/firewall-routing'],
+  ['Site-to-Site & SD-WAN', "Connecting the buildings once they're cabled.", '/services/site-to-site-sd-wan'],
+  ['Security Cameras', 'PoE camera drops and recorder placement.', '/services/security-cameras'],
+  ['Door Access Control', 'Reader, strike, and controller wiring.', '/services/door-access-control'],
+];
+
+// The copy specifies ?service=Structured%20Cabling, but ContactForm.tsx has no
+// such checkbox and a non-matching value silently pre-checks nothing.
+const contactHref = '/contact?service=Network%20%26%20Infrastructure';
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Structured cabling and low-voltage installation',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Structured Cabling',
+  description:
+    'Low-voltage structured cabling, Cat6/6A drops, fiber runs, racks, and server-room buildouts — certified, labeled, and documented, installed in-house.',
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(([question, answer]) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer },
+  })),
+};
+---
+
+<BaseLayout
+  title="Structured Cabling in Logan & Northern Utah"
+  description="Low-voltage structured cabling, Cat6/6A drops, fiber runs, racks, and server-room buildouts across Northern Utah. Certified, labeled, and documented — installed in-house, not subcontracted."
+  canonical={`${site.url}/services/structured-cabling`}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden net-family">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">Install · Low-voltage</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          The part of your network<br />
+          <span style="color: var(--color-teal-400);">nobody sees until it fails.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">
+          Cabling outlives every switch, camera, and access point you plug into it. We install Cat6,
+          Cat6A, and fiber the way it's meant to be done — certified, labeled, tested, and
+          documented — so the next person who opens the rack knows exactly what they're looking at.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Scope a cabling job <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+        <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
+          <div>Local since 2009</div>
+          <div>In-house install crews</div>
+          <div>UniFi specialist</div>
+          <div>Certified test results on every drop</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 · The problem -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">01 · The problem</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Most cabling problems don't announce themselves.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          A camera that goes offline in the heat. A phone that only drops on long calls. A
+          workstation that negotiates at 100 Mbps instead of 1 Gbps and nobody notices for two
+          years. The switch gets blamed, then replaced, and the problem stays. Underneath, the
+          causes are almost always the same:
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {symptoms.map(([seen, cause]) => (
+          <div class="card">
+            <h3 class="font-display text-base font-bold mb-3 leading-snug" style="color: var(--color-text-primary);">{seen}</h3>
+            <p class="text-sm leading-relaxed pt-3" style="color: var(--color-text-default); border-top: 1px solid var(--color-line-faint);">
+              <span class="font-mono text-[10px] tracking-wider block mb-1" style="color: var(--color-text-subtle);">USUALLY CAUSED BY</span>
+              {cause}
+            </p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        Cabling is the one layer you can't patch remotely. Doing it wrong is expensive twice: once
+        to install it, once to open the walls again.
+      </p>
+    </div>
+  </section>
+
+  <!-- 02 · What we install -->
+  <section id="how" class="surface-dark py-16 lg:py-20 scroll-mt-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">02 · What we install</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          One crew, from the drop to the patch panel.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          We handle low-voltage as its own discipline, not as an afterthought bundled onto a network
+          project. That means design, pathway, installation, termination, testing, and documentation
+          are all ours — and all traceable to one team.
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {installs.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-base font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · Why structured matters -->
+  <section id="build" class="surface-dark py-16 lg:py-20 scroll-mt-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">03 · Why "structured" matters</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          A cable plant is a system, not a pile of wire.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Structured cabling means the whole plant follows one standard — the same cable category,
+          the same termination scheme, the same labeling convention, the same documented topology —
+          so any technician can work on it without reverse-engineering someone else's improvisation
+          first. Practically, that gets you four things:
+        </p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+        {whyStructured.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+
+      <h3 class="font-display text-xl font-bold mb-4" style="color: var(--color-text-primary);">Cable category, plainly</h3>
+      <div class="grid md:grid-cols-3 gap-4">
+        {categories.map(({ name, use, tenGig, cost, when }) => (
+          <div class="card">
+            <h4 class="font-display text-xl font-bold mb-4" style="color: var(--color-teal-600);">{name}</h4>
+            <dl class="space-y-3">
+              {[['TYPICAL USE', use], ['10 GbE SUPPORT', tenGig], ['COST PER DROP', cost], ['WHEN WE RECOMMEND IT', when]].map(([label, value]) => (
+                <div>
+                  <dt class="font-mono text-[10px] tracking-wider mb-0.5" style="color: var(--color-text-subtle);">{label}</dt>
+                  <dd class="text-sm leading-snug" style="color: var(--color-text-default);">{value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        We don't blanket-spec the most expensive option. Workstation drops in an office are usually
+        Cat6; backbone and riser runs are where the upgrade actually earns its cost.
+      </p>
+    </div>
+  </section>
+
+  <!-- 04 · Racks and server rooms -->
+  <section id="racks" class="surface-dark py-16 lg:py-20 scroll-mt-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">04 · Racks and server rooms</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The room where all of it lands.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          A cable plant is only as usable as the space it terminates in. We build and rebuild racks
+          and server rooms as part of the same scope:
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-x-10 gap-y-3 max-w-5xl">
+        {racks.map((item) => (
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="leading-snug text-muted">{item}</span>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        If your current rack requires a flashlight and a guess, that's the job.
+      </p>
+    </div>
+  </section>
+
+  <!-- 05 · Point-to-point wireless -->
+  <section id="ptp" class="surface-dark py-16 lg:py-20 scroll-mt-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide grid lg:grid-cols-12 gap-10">
+      <div class="lg:col-span-5">
+        <div class="eyebrow mb-4">05 · Point-to-point wireless</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          When trenching isn't worth it.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Some runs shouldn't be cable. A shop across a parking lot, a scale house at the far end of
+          the yard, a second building across a county road — trenching fiber can cost more than the
+          link is worth. Licensed-exempt point-to-point bridges cover those gaps with clear line of
+          sight.
+        </p>
+      </div>
+      <div class="lg:col-span-7">
+        <p class="font-mono text-xs tracking-wider mb-4" style="color: var(--color-text-subtle);">WHAT WE'LL TELL YOU UP FRONT</p>
+        <div class="grid gap-3">
+          {ptp.map((item) => (
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <span class="leading-snug text-muted">{item}</span>
+            </div>
+          ))}
+        </div>
+        <p class="mt-6 leading-relaxed text-muted">
+          Full detail — path surveys, link budgets, topologies, and monitoring — on the
+          <a href="/services/point-to-point-wireless" class="font-medium" style="color: var(--color-teal-600);">Point-to-Point Wireless</a> page.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 · How we scope it -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">06 · How we scope it</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Three ways to engage.
+        </h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4">
+        {engage.map(([n, label, title, body], i) => (
+          <div class="card" style={i === 1 ? 'border-color: var(--color-teal-500);' : ''}>
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-teal-600);">{n} · {label}</div>
+            <h3 class="font-display text-xl font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 · Process -->
+  <section id="process" class="surface-dark py-16 lg:py-20 scroll-mt-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">07 · Process</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Pathway first, documentation last, nothing skipped.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {process.map(([n, title, body]) => (
+          <div class="card">
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-teal-600);">{n}</div>
+            <h3 class="font-display text-lg font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 · Honest limitations -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">08 · Honest limitations</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What we won't do.
+        </h2>
+      </div>
+      <div class="max-w-4xl space-y-6">
+        {limitations.map(([title, body]) => (
+          <div class="flex items-start gap-4">
+            <svg class="w-5 h-5 mt-1 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <circle cx="10" cy="10" r="7.5" stroke="var(--color-teal-500)" stroke-width="1.75" />
+              <line x1="10" y1="6" x2="10" y2="11" stroke="var(--color-teal-500)" stroke-width="1.75" stroke-linecap="round" />
+              <circle cx="10" cy="14" r="0.9" fill="var(--color-teal-500)" />
+            </svg>
+            <p class="leading-relaxed" style="color: var(--color-text-default);">
+              <span class="font-display font-bold" style="color: var(--color-text-primary);">{title}</span>{' '}
+              {body}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 · FAQ -->
+  <section id="faq" class="surface-dark py-16 lg:py-20 scroll-mt-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">09 · FAQ</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Common questions
+      </h2>
+      <div class="mt-8 space-y-6 not-prose">
+        {faqs.map(([q, a]) => (
+          <div>
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{q}</h3>
+            <p class="leading-relaxed text-muted">{a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 · Related services -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">10 · Related services</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The rest of the stack it plugs into
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {related.map(([title, body, href]) => (
+          <a href={href} class="card group block">
+            <h3 class="font-display text-lg font-bold mb-2 group-hover:text-[var(--color-teal-600)] transition" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+            <span class="mt-3 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-teal-600);">Learn more <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="surface-dark py-16 lg:py-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Walk the building with us.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          Send us a floor plan or just an address. An engineer will walk the space, count the drops,
+          flag the pathway problems, and give you a number you can budget against — before anything
+          gets ordered.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Scope a cabling job <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Network-family accent, matching the other Network pages. */
+  .net-family :global(.eyebrow) {
+    color: var(--color-teal-600);
+  }
+</style>

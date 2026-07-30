@@ -1,0 +1,557 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * First page in the NETWORK family rather than the SASE family. The build notes
+ * asked for the eyebrow and accent to distinguish the two service lines, so
+ * this page accents with teal (the site's existing "connectivity" token) where
+ * the Cloudflare pages accent with amber. Buttons stay amber — btn-primary is
+ * shared across every page and re-skinning it here would read as a bug, not a
+ * family.
+ *
+ * Section order matches secure-web-gateway.astro: engage at 05, rollout at 06.
+ *
+ * No Ubiquiti model numbers, tiers, or specs appear anywhere on this page. The
+ * copy describes device CLASS throughout and the build notes ask to keep it
+ * that way, because the UniFi lineup turns over faster than the page will be
+ * revised. Do not add SKUs.
+ *
+ * The supplied canonical ended in .html; Pages serves these routes
+ * extensionless, so the canonical is extensionless, matching the rest.
+ */
+
+const problems = [
+  ['Unmanaged switches daisy-chained across the building', 'No VLANs, no port visibility, no way to tell which device is flooding the network — and a consumer switch under a desk that nobody documented.'],
+  ['One flat network', 'Cameras, guest Wi-Fi, the POS, printers, the plant floor, and the domain controller all in the same broadcast domain, all able to reach each other.'],
+  ['PoE budget quietly exceeded', 'Cameras and access points that reboot at random because the switch runs out of power under load, not because anything is broken.'],
+  ['A single 1G uplink carrying the whole building', 'Fine until backups, camera retention, and file traffic overlap on the same Tuesday morning.'],
+  ['The ISP router is the whole network', 'No segmentation, no failover, no logging, and a device the ISP can replace remotely without telling anyone.'],
+  ['No spare, no config backup, no lifecycle plan', 'When the gateway dies, the recovery path is a two-day shipping estimate and someone rebuilding rules from memory.'],
+  ['Firmware from three years ago', 'On the device every other device depends on.'],
+];
+
+const stack = [
+  ['Gateways', "Routing, inter-VLAN policy, DHCP, DNS forwarding, VPN termination where appropriate, and multi-WAN failover. Sized to your actual throughput and to the features you'll have enabled — not to the marketing number with everything switched off."],
+  ['Access-layer switching', 'Managed switches with per-port visibility, PoE and PoE+ where devices need it, and a documented port map so a problem can be traced to a port instead of guessed at.'],
+  ['Aggregation and uplinks', "10G copper or fiber between the core and each closet, so backups, camera retention, and user traffic aren't competing for one gigabit."],
+  ['VLAN segmentation', 'Separate networks for staff, guests, VoIP, cameras, door access, printers, servers, and OT/plant equipment — with explicit rules about what may talk to what. Guest and IoT isolated by default.'],
+  ['PoE design', 'Power budget calculated against real device draw with headroom, not against the number on the datasheet. This is the single most common cause of "random" camera and AP reboots.'],
+  ['Multi-WAN and failover', 'A second circuit (fiber, cable, or cellular) with tested failover, because failover that has never been tested is an assumption.'],
+  ['Controller and management', 'UniFi Network hosting decided deliberately — on-premise console, self-hosted, or Ubiquiti-hosted — with alerting and configuration backups either way.'],
+  ['Lifecycle and documentation', 'Firmware baselines, a documented topology, config backups, and a defined spares position for the devices that would hurt most.'],
+];
+
+const vendor = [
+  [
+    'Why UniFi is our default',
+    'One controller for switching, Wi-Fi, cameras, and door access. No per-device licence to renew. Predictable hardware cost that leaves budget for the rest of the stack. And we run enough of it that our engineers know its behaviour — including its quirks — rather than learning your deployment on your time.',
+  ],
+  [
+    'When we specify something else',
+    'Requirements drive hardware, not the other way around. We move off the default when a site needs deep next-generation firewall inspection with vendor-backed threat intelligence and a support SLA; when dynamic routing or advanced Layer 3 is genuinely required; when an existing platform, cyber-insurance requirement, or compliance framework dictates a specific vendor; when throughput at the edge exceeds what the platform holds up under with inspection enabled; or when a client needs a hardware replacement guarantee that a consumer-channel RMA process does not provide.',
+  ],
+  [
+    'How we keep that decision reversible',
+    'The design is documented independently of the hardware — addressing plan, VLAN scheme, port map, routing and policy intent. A mixed environment is normal and supportable: we regularly run UniFi switching and Wi-Fi behind a different firewall, or UniFi at branch sites with something heavier at headquarters. Nothing here requires you to be single-vendor forever, and we will not pretend otherwise to keep a build simple for us.',
+  ],
+];
+
+// The only tabular content on the page. Rendered as cards rather than a <table>
+// so it stacks cleanly under 768px without a horizontal scroll container.
+const sizing = [
+  {
+    env: 'Single office, under ~25 users',
+    gateway: 'Compact cloud gateway',
+    switching: 'One or two PoE access switches',
+    uplinks: '1G, 10G if the budget allows',
+  },
+  {
+    env: 'Office with cameras and door access',
+    gateway: 'Mid-tier gateway with headroom',
+    switching: 'PoE+ access switches, budget calculated',
+    uplinks: '10G to the closet',
+  },
+  {
+    env: 'Multi-closet building',
+    gateway: 'Gateway sized for inspection enabled',
+    switching: 'Aggregation switch + per-closet access',
+    uplinks: 'Fiber between closets',
+  },
+  {
+    env: 'Manufacturer / plant floor',
+    gateway: 'Gateway with strict inter-VLAN policy',
+    switching: 'Hardened or industrial access switches on OT VLANs',
+    uplinks: 'Fiber, redundant where the run allows',
+  },
+  {
+    env: 'Multi-site',
+    gateway: 'Per-site gateway, consistent template',
+    switching: 'Same access model at every site',
+    uplinks: 'Site-to-site or SASE overlay',
+  },
+  {
+    env: 'High-throughput or compliance-driven edge',
+    gateway: 'Alternate vendor NGFW — see section 03',
+    switching: 'UniFi switching still fine behind it',
+    uplinks: '10G+',
+  },
+];
+
+const engage = [
+  ['01', 'ASSESS', 'Network review', 'Physical walk of the closets and cabling, switch and gateway inventory with firmware and lifecycle status, VLAN and addressing review, PoE budget check, and uplink saturation review. You get a written topology, a prioritized findings list, and a replacement plan with rough costs. Stands alone as a deliverable — no obligation to buy hardware from us.'],
+  ['02', 'DEPLOY', 'Design and install', 'Addressing and VLAN design, hardware specification and procurement, staged install with a defined cutover window, labelling, and documentation handed over. Cabling and rack work in-house.'],
+  ['03', 'OPERATE', 'Managed network', 'Monitoring and alerting, firmware lifecycle, config backups, port and VLAN changes, capacity review, and warranty/RMA handling. Billed monthly. When a switch fails, we already know which one it is and what was plugged into it.'],
+];
+
+const phases = [
+  ['Phase 1', 'Design and staging', 'Addressing plan, VLAN scheme, and port map agreed on paper before anything is ordered. Hardware is configured and updated on the bench, not in your closet at 6 a.m.'],
+  ['Phase 2', 'Core and gateway cutover', 'Gateway and aggregation switch go in during a scheduled window, usually after hours. Old equipment stays in the rack, powered down and reachable, until the new path is proven.'],
+  ['Phase 3', 'Access layer and segmentation', 'Closet by closet, floor by floor. VLANs get applied in monitoring mode before enforcement where the platform allows it, because this is the phase that finds the label printer with a hard-coded IP and the machine nobody could identify.'],
+  ['Phase 4', 'Verification and handover', 'Failover tested by actually pulling the primary circuit. PoE draw measured under load. Topology, port map, addressing, and credentials documented and handed to you — including if you later take it in-house or move to another provider.'],
+];
+
+const audience = [
+  ['Businesses on consumer or unmanaged gear', 'That have outgrown it and are seeing problems nobody can pin down.'],
+  ['Anyone adding cameras or door access', "That's a PoE and segmentation project before it's a camera project."],
+  ['Manufacturers', 'Needing plant-floor equipment isolated from the office network without losing the visibility they need into it.'],
+  ['Clinics and professional services', 'Where segmentation is a compliance requirement, not a preference.'],
+  ['Multi-site organizations', 'Wanting one standard applied at every location, including the next one.'],
+  ['Offices moving or building out', 'The cheapest time to do this correctly is before the walls close.'],
+  ['Anyone whose network is one undocumented device away from a bad week', 'If that sentence landed, this is the conversation.'],
+];
+
+const limitations = [
+  ['UniFi is not a next-generation firewall.', "It does routing, segmentation, and basic threat signatures well. If your requirement is deep inspection with a vendor SLA and licensed threat intelligence, we'll specify a different edge device and say so during assessment — not after."],
+  ['Gateway throughput drops when inspection is enabled.', "Headline throughput numbers assume features are off. We size against the configuration you'll actually run."],
+  ['Hardware support is a channel, not an SLA.', "Ubiquiti's replacement process is serviceable, not same-day. For sites where an outage is measured in lost production, we recommend an on-shelf spare and quote it explicitly. Some clients would rather buy a vendor support contract instead — that's a legitimate reason to choose different hardware."],
+  ['The controller is a dependency.', "UniFi switching keeps forwarding traffic if the controller is unavailable, but you lose management, changes, and visibility until it's back. We make the hosting decision deliberately and back up the configuration."],
+  ['Segmentation will break something on day one.', "Some device — a printer, a scanner, a licence server, a piece of shop equipment — depends on flat-network reachability nobody documented. Finding those is part of the work, and it's why the access layer is phased."],
+  ['New switching does not fix bad cabling.', "If the drops are unterminated, untested, or Cat5e where the application needs more, that's the actual problem. We test rather than assume, and we'll quote the cabling honestly."],
+  ["It doesn't replace endpoint or email security.", "A well-segmented network limits how far a compromise spreads. It doesn't stop one from starting."],
+  ['Wi-Fi is a separate design problem.', 'Good switching is a prerequisite for good Wi-Fi, not a substitute for a site survey.'],
+];
+
+const faqs = [
+  ['Do we have to use UniFi?', "No. It's our default because it fits most of our clients well and we support it deeply, but requirements decide. Mixed environments — UniFi switching behind a different firewall, for instance — are normal and fully supportable."],
+  ['We already have UniFi that another vendor installed. Will you take it over?', "Yes, and that's common. We start with an assessment: what's there, what firmware it's on, what's out of support, and what needs to change before we put our name on it."],
+  ['Can you reuse our existing switches?', "Sometimes. If they're managed, in support, and have the PoE budget and port count for what you're adding, we'd rather reuse than replace. We'll tell you which units are worth keeping and which are the reason for your intermittent problems."],
+  ['How much downtime does a switch and gateway replacement take?', 'Core cutover is typically a scheduled after-hours window. The access layer is done in stages with brief per-closet interruptions. Nobody should lose a business day to this.'],
+  ['Do we need 10G?', "Between the core and the closets, usually yes — it's inexpensive now and it's what keeps backups and camera traffic from competing with users. To every desk, almost never."],
+  ['Will segmenting the network break our line-of-business software?', 'Occasionally, and we plan for it. Some applications assume flat reachability. Those get identified during the phased rollout and handled with explicit rules rather than by giving up on segmentation.'],
+  ['Who owns the equipment and the configuration?', 'You do. Configuration, credentials, addressing, and documentation are yours, and you get them whether or not you stay with us.'],
+  ['What happens when a switch fails?', "Under managed service we get the alert, identify the unit and what was on it, handle the warranty claim, and — if you've bought a spare — swap it and restore the config. Without a spare, you're on shipping time, which is exactly why we quote the spare."],
+  ["Can you support this if we're not local?", 'Most of the work is remote-capable. On-site work is Northern Utah, the Wasatch Front, and southern Idaho — the areas we can actually get an engineer to.'],
+];
+
+const related = [
+  ['Network & Infrastructure', 'The parent service: cabling, racks, point-to-point, and the rest of the physical layer.', '/services/network-design'],
+  ['Private Cloud Routing', 'Reach these networks remotely without opening inbound ports.', '/services/private-cloud-routing'],
+  ['Cloudflare Zero Trust', 'The security layer that sits above the hardware, whatever the hardware is.', '/services/cloudflare-zero-trust'],
+  ['Cybersecurity', 'Endpoint and email defence — segmentation limits the spread, it does not stop the start.', '/services/cybersecurity'],
+  ['Managed IT', 'Monitoring, patching, and the help desk that answers when a port goes quiet.', '/services/managed-it'],
+];
+
+// Must match a ContactForm.tsx checkbox label exactly, or the deep link
+// silently pre-checks nothing.
+const contactHref = '/contact?service=Network%20%26%20Infrastructure';
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Business Switching & Gateways',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Business Switching & Gateways — UniFi Network Design',
+  description:
+    'AllTech designs and installs business-grade switching and gateways — UniFi specialists, with PoE, VLAN segmentation, fiber uplinks, and multi-WAN failover.',
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(([question, answer]) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer },
+  })),
+};
+---
+
+<BaseLayout
+  title="Business Switching & Gateways — UniFi Network Design"
+  description="AllTech designs and installs business-grade switching and gateways — UniFi specialists, with PoE, VLAN segmentation, fiber uplinks, and multi-WAN failover. Northern Utah, on-site engineers."
+  canonical={`${site.url}/services/switching-and-gateways`}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden net-family">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">Network &amp; Infrastructure · UniFi Specialist</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          The part of the network nobody thinks about<br />
+          <span style="color: var(--color-teal-400);">until everything stops.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">
+          Switches and gateways are the floor the rest of your technology stands on. When they're
+          specified correctly you never think about them; when they're not, you get intermittent
+          problems nobody can reproduce and a vendor blaming your network. AllTech designs,
+          installs, and maintains that layer — primarily on Ubiquiti UniFi, and on other platforms
+          when the requirements call for it.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Scope a network build <span aria-hidden="true">→</span></a>
+          <a href="#stack" class="btn btn-ghost">See what we install</a>
+        </div>
+        <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
+          <div>UniFi specialist</div>
+          <div>On-site engineers</div>
+          <div>Segmentation by default</div>
+          <div>Local since 2009</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 · The problem -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">01 · The problem</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          "It's probably the network."
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Most of the switching we inherit was bought a box at a time, over a decade, by whoever
+          needed a port that afternoon. It usually works. It also usually can't be troubleshot,
+          monitored, or extended.
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {problems.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 · What we deploy -->
+  <section id="stack" class="surface-dark py-16 lg:py-20 scroll-mt-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">02 · What we deploy</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          One managed fabric, documented.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          A designed network has a gateway that knows what it's routing, switches that can be seen
+          and segmented, uplinks sized for what actually crosses them, and PoE budgeted with
+          headroom. We build it as one managed system with one place to look, not a pile of
+          independently configured boxes.
+        </p>
+      </div>
+
+      <!-- Top to bottom: two circuits into the gateway, fiber down to the access
+           layer, VLANs fanning out. Teal here rather than amber — this is the
+           Network family, not the Cloudflare family. -->
+      <div class="mb-10 -mx-2 overflow-x-auto">
+        <svg viewBox="0 0 920 300" fill="none" aria-hidden="true" class="w-full min-w-[780px] h-auto">
+          <defs>
+            <filter id="sw-shadow" x="-50%" y="-50%" width="220%" height="220%">
+              <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#0a0f1a" flood-opacity="0.08" />
+            </filter>
+          </defs>
+
+          <!-- Two WAN circuits -->
+          <rect x="292" y="0" width="150" height="40" rx="10" fill="var(--color-bg-surface)" stroke="var(--color-border-default)" stroke-width="1.5" />
+          <text x="367" y="25" text-anchor="middle" font-family="var(--font-mono)" font-size="11" fill="var(--color-text-default)">WAN 1</text>
+          <rect x="478" y="0" width="150" height="40" rx="10" fill="var(--color-bg-surface)" stroke="var(--color-border-default)" stroke-width="1.5" stroke-dasharray="4 4" />
+          <text x="553" y="25" text-anchor="middle" font-family="var(--font-mono)" font-size="11" fill="var(--color-text-subtle)">WAN 2 · failover</text>
+          <line x1="367" y1="40" x2="367" y2="62" stroke="var(--color-slate-400)" stroke-width="2" />
+          <line x1="553" y1="40" x2="553" y2="62" stroke="var(--color-slate-400)" stroke-width="2" stroke-dasharray="4 4" />
+
+          <!-- Gateway -->
+          <rect x="292" y="62" width="336" height="58" rx="12" fill="var(--color-bg-surface)" stroke="var(--color-teal-500)" stroke-width="1.5" filter="url(#sw-shadow)" />
+          <text x="460" y="86" text-anchor="middle" font-family="var(--font-display)" font-weight="700" font-size="14" fill="var(--color-text-primary)">Gateway</text>
+          <text x="460" y="106" text-anchor="middle" font-family="var(--font-mono)" font-size="10" fill="var(--color-text-subtle)">routing · segmentation · failover</text>
+
+          <line x1="460" y1="120" x2="460" y2="146" stroke="var(--color-teal-500)" stroke-width="2.5" />
+          <text x="476" y="139" font-family="var(--font-mono)" font-size="10" fill="var(--color-teal-600)">10G / fiber</text>
+
+          <!-- Core -->
+          <rect x="292" y="146" width="336" height="52" rx="12" fill="var(--color-bg-surface)" stroke="var(--color-teal-500)" stroke-width="1.5" filter="url(#sw-shadow)" />
+          <text x="460" y="177" text-anchor="middle" font-family="var(--font-display)" font-weight="700" font-size="14" fill="var(--color-text-primary)">Aggregation / core switch</text>
+
+          <!-- Fan out to access switches -->
+          <line x1="460" y1="198" x2="460" y2="212" stroke="var(--color-teal-500)" stroke-width="2" />
+          <line x1="150" y1="212" x2="770" y2="212" stroke="var(--color-teal-500)" stroke-width="2" />
+          {[150, 460, 770].map((x) => (
+            <line x1={x} y1="212" x2={x} y2="230" stroke="var(--color-teal-500)" stroke-width="2" />
+          ))}
+
+          {[
+            { x: 40, label: 'Access switch · PoE' },
+            { x: 350, label: 'Access switch · PoE' },
+            { x: 660, label: 'Access switch · PoE' },
+          ].map(({ x, label }) => (
+            <>
+              <rect x={x} y="230" width="220" height="42" rx="10" fill="var(--color-bg-surface)" stroke="var(--color-border-default)" stroke-width="1.5" filter="url(#sw-shadow)" />
+              <text x={x + 110} y="256" text-anchor="middle" font-family="var(--font-mono)" font-size="11" fill="var(--color-text-default)">{label}</text>
+            </>
+          ))}
+
+          <text x="460" y="292" text-anchor="middle" font-family="var(--font-mono)" font-size="10" fill="var(--color-teal-600)">
+            VLANs: staff · guest · VoIP · cameras · door access · servers · OT
+          </text>
+        </svg>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {stack.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-base font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · Vendor position -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">03 · Vendor position</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          UniFi first, not UniFi only.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          We're UniFi specialists, and for the large majority of the businesses we support that's
+          the right answer. It's also a choice we make deliberately, per site, and we'll tell you
+          when it isn't the right fit.
+        </p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4">
+        {vendor.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        <span class="font-display font-bold" style="color: var(--color-text-primary);">What doesn't change.</span>{' '}
+        SASE and Zero Trust functions sit at the Cloudflare layer regardless of what hardware is in
+        the rack — see <a href="/services/cloudflare-zero-trust" class="font-medium" style="color: var(--color-teal-600);">Cloudflare Zero Trust</a>.
+        Choosing a different switch vendor doesn't rebuild your security stack.
+      </p>
+    </div>
+  </section>
+
+  <!-- 04 · How we size it -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">04 · How we size it</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Specified against what you'll actually run.
+        </h2>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {sizing.map(({ env, gateway, switching, uplinks }) => (
+          <div class="card">
+            <h3 class="font-display text-base font-bold mb-4 leading-snug" style="color: var(--color-text-primary);">{env}</h3>
+            <dl class="space-y-3">
+              {[['GATEWAY', gateway], ['SWITCHING', switching], ['UPLINKS', uplinks]].map(([label, value]) => (
+                <div>
+                  <dt class="font-mono text-[10px] tracking-wider mb-0.5" style="color: var(--color-text-subtle);">{label}</dt>
+                  <dd class="text-sm leading-snug" style="color: var(--color-text-default);">{value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        ))}
+      </div>
+
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        Sizing rule we hold to: gateways get specified against throughput <em>with the features you
+        want turned on</em>, and PoE budgets get specified with headroom for the devices you'll add
+        next year. Both are cheap to get right on day one and expensive to fix afterward.
+      </p>
+    </div>
+  </section>
+
+  <!-- 05 · How we engage -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">05 · How we engage</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Three ways to start.
+        </h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4">
+        {engage.map(([n, label, title, body], i) => (
+          <div class="card" style={i === 1 ? 'border-color: var(--color-teal-500);' : ''}>
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-teal-600);">{n} · {label}</div>
+            <h3 class="font-display text-xl font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        Cabling and rack work is in-house — see
+        <a href="/services/network-design" class="font-medium" style="color: var(--color-teal-600);">Network &amp; Infrastructure</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- 06 · How the rollout goes -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">06 · How the rollout goes</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Four phases, and nothing gets unplugged before the new path is proven.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {phases.map(([phase, title, body]) => (
+          <div class="card">
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-teal-600);">{phase}</div>
+            <h3 class="font-display text-lg font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 · Who this is for -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">07 · Who this is for</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Where it makes the most difference.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {audience.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 · Honest limitations -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">08 · Honest limitations</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What we'll tell you before you buy anything.
+        </h2>
+      </div>
+      <div class="max-w-4xl space-y-6">
+        {limitations.map(([title, body]) => (
+          <div class="flex items-start gap-4">
+            <svg class="w-5 h-5 mt-1 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <circle cx="10" cy="10" r="7.5" stroke="var(--color-teal-500)" stroke-width="1.75" />
+              <line x1="10" y1="6" x2="10" y2="11" stroke="var(--color-teal-500)" stroke-width="1.75" stroke-linecap="round" />
+              <circle cx="10" cy="14" r="0.9" fill="var(--color-teal-500)" />
+            </svg>
+            <p class="leading-relaxed" style="color: var(--color-text-default);">
+              <span class="font-display font-bold" style="color: var(--color-text-primary);">{title}</span>{' '}
+              {body}
+            </p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        For the two gaps switching leaves open, see
+        <a href="/services/cybersecurity" class="font-medium" style="color: var(--color-teal-600);">Cybersecurity</a> and
+        <a href="/services/network-design" class="font-medium" style="color: var(--color-teal-600);">Wi-Fi design</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- 09 · FAQ -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">09 · FAQ</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Common questions
+      </h2>
+      <div class="mt-8 space-y-6 not-prose">
+        {faqs.map(([q, a]) => (
+          <div>
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{q}</h3>
+            <p class="leading-relaxed text-muted">{a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 · Related services -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">10 · Related services</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The rest of the stack it plugs into
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {related.map(([title, body, href]) => (
+          <a href={href} class="card group block">
+            <h3 class="font-display text-lg font-bold mb-2 group-hover:text-[var(--color-teal-600)] transition" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+            <span class="mt-3 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-teal-600);">Learn more <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="surface-dark py-16 lg:py-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Start with a look at what you actually have.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          Send us a note about your sites and what's giving you trouble. We'll walk the closets, map
+          what's there, and give you a written plan with priorities and rough costs — including the
+          parts we'd leave alone.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Start a conversation <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Network-family accent. The Cloudflare/SASE pages run amber eyebrows; this
+     line runs teal so the two are distinguishable at a glance. Buttons are
+     deliberately left alone — btn-primary is shared sitewide. */
+  .net-family :global(.eyebrow) {
+    color: var(--color-teal-600);
+  }
+</style>

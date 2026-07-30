@@ -1,0 +1,446 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * NETWORK / INSTALL family — teal accent, matching the other Network pages.
+ *
+ * The supplied copy linked to /services/door-access. That page shipped as
+ * /services/door-access-control — the route its own copy specified — so the
+ * three references here point there.
+ *
+ * Vendor claims limited to Ubiquiti UniFi, already claimed site-wide. No SKUs,
+ * model names, resolutions, storage figures, or IP/IK ratings anywhere —
+ * device class only, per the copy's build notes. Do not add them.
+ *
+ * Recording is described as ON-PREMISE ONLY. The copy's build notes flag this:
+ * confirm whether AllTech offers cloud or offsite footage backup before anyone
+ * implies it does.
+ *
+ * Section 08's audio/privacy paragraph deliberately declines to give legal
+ * guidance and points the reader at their own attorney or HR. Do not let a
+ * later edit turn it into advice.
+ *
+ * The supplied canonical ended in .html; Pages serves these routes
+ * extensionless, so the canonical is extensionless like the rest.
+ */
+
+const doorAccessHref = '/services/door-access-control';
+
+const problems = [
+  'Footage recorded, but overwritten before anyone thought to pull it',
+  'Cameras aimed at wide parking lots where a person is eleven unusable pixels',
+  'A recorder in an unlocked closet — the first thing taken in a break-in',
+  'Every camera sitting on the same flat network as workstations and the file server',
+  'The vendor who installed it four years ago no longer answering the phone',
+  'Nobody on staff with the login, or a login shared by everyone',
+];
+
+const deploy = [
+  ['Site design and camera placement', 'We walk the property before quoting. Entrances, exits, registers, docks, cash handling, server rooms, gates, and the specific sight lines you care about. Each camera gets a purpose and a field of view — identification at close range, activity awareness at distance — and you see it marked on a plan before anything gets ordered.'],
+  ['Indoor coverage', 'Lobbies, hallways, production floors, retail spaces, and back-of-house. Mounting chosen for the ceiling and the environment you actually have — open plenum, hard lid, dusty shop, cold storage.'],
+  ['Outdoor and perimeter', 'Weather-rated cameras for entries, lots, yards, gates, and loading areas, with low-light performance and lens selection matched to distance. Utah winters and south-facing glare both get accounted for in the design.'],
+  ['Structured cabling and power', 'PoE cabling run cleanly, terminated properly, plenum-rated where code requires it, and documented. Camera runs land on switch ports with enough PoE budget to carry them, including in an outage if you have UPS or generator backing.'],
+  ['Recording and retention', "On-premise recording sized to the retention window you need, not the one the box happens to give you. Storage lives somewhere physically secure, and we tell you in plain terms how many days you're keeping before it recycles."],
+  ['Network segmentation', "Cameras and recorders go on their own VLAN with rules that keep them off the rest of your network. A camera is an internet-connected computer with a lens; it doesn't need to reach your accounting server, and it won't."],
+  ['Remote and mobile access', "Secure access to live and recorded footage from a phone or browser, with per-user accounts and permissions — so the manager who needs the front register doesn't get the whole system, and departures can be revoked cleanly."],
+  ['Ongoing monitoring and support', 'Firmware managed on a schedule. Alerts when a camera stops reporting or a disk starts failing, so you find out from us rather than from an empty timeline three weeks later.'],
+];
+
+// The only tabular content on the page. Cards rather than a <table> so it
+// stacks under 768px without a horizontal scroll container.
+const scoping = [
+  ['What must you be able to prove?', 'Identifying a face at a counter and noticing a truck in a yard need different cameras in different places.'],
+  ['How far back do you need to look?', 'Retention drives storage more than camera count does. A week and ninety days are different systems.'],
+  ['Who needs to see it, and from where?', 'On-site only, or phones and remote managers — this decides access design and account structure.'],
+  ["What's the building made of?", 'Concrete, metal, tall ceilings, and long outdoor runs all change cabling, mounting, and cost.'],
+];
+
+const engage = [
+  ['01', 'ASSESS', 'Site walk and coverage review', "Site walk, coverage review, and a look at existing cameras, cabling, switching, and recording. You get a marked-up plan, a camera-by-camera purpose list, a retention recommendation, and a bill of materials. If your current system is salvageable, we'll tell you that instead of replacing it."],
+  ['02', 'DEPLOY', 'Cable, mount, configure', "Cabling, mounting, PoE and switch provisioning, VLAN and firewall rules, recorder setup, retention configuration, user accounts, and remote access. Scheduled around your operation — we don't run ladders through a retail floor on a Saturday or re-cable a production line mid-shift."],
+  ['03', 'OPERATE', 'Monitored and supported', 'Firmware and health monitoring, storage alerting, account changes as staff turn over, footage retrieval when you need an export for an insurer or investigator, and adjustments as the building or the risk changes.'],
+];
+
+const rollout = [
+  ['1', 'Site walk', 'We come on site with you, not with a catalog. What has happened before, what worries you, what the insurer or franchise agreement requires, where the blind spots are.'],
+  ['2', 'Design', 'Camera count, placement, mounting height, lens and field of view per camera, cable routing, PoE and switch requirements, recorder sizing for your retention target. Delivered as a marked-up floor plan plus a materials list.'],
+  ['3', 'Cabling', "Low-voltage runs pulled, terminated, tested, and labeled. Existing usable cable gets reused where it tests clean; we don't tear out what works."],
+  ['4', 'Install and configure', 'Cameras mounted and aimed, recorder installed in a secured location, VLAN and rules applied, retention set, accounts created with the right permissions.'],
+  ['5', 'Validation and handoff', 'We review every camera view with you on screen, confirm night performance, verify recording and retention, and hand over documentation and credentials. You own the system and the logins — not us.'],
+  ['6', 'Ongoing', 'Monitoring, firmware, storage health, and support. When something happens, you call the engineers who installed it.'],
+];
+
+const audience = [
+  ['Manufacturing and warehousing', 'Docks, yards, gates, and floor safety, with cameras that survive dust and cold.'],
+  ['Retail and food service', 'Registers, back doors, coolers, and stock rooms; shrink and slip-and-fall claims both need footage.'],
+  ['Professional offices', 'Entry doors, reception, and server rooms, with footage handled discreetly.'],
+  ['Clinics and dental', 'Entrances, waiting areas, and medication storage, with camera placement chosen carefully around patient privacy.'],
+  ['Municipalities and public facilities', 'Parks, shops, and buildings across several sites under one console.'],
+  ['Multi-site businesses', 'One standard, one login, and consistent coverage at every location.'],
+  ['Property and facility managers', 'Common areas, parking, and after-hours access across buildings.'],
+  ['Anyone replacing an orphaned system', "An old recorder, a vendor who's gone, and nobody with the password."],
+];
+
+const expectations = [
+  ['Cameras record. They don\'t prevent.', 'They deter some behavior and they document almost all of it, but a camera has never stopped anyone mid-act. Pair them with door access, lighting, and locks.'],
+  ['Nobody is watching your live feed.', "We monitor system health — cameras online, disks healthy, firmware current. We are not a staffed guard station watching your video, and we'll say so plainly rather than let you assume otherwise."],
+  ['Retention is a real cost.', "More cameras, higher resolution, and longer retention all consume storage. Ninety days of high-resolution footage across thirty cameras is a meaningfully different system than two weeks across eight. We'd rather have that conversation during design than after."],
+  ['Coverage has edges.', 'No practical system covers every square foot. We prioritize what matters and tell you where the gaps are, so you know rather than assume.'],
+  ['Audio and privacy have rules.', "Recording audio, and placing cameras in areas employees expect to be private, carry legal and HR considerations that vary. We flag where those questions arise and recommend you get an answer from your attorney or HR before we install — we're not the ones to give that advice."],
+];
+
+const faqs = [
+  ['Can you use my existing cameras?', "Sometimes. If the cabling is good and the cameras are a supported standard, we'll often keep part of the system and replace only what's failing or badly placed. We'll tell you honestly after the site walk which is cheaper over five years."],
+  ['Who owns the footage and the logins?', 'You do. We document credentials and hand them over. We hold access to support the system, and you can revoke it.'],
+  ['Can I see the cameras from my phone?', 'Yes, with an account scoped to what you should see. Individual permissions mean a shift lead can view the areas they are responsible for without holding the keys to the whole system.'],
+  ['How long is footage kept?', 'As long as the storage we size for. We set that target with you during design and tell you the real number rather than a marketing figure.'],
+  ['What happens if a camera or drive fails?', "Health monitoring flags it and we schedule the fix. That's the whole point of monitoring the system rather than just installing it."],
+  ['Do you do door access too?', 'Yes — on the same platform and the same console.'],
+  ['Do you serve my area?', 'Cache Valley, Box Elder County, the Wasatch Front, and southern Idaho. Logan, Hyde Park, Smithfield, Brigham City, Tremonton, Preston, and surrounding communities.'],
+];
+
+const related = [
+  ['Door Access Control', 'Readers, mobile and card unlock, tied to the same console as your cameras.', doorAccessHref],
+  ['Switching & Gateways', 'PoE switching sized to carry cameras without starving other devices.', '/services/switching-and-gateways'],
+  ['Firewall & Routing', 'The segmentation and rules that keep cameras isolated from the rest of the network.', '/services/firewall-routing'],
+  ['Wi-Fi Design', 'Coverage and VLAN design across the same building.', '/services/wifi-design'],
+  ['Network & Infrastructure', 'The structured cabling and low-voltage work every camera depends on.', '/services/network-design'],
+  ['Managed IT', 'Ongoing support for the whole environment, cameras included.', '/services/managed-it'],
+];
+
+// The copy specifies ?service=Cameras, but ContactForm.tsx has no such checkbox
+// and a non-matching value silently pre-checks nothing.
+const contactHref = '/contact?service=Network%20%26%20Infrastructure';
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Security Camera Installation',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Security Cameras — Business Surveillance Install & Support',
+  description:
+    'Business security camera systems designed per site, installed on segmented networks by local engineers, and supported on UniFi Protect.',
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(([question, answer]) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer },
+  })),
+};
+---
+
+<BaseLayout
+  title="Security Cameras — Business Surveillance Install & Support"
+  description="Business security camera systems for Northern Utah. Site-designed indoor and outdoor surveillance on UniFi Protect, installed on segmented networks by local engineers. Logan, Hyde Park, Brigham City, Tremonton, Preston."
+  canonical={`${site.url}/services/security-cameras`}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden net-family">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">Security Cameras · On-site &amp; low-voltage</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          Cameras are only useful<br />
+          <span style="color: var(--color-teal-400);">when you need the footage.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">
+          Most systems get judged once — the morning after something happens. That's when you find
+          out whether the camera was pointed at the right door, whether the footage is still there,
+          and whether anyone can actually get to it. We design, cable, install, and manage camera
+          systems so that morning is uneventful.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Schedule a site walk <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+        <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
+          <div>UniFi specialist</div>
+          <div>Local since 2009</div>
+          <div>In-house install crew</div>
+          <div>Cabling to cloud, one vendor</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 · The problem -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">01 · The problem</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The system works right up until it matters.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Cameras get bought as boxes, not as a design. Someone counts doors, orders that many
+          cameras, and mounts them where the ladder reached. The result looks like coverage on the
+          wall and behaves like a gap on the recording. What we walk into most often:
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-x-10 gap-y-3 max-w-5xl">
+        {problems.map((item) => (
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-teal-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="leading-snug text-muted">{item}</span>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        None of that shows up on a normal day. All of it shows up on the day you need footage for an
+        insurance claim, a police report, or an HR conversation.
+      </p>
+    </div>
+  </section>
+
+  <!-- 02 · What we deploy -->
+  <section id="deploy" class="surface-dark py-16 lg:py-20 scroll-mt-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">02 · What we deploy</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Designed for the site, not the invoice.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {deploy.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-base font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · Platform -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide grid lg:grid-cols-12 gap-10">
+      <div class="lg:col-span-5">
+        <div class="eyebrow mb-4">03 · Platform</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          UniFi Protect, and honesty about where it fits.
+        </h2>
+      </div>
+      <div class="lg:col-span-7 space-y-4 leading-relaxed text-muted">
+        <p>
+          We're Ubiquiti UniFi specialists, which means we know its limits as well as its strengths.
+          UniFi Protect puts cameras, recording, and access control in the same console as your
+          switching, Wi-Fi, and firewall — one login, one vendor, no per-camera licensing to renew.
+          For most small and mid-sized businesses that's the right answer, and it's what we deploy
+          by default.
+        </p>
+        <p>
+          Where it isn't the right answer, we say so. Sites with heavy existing investment in
+          another platform, environments with specialized analytics or regulatory requirements, and
+          some very large or high-count deployments are better served elsewhere — and we'll design
+          and support those too.
+        </p>
+        <p>
+          Either way the design is documented independently of the hardware, so the platform choice
+          stays reversible instead of becoming a trap.
+        </p>
+        <p>
+          Related: <a href={doorAccessHref} class="font-medium" style="color: var(--color-teal-600);">door access on the same platform</a> ·
+          <a href="/services/switching-and-gateways" class="font-medium" style="color: var(--color-teal-600);">switching and PoE that carries it</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · Scoping -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">04 · Scoping</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What you're actually deciding.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Four questions drive nearly every camera design. Answer them and the bill of materials
+          mostly writes itself.
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        {scoping.map(([q, why]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-3 leading-snug" style="color: var(--color-teal-600);">{q}</h3>
+            <p class="text-sm leading-relaxed pt-3" style="color: var(--color-text-default); border-top: 1px solid var(--color-line-faint);">
+              <span class="font-mono text-[10px] tracking-wider block mb-1" style="color: var(--color-text-subtle);">WHY IT CHANGES THE DESIGN</span>
+              {why}
+            </p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        Answer those honestly and you avoid the two most common outcomes: paying for cameras that
+        don't answer your question, or discovering the footage expired the day before you needed it.
+      </p>
+    </div>
+  </section>
+
+  <!-- 05 · How we engage -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">05 · How we engage</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Three ways to start.
+        </h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4">
+        {engage.map(([n, label, title, body], i) => (
+          <div class="card" style={i === 1 ? 'border-color: var(--color-teal-500);' : ''}>
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-teal-600);">{n} · {label}</div>
+            <h3 class="font-display text-xl font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 · Rollout -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">06 · Rollout</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          From walk-through to working system.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {rollout.map(([n, title, body]) => (
+          <div class="card">
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-teal-600);">{n}</div>
+            <h3 class="font-display text-lg font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 · Fit -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">07 · Fit</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Where this pays for itself.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {audience.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-base font-bold mb-2 leading-snug" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 · Honest expectations -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">08 · What cameras don't do</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Straight talk before you buy.
+        </h2>
+      </div>
+      <div class="max-w-4xl space-y-6">
+        {expectations.map(([title, body]) => (
+          <div class="flex items-start gap-4">
+            <svg class="w-5 h-5 mt-1 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <circle cx="10" cy="10" r="7.5" stroke="var(--color-teal-500)" stroke-width="1.75" />
+              <line x1="10" y1="6" x2="10" y2="11" stroke="var(--color-teal-500)" stroke-width="1.75" stroke-linecap="round" />
+              <circle cx="10" cy="14" r="0.9" fill="var(--color-teal-500)" />
+            </svg>
+            <p class="leading-relaxed" style="color: var(--color-text-default);">
+              <span class="font-display font-bold" style="color: var(--color-text-primary);">{title}</span>{' '}
+              {body}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 · FAQ -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">09 · FAQ</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Common questions
+      </h2>
+      <div class="mt-8 space-y-6 not-prose">
+        {faqs.map(([q, a]) => (
+          <div>
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{q}</h3>
+            <p class="leading-relaxed text-muted">{a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 · Related services -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">10 · Related services</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The rest of the stack it plugs into
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {related.map(([title, body, href]) => (
+          <a href={href} class="card group block">
+            <h3 class="font-display text-lg font-bold mb-2 group-hover:text-[var(--color-teal-600)] transition" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+            <span class="mt-3 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-teal-600);">Learn more <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="surface-dark py-16 lg:py-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Let's walk the building.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          We'll look at what you have, what you're actually trying to protect, and where the blind
+          spots are — then give you a plan and a real number before anything gets ordered.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Schedule a site walk <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Network-family accent, matching the other Network pages. */
+  .net-family :global(.eyebrow) {
+    color: var(--color-teal-600);
+  }
+</style>

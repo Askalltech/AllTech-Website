@@ -1,0 +1,404 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * NETWORK / INSTALL family — teal accent, matching the other Network pages.
+ *
+ * HELD BACK from the supplied copy: the two dollar figures in section 05
+ * ("turn a $2,000 problem into a $20,000 one"). The copy's own build notes say
+ * to verify them against real job history or replace them with "a small
+ * project" / "a capital project" — which is what shipped, using the note's own
+ * suggested wording.
+ *
+ * STILL NEEDS CONFIRMING: section 08 says "we coordinate it" about electrical
+ * work. The build notes ask whether AllTech quotes electrical coordination as a
+ * line item or refers out entirely. Left as written.
+ *
+ * No compliance claims (HIPAA/PCI/CJIS) anywhere; physical-security language
+ * stays functional, per the build notes.
+ *
+ * The before/after photography the copy says carries this page has not been
+ * supplied. When it is, every frame needs client names, hostnames, IP labels,
+ * and reader locations redacted first.
+ *
+ * The supplied route had no canonical; extensionless, matching the rest.
+ */
+
+const deliver = [
+  ['Rack and enclosure', 'Open two-post, four-post, or a locking wall-mount cabinet, sized to what you have plus what you will add. Floor-mounted racks anchored, wall units mounted into structure, not drywall anchors.'],
+  ['Power', 'Rack-mounted PDUs, a correctly sized UPS with runtime matched to what actually needs to stay up, and a clear conversation with your electrician about circuits and load before anything is installed.'],
+  ['Cooling and airflow', "Front-to-back airflow, blanking panels, and an honest assessment of the room's heat load. If a closet needs dedicated cooling or a vent, we'll say so before we fill it with equipment."],
+  ['Patch panels and cable management', 'Drops terminated to panels, tested, and labeled. Vertical and horizontal managers, service loops, and patch cables cut to length — not a bundle of seven-footers doing three feet of work.'],
+  ['Equipment mounting and layout', 'Switches, gateway, firewall, servers, recorder, and access controller placed in a layout that makes sense for airflow, weight, and reach — with room left to grow.'],
+  ['Labeling and documentation', 'Every port, panel, and drop labeled to a scheme. You get a rack elevation, a port map, and an as-built you can hand to anyone — including a different provider.'],
+  ['Cleanup and decommissioning', 'Old equipment removed, dead cable pulled, e-waste hauled off. The room leaves cleaner than we found it.'],
+];
+
+const details = [
+  ['Labeled to a scheme, not to a Sharpie', 'A naming convention applied at the panel, the port, and the wall plate. Consistent across rooms and across sites.'],
+  ['Patch cables cut to length', 'Color-coded by function, routed through managers. Airflow works and you can trace a run by looking at it.'],
+  ['Physical security', "Locking cabinet or a room with door access and a camera. Your network's weakest point is often a door anyone can open."],
+  ['Room to grow', "Rack units and port count sized past today. Adding four cameras shouldn't require rebuilding the rack."],
+  ['UPS with tested runtime', 'Sized for real load, with battery replacement tracked and shutdown behavior configured — not assumed.'],
+  ['As-built you own', 'Rack elevation, port map, addressing, and credentials handed to you at close. No vendor lock-in by obscurity.'],
+];
+
+const process = [
+  ['1', 'Walk the room', 'On-site. We photograph and inventory what is there, count drops, check the electrical panel and circuits, measure the space, and look at airflow. No charge for the walk.'],
+  ['2', 'Design and scope', 'Rack elevation drawn before anything is ordered. Power and cooling requirements stated in writing. You get a fixed scope, a materials list, and a real number — plus anything that needs your electrician rather than us.'],
+  ['3', 'Stage off-site', 'Rack assembled, equipment configured, and firmware updated on our bench. The less that gets figured out in your closet, the shorter your downtime window.'],
+  ['4', 'Install', 'Rack set and anchored, PDUs and UPS in, panels mounted, drops terminated and tested, equipment mounted and cabled. Scheduled around your hours — most cutovers happen evenings or weekends.'],
+  ['5', 'Test and verify', 'Every drop tested and results recorded. Failover and UPS behavior verified by actually cutting power, not by reading a spec sheet. Airflow and temperature checked under load.'],
+  ['6', 'Handover', 'Rack elevation, port map, test results, addressing, and credentials delivered to you. Then a walkthrough at the rack so your staff know what is what.'],
+];
+
+const audience = [
+  ['Anyone moving or building out', 'The cheapest time to do this right is before the walls close and before the equipment is in the room.'],
+  ['Manufacturers', 'With equipment in dusty, hot, or vibration-heavy spaces that need an enclosure, not a shelf.'],
+  ['Clinics and professional offices', 'Where the server room is also the storage room and needs to be lockable and logged.'],
+  ['Multi-site organizations', 'Wanting one rack standard and one labeling scheme at every location, including the next one.'],
+  ['Businesses adding cameras or door access', "That's rack space, PoE budget, and power — before it's a camera project."],
+  ['Anyone who inherited the room', 'A previous provider, a previous employee, and no documentation of either.'],
+  ['Offices whose "server room" is a closet', "Sometimes the right answer is a wall cabinet and moving the load to the cloud. We'll say that too."],
+];
+
+const expectations = [
+  ['Electrical work goes to a licensed electrician.', "We install PDUs and UPS units and we'll spec exactly what's needed, but new circuits, panel work, and dedicated cooling get a licensed trade. We coordinate it; we don't pretend to do it."],
+  ['A clean rack is not redundancy.', "Neat cabling doesn't survive a failed drive, a dead switch, or a flooded closet. If uptime is the goal, that's a hardware and backup conversation, not a racking one."],
+  ["Some rooms shouldn't be server rooms.", "No amount of cable management fixes a closet with no airflow, a water heater, or a sprinkler head directly above the rack. We'd rather tell you that on the walk than after installation."],
+  ['Cleanup means downtime.', 'Re-terminating and re-cabling a live rack means things go offline. We schedule it after hours and stage what we can, but there is no version where nothing goes dark.'],
+  ["We won't rip out equipment that works.", 'If your switch has three good years left, it stays and gets labeled. Replacement recommendations come with a reason and a lifecycle date, not a sales quota.'],
+];
+
+const faqs = [
+  ['How long does it take?', 'A single-room cleanup is usually one to two days. A full buildout with new rack, power, and panels typically runs three to five days on site, plus staging beforehand. Multi-site work is scheduled room by room.'],
+  ['What does it cost?', "It depends on drop count, rack size, and whether power and cooling need work — which is why we walk the room before quoting. A wall-cabinet cleanup in a small office and a floor rack buildout for a plant are not the same project, and we won't pretend a phone estimate is a number."],
+  ['Do we have to buy the equipment from you?', "No. We'll spec it and you can buy it wherever you like. Buying through us means warranty and RMA handling goes through us too, which most clients prefer once something fails."],
+  ['Can you work with our electrician and general contractor?', 'Yes, and we prefer to. On new construction we want to be in the conversation during rough-in, when adding a conduit run or a circuit is cheap.'],
+  ['Will we get documentation?', 'Yes — rack elevation, port map, cable test results, addressing, and credentials. Yours to keep, including if you later move to another provider or bring IT in-house.'],
+  ['Do you do cabling too?', 'Yes. Structured cabling, drops, and terminations are our own crew, not a subcontractor.'],
+  ['Do you serve our area?', 'Cache Valley, Box Elder County, the Wasatch Front, and southern Idaho — Logan, Hyde Park, Smithfield, Brigham City, Tremonton, Preston, and out from there.'],
+];
+
+const related = [
+  ['Structured Cabling', 'Drops, terminations, and testing.', '/services/structured-cabling'],
+  ['Switching & Gateways', 'What goes in the rack.', '/services/switching-and-gateways'],
+  ['Security Cameras', 'Recorder placement and PoE budget.', '/services/security-cameras'],
+  ['Door Access Control', 'Locking the room itself.', '/services/door-access-control'],
+  ['Backup & Disaster Recovery', 'For when the hardware in the rack fails anyway.', '/services/backup-disaster-recovery'],
+];
+
+// The copy specifies ?service=Rack%20%26%20Server%20Rooms, but ContactForm.tsx
+// has no such checkbox and a non-matching value silently pre-checks nothing.
+const contactHref = '/contact?service=Network%20%26%20Infrastructure';
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Server room and network rack buildout',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Rack & Server Room Buildouts',
+  description:
+    'Server room and network rack buildouts — racking, power, cooling, cable management, and documentation done by the engineers who maintain it.',
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(([question, answer]) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer },
+  })),
+};
+---
+
+<BaseLayout
+  title="Rack & Server Room Buildouts | Northern Utah"
+  description="Server room and network rack buildouts in Northern Utah. Racking, power, cooling, cable management, and documentation done by the engineers who maintain it."
+  canonical={`${site.url}/services/rack-server-rooms`}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden net-family">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">Install · On-site &amp; low-voltage</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          Your server room<br />
+          <span style="color: var(--color-teal-400);">should be boring.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">
+          Racked, labeled, powered, cooled, and documented — so the room nobody thinks about stays
+          the room nobody has to think about. We build server rooms and network closets across
+          Northern Utah and southern Idaho, and we're the ones who still have to work in them
+          afterward.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Scope a server room project <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+        <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
+          <div>Local since 2009</div>
+          <div>In-house low-voltage crew</div>
+          <div>UniFi specialist</div>
+          <div>Documentation you keep</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 · The room -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide grid lg:grid-cols-12 gap-10">
+      <div class="lg:col-span-5">
+        <div class="eyebrow mb-4">01 · The room</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Most server rooms weren't built. They accumulated.
+        </h2>
+      </div>
+      <div class="lg:col-span-7 space-y-4 leading-relaxed text-muted">
+        <p>
+          Ten years of good intentions stacked on one wall. A switch on a shelf. A UPS under the
+          desk that hasn't had a battery test since it was bought. Patch cables run point-to-point
+          across the rack because it was faster that day, and now nobody can trace a single drop
+          without unplugging it to see what goes dark.
+        </p>
+        <p>
+          None of that is a crisis. It's a tax. Every change takes twice as long, every outage takes
+          longer to isolate, and the one person who understood the room is usually the person who
+          left.
+        </p>
+        <p>
+          Then there's the part that does become a crisis: a closet with no airflow and a space
+          heater's worth of equipment in it, or a single circuit carrying a server, a switch, and
+          the break-room microwave.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 · Scope -->
+  <section id="scope" class="surface-dark py-16 lg:py-20 scroll-mt-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">02 · Scope</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          What a buildout actually includes.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {deliver.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-base font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · Details that matter later -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">03 · Details that matter later</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The small things that decide how the next five years go.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {details.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · Cleanup vs buildout -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">04 · Cleanup vs buildout</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Not every room needs to be rebuilt.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          Two very different projects get called the same thing, and the price difference is large.
+        </p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="card">
+          <h3 class="font-display text-xl font-bold mb-3" style="color: var(--color-teal-600);">A cleanup</h3>
+          <p class="leading-relaxed" style="color: var(--color-text-default);">
+            Keeps your existing rack and equipment. We re-terminate what's worth keeping, add patch
+            panels and management, replace patch cables, label everything, pull dead cable, and
+            document what's there. One to two days for most single-room jobs, and it fixes the tax
+            without a capital project.
+          </p>
+        </div>
+        <div class="card">
+          <h3 class="font-display text-xl font-bold mb-3" style="color: var(--color-teal-600);">A buildout</h3>
+          <p class="leading-relaxed" style="color: var(--color-text-default);">
+            New rack, new power, new panels, and a planned layout — appropriate when you're moving,
+            building out, adding meaningful load, or the room has an airflow or power problem a
+            tidy-up won't solve.
+          </p>
+        </div>
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        We'll tell you which one you're looking at after we see the room. Quoting a buildout for a
+        room that needs a cleanup is how vendors turn a small project into a capital project.
+      </p>
+    </div>
+  </section>
+
+  <!-- 05 · How we engage -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">05 · How we engage</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Six steps, one scheduled window.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {process.map(([n, title, body]) => (
+          <div class="card">
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-teal-600);">{n}</div>
+            <h3 class="font-display text-lg font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 · Fit -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">06 · Fit</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Where this pays for itself.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {audience.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-base font-bold mb-2 leading-snug" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 · Honest expectations -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">07 · What we'll tell you first</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Straight talk.
+        </h2>
+      </div>
+      <div class="max-w-4xl space-y-6">
+        {expectations.map(([title, body]) => (
+          <div class="flex items-start gap-4">
+            <svg class="w-5 h-5 mt-1 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <circle cx="10" cy="10" r="7.5" stroke="var(--color-teal-500)" stroke-width="1.75" />
+              <line x1="10" y1="6" x2="10" y2="11" stroke="var(--color-teal-500)" stroke-width="1.75" stroke-linecap="round" />
+              <circle cx="10" cy="14" r="0.9" fill="var(--color-teal-500)" />
+            </svg>
+            <p class="leading-relaxed" style="color: var(--color-text-default);">
+              <span class="font-display font-bold" style="color: var(--color-text-primary);">{title}</span>{' '}
+              {body}
+            </p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        On the uptime point, see
+        <a href="/services/backup-disaster-recovery" class="font-medium" style="color: var(--color-teal-600);">Backup &amp; Disaster Recovery</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- 08 · FAQ -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">08 · FAQ</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Common questions
+      </h2>
+      <div class="mt-8 space-y-6 not-prose">
+        {faqs.map(([q, a]) => (
+          <div>
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{q}</h3>
+            <p class="leading-relaxed text-muted">{a}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 leading-relaxed text-muted">
+        On the cabling question, see
+        <a href="/services/structured-cabling" class="font-medium" style="color: var(--color-teal-600);">Structured Cabling</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- 09 · Related services -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">09 · Related services</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The rest of the stack it plugs into
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {related.map(([title, body, href]) => (
+          <a href={href} class="card group block">
+            <h3 class="font-display text-lg font-bold mb-2 group-hover:text-[var(--color-teal-600)] transition" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+            <span class="mt-3 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-teal-600);">Learn more <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="surface-dark py-16 lg:py-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Let us look at your room.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          Send a photo or let us come walk it. You'll get an honest answer on whether you're looking
+          at a cleanup or a buildout, a scope, and a real number.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Scope a server room project <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Network-family accent, matching the other Network pages. */
+  .net-family :global(.eyebrow) {
+    color: var(--color-teal-600);
+  }
+</style>

@@ -1,0 +1,416 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * NETWORK / INSTALL family — teal accent, matching the other Network pages.
+ *
+ * HELD BACK from the supplied copy, all four flagged by the copy's own
+ * pre-publish checks. Restore any of these once AllTech confirms them.
+ *
+ * 1. THE THROUGHPUT AND LATENCY FIGURES. The supplied §02 tables carried
+ *    "1–5 Gbps", "500 Mbps – 1 Gbps", "1–3 ms", "2–5 ms" and similar. The copy
+ *    says to confirm they match what AllTech actually delivers, ideally
+ *    replacing them with measured figures from a real link. Until then the
+ *    tables keep distance band, platform, and shape, and the page points at the
+ *    per-link number documented during the survey — which the copy already
+ *    promises in §03. Every other Network page on this site is deliberately
+ *    number-free; this keeps it consistent.
+ * 2. THE LICENSED 11 GHz ROW. The copy says to remove it if AllTech does not do
+ *    licensed work. Cut until confirmed.
+ * 3. "$150–$400 a month" for a second business circuit. Third-party pricing
+ *    that varies by carrier and market, asserted as fact.
+ * 4. "a gigabit link between them in a day" / "installs in a day". Delivery-time
+ *    claims, and the gigabit half is also an unconfirmed throughput claim.
+ *
+ * Product LINE names (airMAX, airFiber, Wave) are kept — same treatment as
+ * UniFi Protect, UniFi Access, Site Magic, and Magic WAN elsewhere. No model
+ * numbers appear, and none should be added; the copy warns the lineup turns
+ * over.
+ *
+ * Use cases stay by vertical with no client names or addresses, per the copy.
+ *
+ * The supplied canonical ended in .html; Pages serves these routes
+ * extensionless, so the canonical is extensionless like the rest.
+ */
+
+const problems = [
+  ['Two networks, one company', 'A separate circuit means separate DHCP, separate firewall, no domain access, and no shared drive. Every system in that building becomes an exception.'],
+  ['The recurring cost never stops', 'A second business circuit is a monthly bill that runs forever. A wireless bridge is a one-time install.'],
+  ['Trenching quotes stop projects cold', "Fiber between buildings means permits, an excavator, and a parking lot you can't use for a week. Across a public road or a neighbor's easement, it may not be possible at all."],
+  ['The DIY bridge is not a bridge', 'Two access points pointed at each other through a window drop under load and fail the first time a tree leafs out in the path.'],
+];
+
+// Throughput and latency columns held pending confirmation — see the note at
+// the top of this file.
+const topologies = [
+  {
+    name: 'Point-to-point (PtP)',
+    shape: 'One radio to one radio',
+    best: 'Two buildings, maximum throughput',
+    when: 'Warehouse to office, plant to scale house',
+  },
+  {
+    name: 'Point-to-multipoint (PtMP)',
+    shape: 'One sector antenna to several remote radios',
+    best: 'A campus, a yard, several outbuildings from one mast',
+    when: 'Municipal buildings, ranch, multi-shop campus',
+  },
+];
+
+const factors = [
+  ['Line of sight', 'Not "roughly toward it" — an unobstructed visual path. Trees in leaf, a new building, or a grain leg going up will each kill a link.'],
+  ['Fresnel zone clearance', 'The signal travels in an ellipse, not a straight line. The middle of a long shot needs vertical clearance above the ground and rooftops, not just a clear sightline.'],
+  ['Link budget', 'Transmit power, antenna gain, distance, and frequency have to add up to a margin that survives rain, snow, and heat. We design to fade margin, not to the best-case number on the box.'],
+  ['Spectrum', 'We survey the noise floor before we pick a band. 5 GHz is crowded in town; 60 GHz is fast and short-range.'],
+  ['Mounting', 'A radio on a mast that flexes in wind will lose alignment. Most "the bridge is flaky" calls we inherit are mounting and grounding problems, not radio problems.'],
+];
+
+// Realistic-throughput column held pending confirmation. Licensed 11 GHz row
+// cut pending confirmation that AllTech does licensed work.
+const platforms = [
+  ['Under 500 m, clear path', 'UniFi Wave — 60 GHz with 5 GHz failover'],
+  ['500 m – 5 km', 'UniFi airMAX / airFiber, 5 GHz'],
+  ['Campus, several sites', 'airMAX sector plus remote stations'],
+];
+
+const included = [
+  ['1', 'Path survey', 'We look at both roofs, measure distance and elevation, check the Fresnel zone against terrain and obstructions, and scan the local 5 GHz noise floor. If the link won\'t hold, you hear that before you spend anything.'],
+  ['2', 'Link design and budget', 'Band selection, radio and antenna choice, mast height, fade margin, and expected throughput — documented, so the number we quote is the number you get.'],
+  ['3', 'Mounting and cabling', 'Non-penetrating roof mounts, masts, or wall brackets; outdoor-rated shielded cable; proper grounding and surge protection at both ends. This is the part that determines whether the link lasts five years.'],
+  ['4', 'Alignment and validation', 'Aimed on signal, not by eye. We test throughput both directions, log signal margin and capacity, and hand you the numbers as a baseline to compare against later.'],
+  ['5', 'Network integration', 'VLANs carried across the bridge so the remote building is on your network — same domain, same firewall policy, same cameras and door access — not a stranded island.'],
+  ['6', 'Monitoring and maintenance', 'The link is in our RMM and UniFi monitoring. Signal degradation, capacity drops, and reboots alert us. Seasonal re-checks catch tree growth and mount drift before an outage.'],
+];
+
+const useCases = [
+  ['Manufacturing', 'Plant floor to a detached warehouse so scanners, printers, and the ERP client all live on one network.'],
+  ['Agriculture', "Home office to shop, scale house, or pump station across a field where trenching isn't practical."],
+  ['Municipal', 'City hall to a public works yard, fire station, or water treatment site — often point-to-multipoint from one tall mast.'],
+  ['Multi-building offices', "A second suite across a parking lot the landlord won't let you trench."],
+  ['Camera coverage', 'Getting cameras at a remote gate or lot back to the recorder without running fiber to it.'],
+  ['Temporary and construction sites', 'A link that goes up quickly and comes down when the job ends.'],
+];
+
+const engage = [
+  ['01', 'SURVEY', 'Go / no-go with a designed link', 'Site visit to both endpoints. Distance, elevation, obstructions, spectrum scan, mounting options, power and cable runs. Output: a go / no-go with a designed link and a fixed quote. If the honest answer is "trench the fiber," we say that.'],
+  ['02', 'INSTALL', 'Mount, aim, integrate', 'Mounts, radios, cable, grounding, surge protection. Aim, test, and integrate into your VLANs and firewall. Baseline throughput and signal margin documented before we leave.'],
+  ['03', 'OPERATE', 'Monitored alongside the network', 'Link monitored alongside the rest of your network. Alerts on degradation, firmware managed, seasonal path re-check. If it drops, we already know.'],
+];
+
+const faqs = [
+  ['How fast is a wireless bridge, really?', 'Faster than most of the buildings it connects, and typically faster than a second ISP circuit would be. The honest number depends on distance, band, and path, so we design the link budget during the survey and document the expected throughput before you commit — then measure it at handover.'],
+  ['Do I need line of sight?', "Yes. Point-to-point wireless is not a \"signal through walls\" technology. We need a clear visual path with clearance around it. During the survey we tell you whether you have one — and whether you'll still have one in July when the trees fill in."],
+  ['What happens in snow, rain, or wind?', 'A properly designed link has fade margin built in for weather. 5 GHz handles snow and rain with very little loss; 60 GHz is more affected, which is why we pair it with a 5 GHz failover on longer or weather-exposed shots. Wind matters more than weather — it is a mounting problem, and we over-build the mount.'],
+  ['How does this compare to a site-to-site VPN?', 'They solve different problems. A wireless bridge is the physical link between two places you can see. A site-to-site VPN or SD-WAN connects sites over the internet, at any distance. For buildings on the same property, a bridge is faster, cheaper to run, and has no ISP in the middle.'],
+  ['What does it cost compared to running fiber?', "A typical two-building link is a fraction of the cost of trenching. That said, if the run is short, the ground is open, and you want a permanent path with no weather exposure, fiber is the better long-term answer — and we install that too. We'll quote both."],
+];
+
+const related = [
+  ['Site-to-Site & SD-WAN', 'The tunnel that may run over this link, and the answer when the sites are too far to see.', '/services/site-to-site-sd-wan'],
+  ['Structured Cabling', 'The fiber alternative when trenching is the better answer, and the cable on both ends of every bridge.', '/services/structured-cabling'],
+  ['Wi-Fi Design', 'Outdoor coverage at the remote building once it is on the network.', '/services/wifi-design'],
+  ['Security Cameras', 'Cameras at remote gates and lots, reporting back to one recorder.', '/services/security-cameras'],
+  ['Switching & Gateways', 'The switch and PoE at each end of the link.', '/services/switching-and-gateways'],
+  ['Firewall & Routing', 'The VLANs and policy the bridge carries across.', '/services/firewall-routing'],
+];
+
+// The copy specifies ?service=Point-to-Point%20Wireless, but ContactForm.tsx
+// has no such checkbox and a non-matching value silently pre-checks nothing.
+const contactHref = '/contact?service=Network%20%26%20Infrastructure';
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Wireless network bridge installation',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Point-to-Point Wireless',
+  description:
+    'AllTech designs and installs point-to-point and point-to-multipoint wireless bridges — path surveys, link budgets, and monitored uptime. Connect a second building without trenching fiber.',
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(([question, answer]) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer },
+  })),
+};
+---
+
+<BaseLayout
+  title="Point-to-Point Wireless — Building-to-Building Bridges"
+  description="Point-to-point wireless bridges for Northern Utah businesses — path surveys, UniFi airMAX and Wave, and monitored links between buildings without trenching."
+  canonical={`${site.url}/services/point-to-point-wireless`}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden net-family">
+    <div class="glow-amber" style="top: -200px; right: -100px;"></div>
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">UniFi Specialist · Network &amp; Infrastructure</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          The building across the yard<br />
+          <span style="color: var(--color-teal-400);">doesn't need its own internet.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">
+          A shop, a scale house, a second warehouse, a barn, a pump station — anything you can see
+          from your roof can be on your network at wired speeds. AllTech surveys the path,
+          calculates the link budget, mounts the radios properly, and monitors the link so you find
+          out about a degraded signal before your staff does.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Bridge our buildings <span aria-hidden="true">→</span></a>
+          <a href="#how" class="btn btn-ghost">See how it works</a>
+        </div>
+        <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
+          <div>UniFi airMAX &amp; Wave</div>
+          <div>Path surveys</div>
+          <div>Monitored links</div>
+          <div>Local engineers</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 01 · The problem -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">01 · The problem</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          "Just put a second internet line out there."
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          The default fix for an outbuilding is a second ISP circuit. It's the most expensive option
+          and it creates a second network that can't see the first one — so the shop can't reach the
+          ERP, the cameras can't reach the recorder, and the badge reader out there has to be
+          managed separately. The other default is a consumer range extender aimed out a window,
+          which works until the first snowstorm.
+        </p>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-4">
+        {problems.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        If you can stand on one roof and see the other, there is usually a link to be built between
+        them.
+      </p>
+    </div>
+  </section>
+
+  <!-- 02 · How it works -->
+  <section id="how" class="surface-dark py-16 lg:py-20 scroll-mt-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">02 · How it works</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          One radio on each building, aimed at each other.
+        </h2>
+        <p class="mt-4 text-muted leading-relaxed">
+          A point-to-point link carries a single Layer 2 bridge across the gap. Done correctly it
+          behaves like a long Ethernet cable — same VLANs, same subnet, same management.
+        </p>
+      </div>
+
+      <h3 class="font-display text-xl font-bold mb-4" style="color: var(--color-text-primary);">Two topologies</h3>
+      <div class="grid md:grid-cols-2 gap-4 mb-12">
+        {topologies.map(({ name, shape, best, when }) => (
+          <div class="card">
+            <h4 class="font-display text-lg font-bold mb-4" style="color: var(--color-teal-600);">{name}</h4>
+            <dl class="space-y-3">
+              {[['SHAPE', shape], ['BEST FOR', best], ['WHEN WE PICK IT', when]].map(([label, value]) => (
+                <div>
+                  <dt class="font-mono text-[10px] tracking-wider mb-0.5" style="color: var(--color-text-subtle);">{label}</dt>
+                  <dd class="text-sm leading-snug" style="color: var(--color-text-default);">{value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        ))}
+      </div>
+
+      <h3 class="font-display text-xl font-bold mb-4" style="color: var(--color-text-primary);">
+        What actually determines whether it works
+      </h3>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
+        {factors.map(([title, body]) => (
+          <div class="card">
+            <h4 class="font-display text-base font-bold mb-2" style="color: var(--color-text-primary);">{title}</h4>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+
+      <h3 class="font-display text-xl font-bold mb-4" style="color: var(--color-text-primary);">
+        The gear we standardize on
+      </h3>
+      <div class="grid sm:grid-cols-3 gap-4">
+        {platforms.map(([distance, platform]) => (
+          <div class="card">
+            <div class="font-mono text-[10px] tracking-wider mb-1" style="color: var(--color-text-subtle);">DISTANCE</div>
+            <h4 class="font-display text-base font-bold mb-3" style="color: var(--color-teal-600);">{distance}</h4>
+            <p class="text-sm leading-relaxed pt-3" style="color: var(--color-text-default); border-top: 1px solid var(--color-line-faint);">
+              <span class="font-mono text-[10px] tracking-wider block mb-1" style="color: var(--color-text-subtle);">PLATFORM</span>
+              {platform}
+            </p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 max-w-3xl leading-relaxed text-muted">
+        We don't publish a throughput chart, because the honest number depends on your path. Expected
+        throughput is calculated from the link budget during the survey, documented in the quote,
+        and measured in both directions at handover.
+      </p>
+    </div>
+  </section>
+
+  <!-- 03 · What's included -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">03 · What's included</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Survey to monitoring, one crew.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {included.map(([n, title, body]) => (
+          <div class="card">
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-teal-600);">{n}</div>
+            <h3 class="font-display text-lg font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · Where these go -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">04 · Where these go</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The gaps we get asked to close.
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {useCases.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 · How we engage -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">05 · How we engage</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Three phases, and the survey can end it.
+        </h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4">
+        {engage.map(([n, label, title, body], i) => (
+          <div class="card" style={i === 1 ? 'border-color: var(--color-teal-500);' : ''}>
+            <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-teal-600);">{n} · {label}</div>
+            <h3 class="font-display text-xl font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 · FAQ -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-prose">
+      <div class="eyebrow mb-4">06 · FAQ</div>
+      <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+        Common questions
+      </h2>
+      <div class="mt-8 space-y-6 not-prose">
+        {faqs.map(([q, a]) => (
+          <div>
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{q}</h3>
+            <p class="leading-relaxed text-muted">{a}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-8 leading-relaxed text-muted">
+        On the VPN comparison, see
+        <a href="/services/site-to-site-sd-wan" class="font-medium" style="color: var(--color-teal-600);">Site-to-Site &amp; SD-WAN</a>;
+        on the fiber alternative, see
+        <a href="/services/structured-cabling" class="font-medium" style="color: var(--color-teal-600);">Structured Cabling</a>.
+      </p>
+    </div>
+  </section>
+
+  <!-- 07 · Related services -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">07 · Related services</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          The rest of the stack it plugs into
+        </h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {related.map(([title, body, href]) => (
+          <a href={href} class="card group block">
+            <h3 class="font-display text-lg font-bold mb-2 group-hover:text-[var(--color-teal-600)] transition" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+            <span class="mt-3 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-teal-600);">Learn more <span aria-hidden="true">→</span></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="surface-dark py-16 lg:py-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Point at the building. We'll get it on the network.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          Send us the two addresses and we'll tell you on the survey whether a wireless bridge is
+          the right call — including when it isn't.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Request a path survey <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+        <div class="mt-8 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
+          <div>Local since 2009</div>
+          <div>UniFi specialists</div>
+          <div>Northern Utah, the Wasatch Front, and southern Idaho</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Network-family accent, matching the other Network pages. */
+  .net-family :global(.eyebrow) {
+    color: var(--color-teal-600);
+  }
+</style>
