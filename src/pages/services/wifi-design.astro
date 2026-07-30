@@ -150,67 +150,28 @@ const faqSchema = {
   <section class="surface-dark relative overflow-hidden net-family">
     <div class="glow-amber" style="top: -200px; right: -100px;"></div>
     <div class="relative container-wide py-16 lg:py-20">
-      <div class="grid lg:grid-cols-12 gap-10 items-center">
-        <div class="lg:col-span-7">
-          <div class="eyebrow mb-4">UniFi Specialist · Network &amp; Infrastructure</div>
-          <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
-            Wi-Fi that works in<br />
-            <span style="color: var(--color-teal-400);">the back of the warehouse.</span>
-          </h1>
-          <p class="mt-6 text-xl leading-relaxed text-muted">
-            Most business Wi-Fi problems are not bandwidth problems. They're design problems —
-            access points mounted where the electrician had a stud, channels fighting each other,
-            and one SSID carrying laptops, guests, printers, and a label maker from 2014. AllTech
-            designs coverage from the floor plan up, installs it, and then proves it works before we
-            leave.
-          </p>
-          <div class="mt-8 flex flex-wrap gap-3">
-            <a href={contactHref} class="btn btn-primary">Scope a Wi-Fi project <span aria-hidden="true">→</span></a>
-            <a href="#process" class="btn btn-ghost">See how we survey</a>
-          </div>
-          <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
-            <div>UniFi specialist</div>
-            <div>On-site surveys</div>
-            <div>Local since 2009</div>
-            <div>Post-install validation</div>
-          </div>
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">UniFi Specialist · Network &amp; Infrastructure</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          Wi-Fi that works in<br />
+          <span style="color: var(--color-teal-400);">the back of the warehouse.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">
+          Most business Wi-Fi problems are not bandwidth problems. They're design problems —
+          access points mounted where the electrician had a stud, channels fighting each other,
+          and one SSID carrying laptops, guests, printers, and a label maker from 2014. AllTech
+          designs coverage from the floor plan up, installs it, and then proves it works before we
+          leave.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Scope a Wi-Fi project <span aria-hidden="true">→</span></a>
+          <a href="#process" class="btn btn-ghost">See how we survey</a>
         </div>
-
-        <!-- Stand-in for the annotated floor plan the copy asks for: AP
-             placements with overlapping coverage, drawn generically so it names
-             no client and no building. Replace with a real marked-up plan when
-             one is cleared for publication. -->
-        <div class="lg:col-span-5 hidden lg:block">
-          <svg viewBox="0 0 420 320" fill="none" aria-hidden="true" class="w-full h-auto">
-            <rect x="10" y="10" width="400" height="300" rx="8" fill="var(--color-bg-surface)" stroke="var(--color-border-default)" stroke-width="1.5" />
-            <!-- interior walls -->
-            <line x1="10" y1="120" x2="250" y2="120" stroke="var(--color-slate-400)" stroke-width="2" />
-            <line x1="250" y1="10" x2="250" y2="120" stroke="var(--color-slate-400)" stroke-width="2" />
-            <line x1="150" y1="120" x2="150" y2="310" stroke="var(--color-slate-400)" stroke-width="2" />
-            <line x1="310" y1="120" x2="310" y2="310" stroke="var(--color-slate-400)" stroke-width="2" />
-            <!-- racking, drawn as the hard surfaces that eat signal -->
-            {[190, 215, 240, 265].map((y) => (
-              <line x1="170" y1={y} x2="290" y2={y} stroke="var(--color-slate-500)" stroke-width="3" stroke-linecap="round" opacity="0.5" />
-            ))}
-            <!-- coverage rings, overlapping deliberately -->
-            {[
-              { cx: 120, cy: 65 },
-              { cx: 330, cy: 65 },
-              { cx: 78, cy: 215 },
-              { cx: 228, cy: 215 },
-              { cx: 362, cy: 215 },
-            ].map(({ cx, cy }) => (
-              <>
-                <circle cx={cx} cy={cy} r="72" fill="var(--color-teal-500)" opacity="0.09" />
-                <circle cx={cx} cy={cy} r="72" stroke="var(--color-teal-500)" stroke-width="1" stroke-dasharray="3 4" opacity="0.55" />
-                <circle cx={cx} cy={cy} r="8" fill="var(--color-bg-surface)" stroke="var(--color-teal-600)" stroke-width="2" />
-                <circle cx={cx} cy={cy} r="2.5" fill="var(--color-teal-600)" />
-              </>
-            ))}
-            <text x="210" y="300" text-anchor="middle" font-family="var(--font-mono)" font-size="10" letter-spacing="0.5" fill="var(--color-text-subtle)">
-              AP placement · overlapping coverage
-            </text>
-          </svg>
+        <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
+          <div>UniFi specialist</div>
+          <div>On-site surveys</div>
+          <div>Local since 2009</div>
+          <div>Post-install validation</div>
         </div>
       </div>
     </div>

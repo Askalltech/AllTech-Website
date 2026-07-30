@@ -1,6 +1,7 @@
 ---
 import { site } from '~/lib/site';
 import { menuCategories, simpleNavLinks } from '~/lib/menu';
+import ThemeToggle from './ThemeToggle.astro';
 
 const pathname = Astro.url.pathname;
 const isActive = (href: string) =>
@@ -22,8 +23,10 @@ const isActive = (href: string) =>
   landing page — hover opens the panel, click navigates.
 -->
 
-<header class="sticky top-0 z-40 backdrop-blur-xl bg-white/85 border-b border-[var(--color-border-subtle)]">
-  <div class="nav-host relative container-wide flex items-center justify-between h-16">
+<header class="sticky top-4 z-40 px-4 lg:px-6">
+  <div
+    class="nav-host relative container-wide mx-auto flex items-center justify-between h-16 px-4 lg:px-6 rounded-full backdrop-blur-xl bg-white/85 dark:bg-black/40 border border-[var(--color-border-subtle)] shadow-sm"
+  >
     <!-- Brand -->
     <a href="/" class="flex items-center gap-2.5 font-display font-semibold tracking-tight text-lg" style="color: var(--color-text-primary)">
       <img src="/logo.webp" alt="AllTech logo" class="h-9 w-auto" width="36" height="36" onerror="this.style.display='none'" />
@@ -149,7 +152,9 @@ const isActive = (href: string) =>
       >
         {site.phone}
       </a>
-      <a href="/contact" class="btn btn-primary text-sm">Get in touch</a>
+      <a href="/contact" class="hidden sm:inline-flex btn btn-primary text-sm">Get in touch</a>
+
+      <ThemeToggle />
 
       <!-- Mobile menu toggle -->
       <button
@@ -169,10 +174,10 @@ const isActive = (href: string) =>
   <!-- Mobile nav drawer (mega-menu collapses to accordions per category) -->
   <div
     id="mobile-nav"
-    class="lg:hidden hidden border-t"
+    class="container-wide lg:hidden hidden mt-2 rounded-2xl border shadow-sm"
     style="background: var(--color-bg-surface); border-color: var(--color-border-subtle);"
   >
-    <div class="container-wide py-5 space-y-1">
+    <div class="px-5 py-5 space-y-1">
       {menuCategories.map((cat) => (
         <details class="group">
           <summary
@@ -206,6 +211,7 @@ const isActive = (href: string) =>
           {link.label}
         </a>
       ))}
+      <a href="/contact" class="sm:hidden btn btn-primary w-full mt-2">Get in touch</a>
     </div>
   </div>
 </header>

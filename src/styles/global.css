@@ -102,6 +102,7 @@
   --color-line-soft: #e4e9f2;
   --color-amber-glow: rgba(0, 131, 179, 0.12); /* blue-400 equivalent */
   --color-signal-error: #dc2626;
+  --color-dot: rgba(15, 22, 38, 0.07); /* ambient dot-grid motif, dark dots on the light page */
 
   /* ----- Fonts ----- */
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
@@ -265,12 +266,12 @@
 
   /* Motif: subtle dot grid (the AllTech equivalent of Cloudflare's edge motif) */
   .bg-dot-grid {
-    background-image: radial-gradient(circle, rgba(15,22,38,0.07) 1px, transparent 1.5px);
+    background-image: radial-gradient(circle, var(--color-dot) 1px, transparent 1.5px);
     background-size: 22px 22px;
     background-position: center center;
   }
   .bg-dot-grid-fade {
-    background-image: radial-gradient(circle, rgba(15,22,38,0.07) 1px, transparent 1.5px);
+    background-image: radial-gradient(circle, var(--color-dot) 1px, transparent 1.5px);
     background-size: 22px 22px;
     mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
     -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
@@ -358,7 +359,7 @@
   }
 
   .bg-motif {
-    background-image: radial-gradient(circle, rgba(15,22,38,0.07) 1px, transparent 1.5px);
+    background-image: radial-gradient(circle, var(--color-dot) 1px, transparent 1.5px);
     background-size: 22px 22px;
     background-position: center center;
   }
@@ -379,6 +380,10 @@
 @theme {
   --color-line:       #cfd8e8; /* alias of border-default */
   --color-line-faint: #e4e9f2; /* alias of border-subtle */
+}
+.dark {
+  --color-line:       var(--color-border-default);
+  --color-line-faint: var(--color-border-subtle);
 }
 
 /* ============================================================
@@ -656,4 +661,52 @@
   --sidebar-accent-foreground:  oklch(0.95 0.005 221.386);
   --sidebar-border:  oklch(0.3 0.008 221.386);
   --sidebar-ring:  oklch(0.72 0.1324 221.386);
+
+  /* ----- AllTech tokens, dark mode -----
+     Everything above this point in the .dark block is the shadcn/shadcnblocks
+     bridge (untouched). These are the site's own scale/semantic tokens
+     (defined in the @theme block near the top of this file) — same names,
+     dark-appropriate values. Because every component here references these
+     via var(--color-*) directly rather than through a compiled Tailwind
+     utility, a plain selector override is enough for the cascade to pick it
+     up (unlike the @theme-only shadow-utility case documented above).
+
+     Surfaces walk the ink-* scale from near-black (page) to a lighter step
+     (elevated/hover), the same relative relationship as the light-mode
+     literal hex values three tokens up in the scale.
+
+     amber-300/500/600 and teal-600 are the tokens tuned dark for AA text
+     contrast on WHITE (2.2-3.2:1 against ink-950 — would fail here), so they
+     get brighter dark-mode-only values. amber-400/200, teal-400/500 and
+     slate-400/500 already clear 4.5:1+ against ink-950 and are left as-is
+     (recomputed 2026-07-30, see contrast notes in this comment's sibling
+     edits) so fills/badges/icons that reuse them keep the same hue read. */
+  --color-amber-300: #8fd0ec; /* was #005a7e (2.6:1 on dark); now 11.8:1 */
+  --color-amber-500: #4db3dd; /* was #006792 (3.2:1 on dark); now 8.4:1 */
+  --color-amber-600: #2f9bcf; /* was #004e72 (2.2:1 on dark); now 6.4:1 */
+  --color-teal-600:  #5fa8ea; /* was #0059a2 (2.8:1 on dark); now 7.9:1 */
+
+  --color-bg-page:     var(--color-ink-950); /* #050810 */
+  --color-bg-surface:  var(--color-ink-800); /* #0f1626 — cards */
+  --color-bg-elevated: var(--color-ink-700); /* #172033 — hover fill */
+  --color-bg-tint:     #0d2436; /* dark-blue wash, same direction as the light #e6f4fb tint */
+  /* --color-bg-inverse / --color-text-inverse-* deliberately left unchanged:
+     .surface-inverse is a light interlude band that already reads as
+     "inverse" of the page. On a dark page that's exactly what its name
+     promises — a bright section breaking up the dark bands, not a second
+     dark tone to invent. */
+
+  --color-border-subtle:  var(--color-ink-800); /* #0f1626 */
+  --color-border-default: var(--color-ink-700); /* #172033 */
+  --color-border-strong:  var(--color-ink-500); /* #2a3851 */
+
+  --color-text-primary: var(--color-ink-50);  /* #f4f6fa */
+  --color-text-default: var(--color-ink-100); /* #cbd5e8 */
+  --color-text-muted:   var(--color-ink-200); /* #94a2bc */
+  --color-text-subtle:  var(--color-ink-300); /* #6b7a96 */
+  --color-text-accent:  var(--color-amber-200); /* #a6dbed — 13.3:1, brightest accent text */
+  --color-text-link:    var(--color-amber-200);
+
+  --color-amber-glow: rgba(79, 179, 221, 0.18); /* brightened + upped opacity to read against a dark page */
+  --color-dot: rgba(244, 246, 250, 0.06); /* light dots on the dark page */
 }
