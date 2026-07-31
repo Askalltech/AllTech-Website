@@ -54,7 +54,9 @@ const aNormalWeek = [
        of the aurora CSS effect (.aurora-bg in global.css, still there if
        ever wanted again) or a side-by-side panel. A left-to-right fade
        from the page background keeps the text readable over the footage
-       without a flat scrim hiding the video entirely.
+       without a flat scrim hiding the video entirely, and top/bottom fades
+       soften the section's edges so the video doesn't cut off hard against
+       the header above and the next section below.
 
        dark:brightness/saturate: the footage is graded for a light page —
        played at full brightness against the dark theme it reads as a
@@ -75,6 +77,14 @@ const aNormalWeek = [
     <div
       class="absolute inset-0"
       style="background: linear-gradient(to right, var(--color-bg-page) 0%, color-mix(in oklab, var(--color-bg-page) 88%, transparent) 40%, color-mix(in oklab, var(--color-bg-page) 45%, transparent) 65%, color-mix(in oklab, var(--color-bg-page) 15%, transparent) 100%);"
+    ></div>
+    <div
+      class="absolute inset-x-0 top-0 h-32 lg:h-40"
+      style="background: linear-gradient(to bottom, var(--color-bg-page), transparent);"
+    ></div>
+    <div
+      class="absolute inset-x-0 bottom-0 h-40 lg:h-56"
+      style="background: linear-gradient(to top, var(--color-bg-page), transparent);"
     ></div>
     <div class="relative z-10 container-wide pt-24 pb-32 lg:pt-32 lg:pb-40">
       <div class="max-w-3xl">
