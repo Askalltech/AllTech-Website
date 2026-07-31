@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { site } from '~/lib/site';
+import { HeroGlobe } from '~/components/HeroGlobe';
 
 const serviceSchema = {
   '@context': 'https://schema.org',
@@ -19,23 +20,31 @@ const serviceSchema = {
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
 
+  <!-- Two-column hero adapted from shadcnblocks Hero249: copy/buttons on the
+       left (unchanged, plain Astro/HTML), an interactive globe on the right
+       (HeroGlobe.tsx) standing in for Cloudflare's global anycast network —
+       see that component for why only the globe carried over. -->
   <section class="surface-dark relative overflow-hidden">
     <div class="relative container-wide py-16 lg:py-20">
-      <div class="max-w-3xl">
-        <div class="eyebrow mb-4">Cloudflare Partner · Featured Service</div>
-        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
-          Cloudflare Zero Trust,<br/>deployed by people who <span style="color: var(--color-amber-400);">run it daily</span>.
-        </h1>
-        <p class="mt-6 text-xl leading-relaxed text-muted">
-          Most teams find Zero Trust intimidating. We deploy it across multi-site
-          manufacturing, professional services, and SMB networks every week.
-          You get the security model the Fortune 500 uses — sized and priced for
-          your business.
-        </p>
-        <div class="mt-9 flex flex-wrap gap-3">
-          <a href="/contact?service=cloudflare-zero-trust" class="btn btn-primary">Scope a deployment</a>
-          <a href="#what-we-deploy" class="btn btn-ghost">What's included</a>
+      <div class="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+        <div class="relative z-10 max-w-3xl">
+          <div class="eyebrow mb-4">Cloudflare Partner · Featured Service</div>
+          <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+            Cloudflare Zero Trust,<br/>deployed by people who <span style="color: var(--color-amber-400);">run it daily</span>.
+          </h1>
+          <p class="mt-6 text-xl leading-relaxed text-muted">
+            Most teams find Zero Trust intimidating. We deploy it across multi-site
+            manufacturing, professional services, and SMB networks every week.
+            You get the security model the Fortune 500 uses — sized and priced for
+            your business.
+          </p>
+          <div class="mt-9 flex flex-wrap gap-3">
+            <a href="/contact?service=cloudflare-zero-trust" class="btn btn-primary">Scope a deployment</a>
+            <a href="#what-we-deploy" class="btn btn-ghost">What's included</a>
+          </div>
         </div>
+
+        <HeroGlobe client:visible />
       </div>
     </div>
   </section>
