@@ -135,3 +135,72 @@ The form posts JSON to `/api/contact.ts`, which runs as a Cloudflare Pages Funct
 - [ ] Verify Google Business Profile NAP exactly matches `site.ts`
 - [ ] Submit `sitemap-index.xml` to Google Search Console
 - [ ] Confirm the hero video (`public/hero-video.mp4`) is standard H.264 High Profile / yuv420p before replacing it — some export tools (including some Vecteezy/stock-footage downloads) default to a 4:2:2 profile that no browser can decode. `ffprobe -show_entries stream=profile,pix_fmt <file>` should report `High` and `yuv420p`.
+
+## Open items from stakeholder meetings
+
+Tracked here so they don't get lost between sessions. Pulled from the 7/31
+website strategy meeting and a separate note from the install team manager.
+Each is a business/content decision or needs something outside this
+codebase (an account, a photo, a legal review) — none of these are
+implemented yet.
+
+- [ ] **Non-customer inquiry flow.** The meeting didn't reach a final
+  decision — options floated were a callback system or a guided client-portal
+  signup. Needs a decision before any code changes here.
+- [ ] **Wire up real email delivery.** Both `/api/contact.ts` and
+  `/api/assessment.ts` validate real submissions (including Turnstile if
+  configured) but only `console.log` them — nothing is actually emailed to
+  anyone today. The Resend integration is stubbed and commented out in both
+  files, matching the env vars already documented above. Needs a Resend
+  account + verified sending domain, then `RESEND_API_KEY`,
+  `CONTACT_FORWARD_TO`, and `ASSESSMENT_FORWARD_TO` set in the Pages
+  dashboard.
+- [ ] **Turnstile site key / secret.** Same category — `PUBLIC_TURNSTILE_SITE_KEY`
+  and `TURNSTILE_SECRET` aren't set yet, so the captcha on the contact and
+  assessment forms is currently inactive.
+- [ ] **Client portal branding + wider access.** Only a limited set of
+  clients currently have portal access; the meeting wants it broadened and
+  visually matched to the site. External system (askalltech.itclientportal.com),
+  not part of this repo.
+- [ ] **AutoTask ticket integration** for assessment/contact submissions —
+  external system integration, not started.
+- [ ] **Bios** — team page bios need updating (Speaker 2).
+- [ ] **Install photography** — real photos for the two new Install pages
+  (`fiber-optic.astro`, `network-iot-cleaning.astro`, both currently a
+  "Photos coming soon" placeholder block) and for existing Install pages
+  generally.
+- [ ] **Blog/Insights content** — Sean has content to contribute; a PAM
+  (Privileged Access Management) post was mentioned as a likely next topic.
+  Separately, Speaker 4 offered AI/SEO-oriented writing templates and advice
+  (optimizing for AI-driven search, not just traditional SEO) — worth
+  following up on before writing more posts.
+- [ ] **Legal review** of the Terms of Use, Privacy Policy, and the new
+  Master Services Agreement page (`src/pages/legal/master-services-agreement.astro`,
+  deliberately not linked from any nav — direct-link only). The MSA is a
+  **template** with unfilled placeholders (Provider legal name, term
+  length, AUP URL, notice email) reproduced as-is; don't share the link
+  with a prospect as a ready-to-sign document until it's been reviewed and
+  those blanks are resolved, ideally per-engagement via the Order Form
+  process the agreement itself describes rather than hardcoded here.
+- [ ] **Licensing research** for low-voltage/install work in states with
+  their own requirements (e.g. California's C7) before advertising
+  national reach for install services.
+- [ ] **"What We Don't Do" section** — several service pages already have
+  ad hoc versions of this (see `email-security.astro`,
+  `incident-response.astro`), but there's no sitewide reusable section.
+  Needs specifics on what's actually wrong with the current copy before
+  editing it.
+- [ ] **About Us page** — content/inclusion still undecided per the
+  meeting.
+- [ ] **Logo color** — meeting floated recoloring `logo.webp` to match the
+  blue-grey theme, but also noted internal resistance to changing it.
+  `logo.webp` is a flat raster image with no CSS-based recoloring path
+  (not an SVG using `currentColor`/`fill`), so this needs either a new
+  pre-colored asset or a decision to convert it to SVG, not an automatic
+  edit.
+- [ ] **"Fat Boy" client logo** — needs the actual logo file added to
+  `public/logos/` and to `ClientLogos.astro`'s `clients` array.
+- [ ] **"Network security" as a distinct service** — floated in the
+  meeting, but this already overlaps with Network Detection (NDR, under
+  Cybersecurity) and Firewall & Routing (under Network). Recommend against
+  a redundant page unless there's a specific gap those two don't cover.

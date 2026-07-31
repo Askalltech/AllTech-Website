@@ -1,0 +1,157 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * NETWORK / INSTALL family — teal accent, matching the other Install pages.
+ *
+ * New service, requested by the install team manager (separate note from the
+ * 7/31 strategy meeting). No photos exist yet — the "What it looks like"
+ * section is a placeholder block, not fabricated imagery. No cable
+ * manufacturer names, splice-equipment brands, or footage/pricing figures,
+ * matching the same restraint the other Install pages already hold to.
+ */
+
+const contactHref = '/contact?service=Fiber%20Optic';
+
+const included = [
+  ['Single-mode & multimode', 'Building-to-building backbones, between-floor risers, and any run past copper’s 100-meter limit.'],
+  ['Fusion splicing', 'Clean, low-loss splices — not mechanical connectors as a shortcut.'],
+  ['Termination & connectorization', 'Fiber patch panels and cassettes, dressed and labeled to match the as-built.'],
+  ['OTDR & power-meter testing', 'Every run tested and the results handed over as a file, not a verbal "it’s good."'],
+  ['Conduit & pathway', 'Underground conduit, aerial runs, and interior pathway sized for the actual fiber count plus room to grow.'],
+  ['Point-to-point & campus links', 'Connecting buildings, sites, and remote structures where trenching copper isn’t practical.'],
+];
+
+const faqs: [string, string][] = [
+  ['Why fiber instead of copper?', 'Distance and interference immunity. Past 100 meters, or anywhere copper would run near motors, lighting ballasts, or outdoors, fiber is the right tool instead of a workaround.'],
+  ['Do you serve our area?', 'Cache Valley, Box Elder County, the Wasatch Front, and southern Idaho are our home base, and we travel further out for the right project.'],
+  ['Can you splice into an existing plant?', 'Yes — extensions, repairs, and re-splices on fiber someone else installed, not just new builds.'],
+];
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Fiber Optic Installation',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Fiber Optic Installation',
+  description:
+    'Single-mode and multimode fiber installation, splicing, termination, and testing for building-to-building and campus links.',
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(([question, answer]) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer },
+  })),
+};
+---
+
+<BaseLayout
+  title="Fiber Optic Installation"
+  description="Single-mode and multimode fiber installation, splicing, termination, and OTDR testing for building-to-building and campus links."
+  canonical={`${site.url}/services/fiber-optic`}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+
+  <section class="surface-dark relative overflow-hidden net-family">
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">Install · Fiber</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          Fiber that gets you<br />
+          <span style="color: var(--color-teal-400);">past copper's limits.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">
+          Building-to-building links, between-floor backbones, and campus runs — installed, spliced,
+          and tested by our own crew, not subcontracted out.
+        </p>
+        <div class="mt-9 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Scope a fiber project <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+        <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
+          <div>Local since 2009</div>
+          <div>Our own crew</div>
+          <div>OTDR-tested, every run</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-3">What's included</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight">The full fiber scope.</h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {included.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Photos pending — placeholder, not fabricated imagery. -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="eyebrow mb-3">What it looks like</div>
+      <div
+        class="rounded-xl p-12 lg:p-20 text-center"
+        style="border: 1px dashed var(--color-border-default); color: var(--color-text-subtle);"
+      >
+        <p class="text-sm font-mono uppercase tracking-wider">Photos coming soon</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-3">FAQ</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight">Common questions.</h2>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+        {faqs.map(([q, a]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{q}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="surface-dark py-16 lg:py-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Trenching copper isn't the answer here.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          Tell us what you're connecting — two buildings, a campus, a remote structure — and we'll
+          scope the run.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Scope a fiber project <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .net-family :global(.eyebrow) {
+    color: var(--color-teal-600);
+  }
+</style>

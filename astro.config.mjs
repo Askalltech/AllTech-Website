@@ -37,7 +37,7 @@ export default defineConfig({
     mdx(),
     sitemap({
       filter: (page) =>
-        !page.includes('/api/') && !page.includes('/draft/'),
+        !page.includes('/api/') && !page.includes('/draft/') && !page.includes('/legal/'),
       changefreq: 'weekly',
       priority: 0.7,
     }),
