@@ -1,10 +1,3 @@
-"use client";
-
-import { Play } from "lucide-react";
-import { useRef, useState } from "react";
-
-import { AspectRatio } from "@/components/ui/aspect-ratio";
-
 /**
  * The video panel from the shadcnblocks Hero76 block, pulled out on its
  * own rather than adopting the whole block.
@@ -14,11 +7,12 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
  * page. The homepage's hero copy, buttons, and trust row already exist as
  * plain Astro/HTML using the site's own `.btn`/`.eyebrow` classes, and a
  * second logo marquee would duplicate the real one already lower on the
- * page (ClientLogos.astro). Rewriting all of that as React just to get a
- * video panel would mean re-styling every button and losing the plain-CSS
- * hero for no reason, so this component is only the part that actually
- * needs client interactivity: the play/pause state on the video itself.
- * Everything else in the hero stays static Astro, unchanged.
+ * page (ClientLogos.astro).
+ *
+ * Autoplay/loop/muted, no play button — the original block was click-to-play,
+ * but the video is meant to run as ambient background motion, not something
+ * a visitor operates. No client interactivity left at all, so unlike the
+ * first version of this file, it doesn't need to be a React island.
  *
  * `videoSrc` isn't set to anything by default — see index.astro for
  * where the real file goes.
@@ -30,13 +24,6 @@ interface HeroVideoProps {
 }
 
 const HeroVideo = ({ videoSrc }: HeroVideoProps) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-
-  const handlePlayClick = () => {
-    void videoRef.current?.play();
-  };
-
   return (
     <div className="relative z-0 w-full min-w-0">
       <div
@@ -69,33 +56,19 @@ const HeroVideo = ({ videoSrc }: HeroVideoProps) => {
         className="relative z-10 overflow-hidden rounded-xl md:rounded-2xl"
         style={{ border: "1px solid var(--color-border-subtle)", background: "var(--color-bg-elevated)" }}
       >
-        <AspectRatio ratio={16 / 9}>
+        <div style={{ aspectRatio: "16 / 9" }}>
           {videoSrc && (
             <video
-              ref={videoRef}
               src={videoSrc}
+              autoPlay
               muted
-              playsInline
-              preload="metadata"
               loop
+              playsInline
+              preload="auto"
               className="size-full object-cover"
-              onPlay={() => setIsPlaying(true)}
-              onPause={() => setIsPlaying(false)}
-              onEnded={() => setIsPlaying(false)}
             />
           )}
-        </AspectRatio>
-        {videoSrc && !isPlaying && (
-          <button
-            type="button"
-            onClick={handlePlayClick}
-            aria-label="Play video"
-            className="absolute top-1/2 left-1/2 z-20 flex size-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full shadow-lg transition hover:brightness-105 md:size-16"
-            style={{ background: "var(--color-amber-400)" }}
-          >
-            <Play className="size-6 fill-[var(--color-ink-950)] stroke-[var(--color-ink-950)] md:size-7" />
-          </button>
-        )}
+        </div>
       </div>
     </div>
   );

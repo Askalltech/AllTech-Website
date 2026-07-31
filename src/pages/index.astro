@@ -52,12 +52,11 @@ const aNormalWeek = [
   <!-- ============ SECTION 1 · HERO ============
        Two-column layout adapted from shadcnblocks Hero76: copy/buttons/trust
        row on the left (unchanged, still plain Astro/HTML on the site's own
-       .btn/.eyebrow classes), a video panel on the right. Only the video's
-       play/pause needs JS, so only that piece (HeroVideo.tsx) is a React
-       island — see that file for why the rest wasn't rebuilt as React too.
-       videoSrc is unset until a real video exists; the panel renders as an
-       empty bordered frame until then. Drop the file at
-       public/hero-video.mp4 and set videoSrc below to "/hero-video.mp4". -->
+       .btn/.eyebrow classes), an autoplaying/looping video panel on the
+       right (HeroVideo.tsx). No client interactivity left in that
+       component, so it's rendered with no client directive — pure SSR,
+       ships no JS. See that file for why it isn't built into this page
+       directly. -->
   <section class="relative">
     <div class="relative container-wide pt-24 pb-32 lg:pt-32 lg:pb-40">
       <div class="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
@@ -101,7 +100,7 @@ const aNormalWeek = [
           </div>
         </div>
 
-        <HeroVideo client:visible videoSrc="/hero-video.mp4" />
+        <HeroVideo videoSrc="/hero-video.mp4" />
       </div>
     </div>
   </section>
