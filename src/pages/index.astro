@@ -49,16 +49,27 @@ const aNormalWeek = [
   description="AllTech is a Northern Utah managed IT and cybersecurity provider. Cloudflare Partner, UniFi specialist, 24/7 emergency response. Serving Logan, Tremonton, Brigham City, Preston, and northern Utah."
 >
   <!-- ============ SECTION 1 · HERO ============
-       Adapted from shadcnblocks Hero238: same copy/buttons/trust row as
-       before (unchanged, plain Astro/HTML), now backed by hero238's
-       AuroraBackground effect (.aurora-bg in global.css) instead of the
-       flat page background. Dropped hero238's own heading/CTA copy (generic
-       "Unlock the Premium Blocks" SaaS pitch) and its floating
-       "ShadcnBlocks" card — fabricated UI, not real content. The aurora
-       itself is static CSS, not React — see the .aurora-bg comment in
-       global.css for why it didn't need to become a client component. -->
+       Same copy/buttons/trust row as before (unchanged, plain Astro/HTML),
+       now with the real AllTech video as a full-bleed background instead
+       of the aurora CSS effect (.aurora-bg in global.css, still there if
+       ever wanted again) or a side-by-side panel. A left-to-right fade
+       from the page background keeps the text readable over the footage
+       without a flat scrim hiding the video entirely. -->
   <section class="relative overflow-hidden">
-    <div class="aurora-bg" aria-hidden="true"></div>
+    <video
+      class="absolute inset-0 h-full w-full object-cover"
+      src="/hero-video.mp4"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="auto"
+      aria-hidden="true"
+    ></video>
+    <div
+      class="absolute inset-0"
+      style="background: linear-gradient(to right, var(--color-bg-page) 0%, color-mix(in oklab, var(--color-bg-page) 88%, transparent) 40%, color-mix(in oklab, var(--color-bg-page) 45%, transparent) 65%, color-mix(in oklab, var(--color-bg-page) 15%, transparent) 100%);"
+    ></div>
     <div class="relative z-10 container-wide pt-24 pb-32 lg:pt-32 lg:pb-40">
       <div class="max-w-3xl">
         <div class="eyebrow mb-5">Managed IT · Cybersecurity · Northern Utah</div>
