@@ -102,7 +102,6 @@
   --color-line-soft: #e4e9f2;
   --color-amber-glow: rgba(0, 131, 179, 0.12); /* blue-400 equivalent */
   --color-signal-error: #dc2626;
-  --color-dot: rgba(15, 22, 38, 0.07); /* ambient dot-grid motif, dark dots on the light page */
 
   /* ----- Fonts ----- */
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
@@ -264,20 +263,15 @@
   }
   .card-amber:hover { transform: translateY(-2px); }
 
-  /* Motif: subtle dot grid (the AllTech equivalent of Cloudflare's edge motif) */
-  .bg-dot-grid {
-    background-image: radial-gradient(circle, var(--color-dot) 1px, transparent 1.5px);
-    background-size: 22px 22px;
-    background-position: center center;
-  }
-  .bg-dot-grid-fade {
-    background-image: radial-gradient(circle, var(--color-dot) 1px, transparent 1.5px);
-    background-size: 22px 22px;
-    mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
-    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
-  }
-  .bg-glow-amber {
-    background: radial-gradient(circle at 80% 0%, rgba(0,131,179,0.10) 0%, transparent 50%);
+  /* "Matrix" dot grid — tiny dots on a 3px pitch, tinted with the shadcn
+     theme's --primary token. From shadcnblocks background-pattern117 (see
+     GlobalBackground.astro); shared here so the global background, footer,
+     and client-logo marquee all use the identical pattern instead of
+     mixing this with the old large-dot motif it replaced. Re-colors
+     automatically in dark mode since --primary already does. */
+  .bg-dot-grid-matrix {
+    background-image: radial-gradient(oklch(from var(--primary) calc(l * 0.8) calc(c * 1.5) h / 1) 1px, transparent 1px);
+    background-size: 3px 3px;
   }
 
   /* Helper text classes — prefer over raw ink-* in components */
@@ -356,12 +350,6 @@
     background: white;
     border-color: var(--color-ink-100);
     color: var(--color-text-inverse-default);
-  }
-
-  .bg-motif {
-    background-image: radial-gradient(circle, var(--color-dot) 1px, transparent 1.5px);
-    background-size: 22px 22px;
-    background-position: center center;
   }
 
   .glow-amber {
@@ -636,7 +624,7 @@
   --card-foreground:  oklch(0.95 0.005 221.386);
   --popover:  oklch(0.21 0.01 221.386);
   --popover-foreground:  oklch(0.95 0.005 221.386);
-  --primary:  oklch(0.72 0.1324 221.386);
+  --primary:  oklch(0.7974 0.1462 221.386); /* brightened per latest theme-registry export */
   --primary-foreground:  oklch(0.205 0 0);
   --secondary:  oklch(0.27 0.012 221.386);
   --secondary-foreground:  oklch(0.95 0.005 221.386);
@@ -708,5 +696,4 @@
   --color-text-link:    var(--color-amber-200);
 
   --color-amber-glow: rgba(79, 179, 221, 0.18); /* brightened + upped opacity to read against a dark page */
-  --color-dot: rgba(244, 246, 250, 0.06); /* light dots on the dark page */
 }

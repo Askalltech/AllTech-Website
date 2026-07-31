@@ -2,6 +2,7 @@
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import SegmentHeader from '~/components/SegmentHeader.astro';
 import Icon from '~/components/Icon.astro';
+import { HeroVideo } from '~/components/HeroVideo';
 import { services, site, serviceLink } from '~/lib/site';
 
 const featured = services.find((s) => s.featured);
@@ -48,47 +49,59 @@ const aNormalWeek = [
   title="Managed IT, Cybersecurity & Cloudflare Zero Trust"
   description="AllTech is a Northern Utah managed IT and cybersecurity provider. Cloudflare Partner, UniFi specialist, 24/7 emergency response. Serving Logan, Tremonton, Brigham City, Preston, and northern Utah."
 >
-  <!-- ============ SECTION 1 · HERO ============ -->
+  <!-- ============ SECTION 1 · HERO ============
+       Two-column layout adapted from shadcnblocks Hero76: copy/buttons/trust
+       row on the left (unchanged, still plain Astro/HTML on the site's own
+       .btn/.eyebrow classes), a video panel on the right. Only the video's
+       play/pause needs JS, so only that piece (HeroVideo.tsx) is a React
+       island — see that file for why the rest wasn't rebuilt as React too.
+       videoSrc is unset until a real video exists; the panel renders as an
+       empty bordered frame until then. Drop the file at
+       public/hero-video.mp4 and set videoSrc below to "/hero-video.mp4". -->
   <section class="relative">
     <div class="relative container-wide pt-24 pb-32 lg:pt-32 lg:pb-40">
-      <div class="max-w-3xl">
-        <div class="eyebrow mb-5">Managed IT · Cybersecurity · Northern Utah</div>
+      <div class="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+        <div class="relative z-10">
+          <div class="eyebrow mb-5">Managed IT · Cybersecurity · Northern Utah</div>
 
-        <h1 class="font-display text-5xl md:text-6xl lg:text-7xl font-bold leading-[0.95] tracking-tight" style="color: var(--color-text-primary)">
-          IT and <span style="color: var(--color-amber-400)">cybersecurity</span>,<br />
-          run by a real <span style="color: var(--color-amber-400)">team</span>.
-        </h1>
+          <h1 class="font-display text-5xl md:text-6xl lg:text-7xl font-bold leading-[0.95] tracking-tight" style="color: var(--color-text-primary)">
+            IT and <span style="color: var(--color-amber-400)">cybersecurity</span>,<br />
+            run by a real <span style="color: var(--color-amber-400)">team</span>.
+          </h1>
 
-        <p class="mt-7 text-xl max-w-2xl leading-relaxed" style="color: var(--color-text-default)">
-          AllTech runs the IT and cybersecurity for manufacturers, clinics, law firms,
-          nonprofits, and growing businesses across Northern Utah and southern Idaho.
-          When you call, you get the same engineers who built your network — not a ticket queue.
-        </p>
+          <p class="mt-7 text-xl max-w-2xl leading-relaxed" style="color: var(--color-text-default)">
+            AllTech runs the IT and cybersecurity for manufacturers, clinics, law firms,
+            nonprofits, and growing businesses across Northern Utah and southern Idaho.
+            When you call, you get the same engineers who built your network — not a ticket queue.
+          </p>
 
-        <div class="mt-9 flex flex-wrap items-center gap-3">
-          <a href="/assessment" class="btn btn-primary hero-cta">
-            Take the free security gap assessment
-            <span aria-hidden="true">→</span>
-          </a>
+          <div class="mt-9 flex flex-wrap items-center gap-3">
+            <a href="/assessment" class="btn btn-primary hero-cta">
+              Take the free security gap assessment
+              <span aria-hidden="true">→</span>
+            </a>
 
-          <!-- Existing-client entry point: the client portal is a separate
-               system on its own domain, so this opens in a new tab. -->
-          <a
-            href="https://askalltech.itclientportal.com/ClientPortal/Login.aspx"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="btn btn-ghost"
-          >
-            Submit a ticket <span aria-hidden="true">↗</span>
-          </a>
+            <!-- Existing-client entry point: the client portal is a separate
+                 system on its own domain, so this opens in a new tab. -->
+            <a
+              href="https://askalltech.itclientportal.com/ClientPortal/Login.aspx"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-ghost"
+            >
+              Submit a ticket <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+
+          <div class="mt-14 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
+            <div>Local since 2009</div>
+            <div>Cloudflare Partner</div>
+            <div>UniFi specialist</div>
+            <div>24/7 Emergency Response</div>
+          </div>
         </div>
 
-        <div class="mt-14 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
-          <div>Local since 2009</div>
-          <div>Cloudflare Partner</div>
-          <div>UniFi specialist</div>
-          <div>24/7 Emergency Response</div>
-        </div>
+        <HeroVideo client:visible videoSrc="/hero-video.mp4" />
       </div>
     </div>
   </section>

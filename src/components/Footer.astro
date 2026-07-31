@@ -6,7 +6,12 @@ const year = new Date().getFullYear();
 const partners = ['Cloudflare', 'Ubiquiti UniFi', 'Microsoft 365', 'Datto', 'Entra ID'];
 ---
 
-<footer class="bg-dot-grid" style="background-color: var(--color-bg-page)">
+<!-- Transparent so the single, page-wide matrix dot grid (GlobalBackground.astro,
+     fixed behind the whole page) shows through here too, instead of this
+     section painting its own separate, unmasked copy of the pattern —
+     that produced a visible seam where the footer looked noticeably
+     denser/darker than the rest of the page. -->
+<footer>
   <div class="container-wide py-16">
     <div class="grid gap-12 md:grid-cols-4">
       <div class="md:col-span-2">

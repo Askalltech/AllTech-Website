@@ -1,9 +1,19 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import { Blog1 } from '~/components/blog1';
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const gridPosts = posts.map((post) => ({
+  id: post.slug,
+  title: post.data.title,
+  summary: post.data.description,
+  label: post.data.tags[0] ?? 'Insights',
+  href: `/blog/${post.slug}`,
+  image: post.data.heroImage,
+}));
 ---
 
 <BaseLayout
@@ -19,25 +29,13 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
     </div>
   </section>
 
-  <section class="surface-dark py-16">
-    <div class="container-prose">
-      {posts.length === 0 ? (
+  {posts.length === 0 ? (
+    <section class="surface-dark py-16">
+      <div class="container-prose">
         <p class="text-lg text-muted">Posts coming soon. In the meantime, follow us for updates.</p>
-      ) : (
-        <ul class="space-y-6">
-          {posts.map((post) => (
-            <li>
-              <a href={`/blog/${post.slug}`} class="card block group">
-                <div class="text-xs font-mono mb-2" style="color: var(--color-amber-300);">
-                  {post.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
-                </div>
-                <h2 class="font-display text-2xl font-semibold mb-2 group-hover:text-amber-300 transition-colors">{post.data.title}</h2>
-                <p class="text-muted leading-relaxed">{post.data.description}</p>
-              </a>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  </section>
+      </div>
+    </section>
+  ) : (
+    <Blog1 posts={gridPosts} client:visible />
+  )}
 </BaseLayout>
