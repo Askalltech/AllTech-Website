@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
-import { testimonials } from '~/lib/testimonials';
+import { CaseStudies10 } from '~/components/case-studies10';
 
 const studies = (await getCollection('caseStudies', ({ data }) => !data.draft))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
@@ -45,18 +45,17 @@ const studies = (await getCollection('caseStudies', ({ data }) => !data.draft))
     </div>
   </section>
 
-  <!-- Short client testimonials (near-term; video testimonials planned later) -->
-  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
-    <div class="container-wide">
-      <div class="eyebrow mb-8">In their words</div>
-      <div class="grid md:grid-cols-3 gap-4">
-        {testimonials.map((t) => (
-          <figure class="card flex flex-col">
-            <blockquote class="leading-relaxed" style="color: var(--color-text-primary);">“{t.quote}”</blockquote>
-            <figcaption class="mt-4 text-sm" style="color: var(--color-text-subtle);">— {t.author}</figcaption>
-          </figure>
-        ))}
-      </div>
-    </div>
+  <!-- shadcnblocks case-studies10: horizontal carousel. Wired to its own
+       default (fictional companies, stock CDN photos) rather than the real
+       caseStudies collection — that collection is empty right now, so
+       there's nothing real to show yet. Swap `items` for real client
+       stories/logos/photos as they're written, same as the "coming soon"
+       list above. -->
+  <section style="border-top: 1px solid var(--color-line-faint);">
+    <CaseStudies10
+      title="More stories"
+      description="A closer look at a few of the projects above — swap for real client stories, logos, and photos as they're written."
+      client:visible
+    />
   </section>
 </BaseLayout>
