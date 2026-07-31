@@ -54,10 +54,16 @@ const aNormalWeek = [
        of the aurora CSS effect (.aurora-bg in global.css, still there if
        ever wanted again) or a side-by-side panel. A left-to-right fade
        from the page background keeps the text readable over the footage
-       without a flat scrim hiding the video entirely. -->
+       without a flat scrim hiding the video entirely.
+
+       dark:brightness/saturate: the footage is graded for a light page —
+       played at full brightness against the dark theme it reads as a
+       lit window punched into the page rather than part of it. Dimmed and
+       desaturated only in dark mode so it recedes into the dark palette
+       the same way every other section's imagery already does. -->
   <section class="relative overflow-hidden">
     <video
-      class="absolute inset-0 h-full w-full object-cover"
+      class="absolute inset-0 h-full w-full object-cover brightness-100 saturate-100 dark:brightness-50 dark:saturate-75"
       src="/hero-video.mp4"
       autoplay
       muted
