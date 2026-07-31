@@ -24,11 +24,11 @@ const clients = [
 ];
 ---
 
-<!-- This strip sits OUTSIDE <main>, between it and the footer, and carries
-     its own copy of the matrix dot grid (see GlobalBackground.astro) so
-     the motif matches the page background and the footer instead of
-     showing a gap or a different pattern. --><section class="relative isolate py-12 border-t" style="border-color: var(--color-border-subtle)">
-  <div class="absolute inset-0 -z-10 bg-dot-grid-matrix"></div>
+<!-- This strip sits OUTSIDE <main>, between it and the footer. Transparent
+     (no local dot-grid copy) so the single, page-wide matrix dot grid
+     (GlobalBackground.astro, fixed behind the whole page) shows through
+     uniformly instead of this section painting its own separate, unmasked
+     copy — that produced a visible seam against the rest of the page. --><section class="relative isolate py-12 border-t" style="border-color: var(--color-border-subtle)">
   <p class="text-center eyebrow mb-10">Trusted by dozens of businesses</p>
   <div class="marquee" aria-label="Businesses we serve">
     <ul class="marquee-group">
