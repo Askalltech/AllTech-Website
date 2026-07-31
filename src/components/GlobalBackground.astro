@@ -1,0 +1,42 @@
+---
+/**
+ * Global background, adapted from the shadcnblocks background-pattern97
+ * block (`npx shadcn add @shadcnblocks/background-pattern97`). Only the
+ * background layer itself was kept — the block ships as a full demo hero
+ * section (badge, heading, buttons) that this site has no use for, so
+ * that placeholder content was discarded rather than committed unused.
+ *
+ * Rebuilt as static markup rather than importing the React component: it's
+ * purely decorative with no interactivity, so there's no reason to ship a
+ * client bundle for it. References the shadcn theme bridge's --chart-1..4
+ * and --background tokens directly, so it re-colors automatically in dark
+ * mode along with everything else that reads those variables.
+ *
+ * Fixed (not absolute) so it reads as one wallpaper behind the whole page
+ * rather than a pattern that scrolls away after the first screen.
+ */
+---
+
+<div class="fixed inset-0 -z-10 pointer-events-none" aria-hidden="true">
+  <div
+    class="absolute inset-0"
+    style={`
+      background:
+        radial-gradient(circle at 0% 0%, oklch(from var(--chart-1) calc(l * 1.2) calc(c * 1.5) h / 0.4) 0%, transparent 30%),
+        radial-gradient(circle at 100% 100%, oklch(from var(--chart-2) calc(l * 1.1) calc(c * 1.6) h / 0.35) 0%, transparent 35%),
+        radial-gradient(circle at 50% 50%, oklch(from var(--chart-3) calc(l * 0.9) calc(c * 1.4) h / 0.25) 0%, transparent 50%),
+        radial-gradient(ellipse 120% 100% at 30% 70%, oklch(from var(--chart-4) calc(l * 1.1) calc(c * 1.5) h / 0.3) 0%, transparent 40%),
+        var(--background);
+      filter: blur(100px);
+    `}
+  >
+  </div>
+
+  <svg class="absolute inset-0 h-full w-full opacity-20" style="mix-blend-mode: overlay;">
+    <filter id="global-noise-pattern">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" seed="2" />
+      <feColorMatrix type="saturate" values="0" />
+    </filter>
+    <rect width="100%" height="100%" filter="url(#global-noise-pattern)" fill="white" />
+  </svg>
+</div>
