@@ -1,0 +1,506 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * Master Services Agreement — supplied as a signed-off legal template
+ * (MASTER_SERVICES_AGREEMENT_TEMPLATE.docx), converted to this page
+ * essentially verbatim. Deliberately NOT in Header/Footer/menu.ts nav —
+ * a direct link to share with prospects/clients, not a discoverable page.
+ * noindex + excluded from the sitemap filter in astro.config.mjs for the
+ * same reason.
+ *
+ * FLAGGED, not filled in: the source document is a TEMPLATE with several
+ * unresolved placeholders — no Provider legal entity name, [DATE],
+ * [CLIENT], the Acceptable Use Policy URL (www.__________), the Initial
+ * Term length (_______(X) years), and the notice email
+ * (clientnotice@Provider.com). Those are reproduced below exactly as
+ * blanks/brackets rather than guessed at. This also has not yet been
+ * through the legal review the 7/31 meeting flagged as an open action
+ * item (Speaker 2) — treat this as a working draft link, not a
+ * ready-to-sign document, until that review happens and the blanks are
+ * filled in (ideally per-engagement via the actual Order Form process
+ * described in Section 1, not hardcoded here).
+ */
+---
+
+<BaseLayout
+  title="Master Services Agreement"
+  description="AllTech's Master Services Agreement template."
+  noindex={true}
+>
+  <section class="surface-dark py-16 lg:py-20">
+    <div class="container-prose">
+      <header class="mb-10">
+        <div class="eyebrow mb-4">Legal</div>
+        <h1 class="font-display text-4xl lg:text-5xl font-semibold leading-tight" style="color: var(--color-text-primary);">
+          Master Services Agreement
+        </h1>
+        <p class="mt-4 text-sm" style="color: var(--color-text-subtle);">
+          This is a template. Provider, Client, dates, term length, and a few other
+          fields below are still unfilled pending an executed Order Form for a specific engagement.
+        </p>
+      </header>
+
+      <div class="prose-alltech legal-body">
+        <p>
+          This Master Services Agreement (&ldquo;Agreement&rdquo;) is made and entered into as of
+          [DATE] (the &ldquo;Effective Date&rdquo;) by and between ___________ (&ldquo;Provider&rdquo;)
+          and [CLIENT] (&ldquo;Client&rdquo;). Provider and Client are referred to herein individually
+          as a &ldquo;Party&rdquo; and collectively as the &ldquo;Parties.&rdquo; In consideration of
+          the mutual covenants and agreements contained herein and for other good and valuable
+          consideration, the receipt and sufficiency of which are hereby acknowledged, the Parties
+          hereby agree as follows:
+        </p>
+
+        <h2 id="services">1. Services</h2>
+        <p>
+          <strong>1.1 Order Forms.</strong> Prior to Provider&rsquo;s provision of a Service to Client
+          (for the purposes of this Agreement &ldquo;Service(s)&rdquo; shall be defined as those
+          certain services as set forth on the Order Form(s)), the Parties will execute: (i) for
+          Standard Services, a Service Order Form (&ldquo;SOF&rdquo;); and (ii) for Professional
+          Services, a Statement of Work (&ldquo;SOW&rdquo;) (SOFs and SOWs may be collectively or
+          individually be referred to as &ldquo;Order Form(s)&rdquo; as context may require). Each
+          Order Form will specifically describe the Services to be provided and any applicable terms
+          and conditions and service levels. Upon execution by both Parties, each Order Form will
+          become part of and subject to this Agreement. Changes to an Order Form shall be made in a
+          writing executed by authorized representatives of both Parties (a &ldquo;Change Order
+          Form&rdquo;). Any Order Forms that predate the execution of this Agreement shall remain in
+          full effect, and in the event of conflicting terms in any Order Form and this Agreement, the
+          terms in the Order Form shall control, as applicable.
+        </p>
+        <p>
+          <strong>1.2 Third Party Service Providers.</strong> Except as otherwise set forth in an
+          applicable Order Form, Client acknowledges that portions of the Services may be provided by
+          third parties. Client agrees to Provider&rsquo;s use of such third parties as necessary to
+          provide the applicable Services. Client further agrees to enter into any additional terms
+          and conditions and other agreements with such third parties as may be reasonably necessary
+          in connection with Provider&rsquo;s provision of the Services to Client.
+        </p>
+        <p>
+          <strong>1.3 Acceptable Use Policy.</strong> Client&rsquo;s use of the Services, in addition
+          to all requirements set forth in this Agreement and the applicable Order Form(s), shall be
+          in accordance with the Provider Acceptable Use Policy available at www.__________, as well
+          as all Provider operating manuals, user manuals, training materials, guides, product
+          descriptions, specifications, technical manuals, supporting materials, policies or other
+          information relating to the Services published by Provider and/or as provided or otherwise
+          made available to Client from time-to-time, whether in electronic form or otherwise (the
+          &ldquo;Documentation&rdquo;).
+        </p>
+
+        <h2 id="client-responsibilities">2. Client Responsibilities</h2>
+        <p>
+          <strong>2.1 Provision of Equipment.</strong> Except as otherwise set forth in the applicable
+          Order Form(s), Client shall be responsible for obtaining and maintaining any equipment and
+          ancillary services needed to connect to, access, or otherwise make use of the Services,
+          including, without limitation, modems, hardware, servers, software, operating systems,
+          networking equipment, web servers and the like (collectively, the &ldquo;Equipment&rdquo;).
+          Client shall also be responsible for maintaining the security of the Equipment, Client
+          account usernames and passwords (including, but not limited to, administrative and user
+          passwords) and files, and for all uses of the Equipment or Client accounts with or without
+          Client&rsquo;s knowledge or consent.
+        </p>
+        <p>
+          <strong>2.2 Security Requirements.</strong> Client shall: (i) only access the hardware,
+          networks, systems or applications owned and/or operated by Provider or otherwise made
+          available to Client by Provider (collectively, the &ldquo;Provider Systems&rdquo;) as
+          permitted under this Agreement and the applicable Order Form and/or as otherwise authorized
+          by Provider in writing; (ii) maintain up-to-date operating system patching and active
+          anti-malware on all end-user devices used to connect to Provider Systems; (iii) ensure that,
+          in the event Client terminates the employment of, or otherwise revokes permissions to access
+          the Provider Systems on Client&rsquo;s behalf, any employee or other authorized end user,
+          Client disables their access to the Provider Systems within twenty-four (24) hours of
+          termination or revocation; (iv) notify Provider within seventy-two (72) hours of security
+          incidents that could impact Provider; and (v) ensure Client&rsquo;s users keep user IDs and
+          passwords used to access the Provider Systems confidential at all times. Client shall be
+          responsible for compliance with all applicable laws and privacy policies in its use and
+          receipt of the Services, including but not limited to, its use and storage of any personal
+          data, as that term is commonly known in the industry, through or in connection with the
+          Services.
+        </p>
+
+        <h2 id="ownership">3. Ownership</h2>
+        <p>
+          <strong>3.1 Services.</strong> As between the Parties, except as otherwise provided herein,
+          Provider owns all right, title and interest in and to the Services, including any
+          improvements, modifications, enhancements, additions and derivatives thereof and any and all
+          Intellectual Property Rights in all of the foregoing. Client does not acquire any rights,
+          express or implied in the foregoing other than those specified in this Agreement. Provider
+          shall retain all right, title and interest in and to all Provider intellectual property,
+          including all rights therein.
+        </p>
+        <p>
+          <strong>3.2 Client Data.</strong> With respect to the Cloud Services, as between the Parties,
+          Client shall own all right, title and interest in and to any applications, information,
+          materials and other data stored and otherwise utilized by Client in connection with the
+          Cloud Services (the &ldquo;Client Data&rdquo;). Client hereby grants to Provider a limited,
+          revocable, non-transferable, royalty-free license to reproduce, translate, encode, publish,
+          use and distribute the Client Data for the purpose of providing the Cloud Services to
+          Client.
+        </p>
+        <p>
+          <strong>3.3 Client Marks.</strong> If and to the extent any Services include utilizing any
+          marks of Client (&ldquo;Client Marks&rdquo;), Client hereby grants to Provider a limited,
+          non-exclusive, non-transferable, revocable, royalty-free license to use the Client Marks
+          solely for the limited purposes of the performance of this Agreement.
+        </p>
+        <p>
+          <strong>3.4 Aggregate Data.</strong> Notwithstanding anything to the contrary herein,
+          Provider shall have the right to compile, collect, copy, modify, publish and use anonymous
+          and aggregate data generated from or based on Client&rsquo;s use of the Services
+          (collectively, &ldquo;Aggregate Data&rdquo;) for analytical and other business purposes.
+          Provider shall use commercially reasonable efforts to ensure Client is not, and will not, be
+          identified as the source of any Aggregate Data. As between the Parties, Provider owns all
+          right, title and interest in and to the Aggregate Data, including all Intellectual Property
+          Rights therein, irrespective of whether such Aggregate Data contains any anonymized or
+          aggregated Client Data. For clarification, Aggregate Data shall be limited to only data that
+          is generated from or based on Client&rsquo;s use of the Services, and Provider shall only
+          use Aggregate Data for the purposes of monitoring and improving the performance of the
+          Services or its overall operations.
+        </p>
+
+        <h2 id="term">4. Term and Termination</h2>
+        <p>
+          <strong>4.1 Term.</strong> This Agreement shall be effective upon the Effective Date and,
+          unless terminated earlier as set forth herein, shall remain in full force and effect for a
+          period of _______(X) years (the &ldquo;Initial Term&rdquo;). This Agreement shall
+          automatically renew at the end of the Initial Term for successive renewal terms of one (1)
+          year (each, a &ldquo;Renewal Term&rdquo;) unless either Party gives the other Party written
+          notice of its intent not to renew this Agreement at least ninety (90) days prior to the
+          expiration of the Initial Term or the then-current Renewal Term. The Initial Term along with
+          any and all Renewal Terms is referred to herein as the &ldquo;Term.&rdquo; For any Order Form
+          still in effect at the expiration or, if applicable, earlier termination of this Agreement,
+          the terms of this Agreement shall remain in full force and effect with respect to such Order
+          Form until such Order Form expires or is terminated in accordance with this Agreement and/or
+          the terms contained in such Order Form; provided that the duration of any such Order Form
+          may not be extended after the expiration or, if applicable, earlier termination of this
+          Agreement. In the event of conflicting terms in any Order Form and this Agreement, the terms
+          in the Order Form shall control, as applicable.
+        </p>
+        <p>
+          <strong>4.2 Termination.</strong> In addition to a Party&rsquo;s rights to terminate this
+          Agreement as set forth elsewhere in this Agreement, either Party may terminate this
+          Agreement and/or any outstanding Order Form upon any of the following events effective upon
+          notice from the terminating Party:
+        </p>
+        <ul>
+          <li>
+            If the other Party makes an assignment for the benefit of creditors or if the other Party
+            ceases to do business or otherwise terminates its business operations, other than after an
+            assignment which is permitted by the terms of this Agreement;
+          </li>
+          <li>
+            If the other Party becomes insolvent, or voluntary or involuntary proceedings are
+            instituted by or against such other Party under any federal, state or other bankruptcy or
+            insolvency laws, and, in the case of proceedings commenced against such Party, such
+            proceedings are not terminated within sixty (60) days, or a receiver is appointed for such
+            other Party; or
+          </li>
+          <li>
+            If the other Party fails to perform any material provision of this Agreement: (i) and such
+            failure is incapable of being cured; (ii) if such failure relates to Client&rsquo;s failure
+            to pay Fees when due, Client fails to remedy such failure within ten (10) days after
+            receiving notice of such failure from Provider; or (iii) for all other failures that are
+            capable of being cured, the other Party does not cure such failure within a period of
+            thirty (30) days after receipt of notice from the other Party reasonably specifying such
+            failure, or if such failure cannot reasonably be cured within such thirty (30) day period,
+            the other Party fails to: (1) promptly commence to remedy such failure; (2) continuously
+            and diligently pursue the remedy of such failure; and (3) cure such failure within a period
+            of sixty (60) days after receipt of the notice of failure (or such other time period as
+            agreed upon by the Parties).
+          </li>
+        </ul>
+        <p>
+          <strong>4.3 Suspension.</strong> Notwithstanding the foregoing termination provisions set
+          forth herein, Provider may, immediately and without notice to Client, suspend the provision
+          of the Services, in whole or in part, or terminate this Agreement and/or an applicable Order
+          Form, subject only to an opportunity to cure as set forth in Section 4.2(c), for the
+          following: (i) any Fees or Expenses remain unpaid thirty (30) days after the applicable due
+          date; (ii) providing the Services is prohibited by law; or (iii) Client&rsquo;s use of the
+          Services are in violation of this Agreement, the applicable Order Form, the Documentation
+          and/or applicable law.
+        </p>
+        <p>
+          <strong>4.4 Effect of Termination.</strong> Termination of this Agreement will not terminate
+          any applicable Order Form, and the terms of such Order Form shall control, including but not
+          limited to, the fees and termination provisions included on the Order Form.
+        </p>
+
+        <h2 id="payment">5. Payment</h2>
+        <p>
+          <strong>5.1 Fees.</strong> Client will pay Provider all undisputed invoiced fees for Services
+          as detailed in the applicable Order Form (&ldquo;Fees&rdquo;) and invoiced expenses, without
+          deduction or setoff. Except as otherwise expressly provided in the applicable Order Form, for
+          any Services provided on an hourly basis, all time shall be billed in one-quarter hour (i.e.,
+          15 minute) increments. Provider reserves the right to increase any and all Fees, in its
+          reasonable judgment, provided such Provider shall not increase any Fee more than once in any
+          six (6) month period. For clarity, the foregoing limitation shall not apply to any changes or
+          other modifications to Fees set forth in any Change Order Form. Notwithstanding the
+          foregoing, with respect to any Fees included in an Order Form that include fees passed by or
+          through a third party (&ldquo;Third Party Fees&rdquo;), Provider cannot guarantee that such
+          Third Party Fees will remain the same for the duration of the applicable Order Form. In the
+          event any Third Party Fees are increased, Provider may proportionately adjust the applicable
+          Fees upon written notice to Customer.
+        </p>
+        <p>
+          <strong>5.2 Invoices.</strong> Unless otherwise set forth in an Order Form, Provider will
+          invoice Client on a monthly basis. All undisputed Fees and Expenses are due and payable, in
+          US dollars, within thirty (30) days of the date of the applicable invoice. Any payments made
+          via credit or debit card may be subject to an additional four percent (4%) surcharge. Without
+          prejudice to its other rights and remedies under this Agreement, including the applicable
+          Order Form(s), or at law or in equity, in the event Client fails to pay any amount due and
+          payable by Client under this Agreement by the due date, in addition to the other rights under
+          this Agreement, Provider may charge interest at the lesser of a monthly rate of one and
+          one-half percent (1.5%) of the unpaid amount or the maximum amount permissible by law, and
+          such interest will accrue on a daily basis from the date the relevant payment is due until
+          payment in full is received. Client further agrees to pay all of Provider&rsquo;s costs of
+          collection of unpaid amounts due hereunder, including reasonable attorneys&rsquo; fees.
+        </p>
+
+        <h2 id="confidentiality">6. Confidentiality</h2>
+        <p>
+          Each Party will use reasonable care to prevent the unauthorized use or dissemination of the
+          other Party&rsquo;s confidential information. Confidential information is limited to
+          information clearly marked as confidential, disclosed orally and summarized and identified
+          as confidential in a writing delivered to the other within thirty (30) days of such
+          disclosures, or is or should be known to the receiving Party or a reasonable person given the
+          facts and circumstances of the disclosure, as being treated as confidential or proprietary by
+          the disclosing Party. The terms of this Agreement shall be the confidential information of
+          both Parties. Confidential information of the disclosing Party does not include information
+          that the receiving party can establish: (1) the other knew before it was disclosed; (2) is or
+          becomes public knowledge through no fault of the other; (3) is obtained from other sources
+          who owe no duty of confidentiality to the other; or (4) is developed independently (as
+          demonstrated by the written files or records of the receiving Party). Each Party agrees to
+          inform its respective employees and contractors by contract to maintain as confidential each
+          other&rsquo;s confidential information. The Parties agree that the non-breaching Party will
+          be entitled to seek injunctive or other extraordinary relief, in any case of any such breach
+          or threatened breach in order to prohibit such breach or threatened breach and to command
+          compliance with this Agreement, without posting a bond or other security.
+        </p>
+
+        <h2 id="warranties">7. Representations, Warranties and Covenants; Disclaimers</h2>
+        <p>
+          <strong>7.1 General.</strong> Each Party represents and warrants to the other Party that: (i)
+          such Party has the full right, power, and authority under its governing documents to enter
+          into this Agreement and perform its respective obligations; (ii) the execution of this
+          Agreement by such Party and the performance of its obligations in accordance with this
+          Agreement do not and will not violate any agreement which such Party is a party or by which
+          it is otherwise bound; (iii) when executed and delivered by such Party, this Agreement will
+          constitute the legal, valid, and binding obligation of such Party, enforceable against such
+          Party in accordance with its terms; and (iv) its performance under this Agreement shall be in
+          compliance with all Applicable Laws.
+        </p>
+        <p>
+          <strong>7.2 Third-Party Products.</strong> Products manufactured by a third party
+          (&ldquo;Third-Party Product&rdquo;) may constitute, contain, and/or be contained in,
+          incorporated into, attached to, packaged together with, or provided in conjunction with the
+          Services or other Provider deliverables. Provider makes no representations or warranties
+          with respect to any Third-Party Product.
+        </p>
+        <p>
+          <strong>7.3 Disclaimer.</strong> PROVIDER DOES NOT REPRESENT OR WARRANT THAT THE SERVICES
+          WILL BE ERROR-FREE OR UNINTERRUPTED. EXCEPT IN THE INSTANCE OF GROSS NEGLIGENCE OR WILLFUL
+          MISCONDUCT BY PROVIDER, CLIENT ASSUMES THE ENTIRE RISK AS TO THE USE OF THE SERVICES IN TERMS
+          OF CORRECTNESS, ACCURACY, RELIABILITY, CURRENTNESS OR OTHERWISE. This disclaimer of
+          warranties does not, in any way, affect the terms of any applicable warranties provided by
+          the manufacturer of a Third-Party Product.
+        </p>
+
+        <h2 id="liability">8. Limitation of Liability</h2>
+        <p>
+          <strong>8.1 General.</strong> IN NO EVENT SHALL EITHER PARTY BE LIABLE TO THE OTHER PARTY
+          UNDER THIS AGREEMENT FOR ANY INCIDENTAL, CONSEQUENTIAL, INDIRECT, SPECIAL, EXEMPLARY OR
+          PUNITIVE DAMAGES (EVEN IF PREVIOUSLY APPRISED OF THE POSSIBILITY THEREOF), WHETHER THE BASIS
+          OF THE LIABILITY IS A MATERIAL BREACH OF CONTRACT, TORT (INCLUDING GROSS NEGLIGENCE AND
+          STRICT LIABILITY), STATUTORY OR ANY OTHER LEGAL THEORY OR FOR ANY ERROR OR INTERRUPTION OF
+          USE, LOSS, INACCURACY OR CORRUPTION OF DATA COST OF PROCUREMENT OF SUBSTITUTE GOODS, SERVICES
+          OR TECHNOLOGY OR LOSS OF PRODUCTIVITY. THE AMOUNT OF PROVIDER&rsquo;S LIABILITY TO CLIENT
+          UNDER ANY AND ALL CLAIMS FOR LOSS OR LIABILITY BASED UPON, ARISING OUT OF, RESULTING FROM OR
+          IN ANY WAY CONNECTED WITH PROVIDER&rsquo;S PERFORMANCE OR BREACH OF THIS AGREEMENT SHALL IN
+          NO CASE EXCEED THE FEES ACTUALLY PAID BY CLIENT TO PROVIDER HEREUNDER IN THE SIX (6) MONTHS
+          PRECEDING THE ACT GIVING RISE TO THE LIABILITY.
+        </p>
+        <p>
+          <strong>8.2 Exclusions.</strong> THE FOREGOING LIMITATIONS OF LIABILITY SHALL NOT APPLY WITH
+          RESPECT TO ANY OF THE FOLLOWING: (i) A PARTY&rsquo;S BREACH OF ITS CONFIDENTIALITY
+          OBLIGATIONS; (ii) A PARTY&rsquo;S INDEMNIFICATION OBLIGATIONS; (iii) A PARTY&rsquo;S BREACH OF
+          ANY REPRESENTATION, WARRANTY OR COVENANT MADE HEREUNDER; OR (iv) ANY DAMAGES RESULTING FROM A
+          PARTY&rsquo;S NEGLIGENCE OR WILLFUL MISCONDUCT. FOR THE SAKE OF CLARITY, AND NOTWITHSTANDING
+          ANYTHING TO THE CONTRARY HEREIN, PROVIDER SHALL NOT BE RESPONSIBLE OR LIABLE UNDER THIS
+          AGREEMENT FOR ANY COSTS, EXPENSES, DAMAGES OR LIABILITIES, AND CLIENT SHALL BEAR ALL
+          RESPONSIBILITY WITH RESPECT TO ANY DAMAGES OR LIABILITIES CAUSED BY OR ARISING FROM: (i) ANY
+          VIOLATION OF ANY APPLICABLE LAW OR ANY THIRD PARTY CLAIM ASSOCIATED WITH THE CLIENT DATA;
+          (ii) THE ACTION OR INACTION OF CLIENT (UNLESS SUCH PARTICULAR ACTION OR INACTION WAS TAKEN OR
+          NOT TAKEN AT THE SPECIFIC DIRECTION OF PROVIDER); OR (iii) CLIENT&rsquo;S FAILURE TO FULFILL
+          ITS RESPONSIBILITIES HEREUNDER.
+        </p>
+
+        <h2 id="indemnification">9. Indemnification</h2>
+        <p>
+          <strong>9.1 Mutual.</strong> Each Party (an &ldquo;Indemnifying Party&rdquo;) hereby
+          indemnifies, defends and holds harmless the other Party and its Affiliates, and its and their
+          officers, directors, employees, agents and attorneys (&ldquo;Indemnified Parties&rdquo;) from
+          and against any and all losses, settlements, claims, actions, suits, proceedings,
+          investigations, judgments, awards, damages and liabilities (collectively,
+          &ldquo;Losses&rdquo;), and shall reimburse the Indemnified Parties for any and all legal
+          (including reasonable attorneys&rsquo; fees), accounting, and other fees, costs and expenses
+          reasonably incurred in connection with any such Loss (collectively, &ldquo;Costs&rdquo;),
+          which Losses or Costs are sustained by, or asserted against, any Indemnified Party and arise
+          out of: (i) Indemnifying Party&rsquo;s breach of its representations, warranties and
+          covenants hereunder; (ii) Indemnifying Party&rsquo;s acts or omissions (including negligence
+          and strict liability and including any injury to any person (including but not limited to
+          death) or property) in connection with the subject matter of this Agreement, including,
+          without limitation, any violation of Applicable Law; (iii) Indemnifying Party&rsquo;s
+          violation or alleged violation of any term of this Agreement; or (iv) any claim that the
+          Indemnifying Party infringes or engages in a wrongful use of any third party&rsquo;s
+          Intellectual Property Rights, any right of publicity or privacy, libel or defamation.
+        </p>
+        <p>
+          <strong>9.2 Additional Remedies.</strong> Without limiting Provider&rsquo;s foregoing
+          indemnification obligations, in the event of any claim of infringement, or if Provider
+          becomes aware of any impending Claim of Infringement, Provider may, at its option and
+          expense: (i) procure for Client, at no cost to Client, the right to continue to use the
+          affected Services; (ii) replace or modify the affected Services, at no cost to Client and
+          with no adverse effect on the operation, performance, features or functionality or services
+          of such Services, to eliminate the Claim of Infringement; or (iii) if Provider determines in
+          its sole discretion that the foregoing solutions are not practical or economically feasible,
+          Provider may terminate the applicable Order Form(s) and refund to Client any Fees paid for
+          the affected Services which have been prepaid but unused.
+        </p>
+
+        <h2 id="notices">10. Notices</h2>
+        <p>
+          Any notice given hereunder shall be sent via email to the other Party&rsquo;s email address
+          set forth herein or on an Order Form or to such other party and email address as such Party
+          shall most recently have designated. Such notice shall be deemed given on the date of the
+          return receipt email. Any notice to Provider shall be sent via email to
+          clientnotice@Provider.com or to such other email address Provider shall most recently have
+          designated.
+        </p>
+
+        <h2 id="misc">11. Miscellaneous</h2>
+        <p>
+          <strong>11.1 Relationship of the Parties.</strong> The relationship of Client and its
+          successors in interest, on the one hand, and Provider and its successors in interest, on the
+          other hand, is that of independent contractors, and not one of principal and agent, joint
+          venture or partnership.
+        </p>
+        <p>
+          <strong>11.2 Binding Effect.</strong> This Agreement shall be binding on and inure to the
+          benefit of the Parties and their respective permitted successors and assigns. Provider may
+          assign its rights and delegate its duties under this Agreement (in whole or in part) without
+          Client&rsquo;s consent to any Affiliate or in connection with a merger, consolidation, sale
+          of all or substantially all of its assets, other business combination, spin-off or other
+          restructuring. Client may not assign any of its rights or delegate any of its duties under
+          this Agreement (by operation of law or otherwise) without Provider&rsquo;s prior written
+          consent.
+        </p>
+        <p>
+          <strong>11.3 Non-Solicitation/Non-Interference.</strong> During the Term, and for a period of
+          twelve (12) months thereafter (the &ldquo;Non-Solicitation Period&rdquo;), Client shall not
+          directly or indirectly solicit or hire, or induce or encourage to leave employment with
+          Provider, any employee of Provider that was employed by Provider during the Non-Solicitation
+          Period unless such individual has no longer been employed with Provider for a period of six
+          (6) months at the time of the solicitation (&ldquo;Restricted Candidates&rdquo;).
+          Notwithstanding the foregoing, it shall not be a violation of this non-solicitation provision
+          for Client to place general advertisements, job postings or other general solicitations not
+          targeted at Restricted Candidates; provided that Client may not make any offers of employment
+          to or hire Restricted Candidates responding to any such solicitation. In the event Client
+          breaches this Section 11.3 and either (i) hires a Restricted Candidate or (ii) solicits
+          and/or attempts to hire a Restricted Candidate such that Provider incurs costs in retaining
+          such Restricted Candidate, Client agrees to pay Provider as liquidated damages (and not as a
+          penalty) one hundred fifty thousand dollars ($150,000) in the event of a breach of the hiring
+          restriction, or such lesser amount as deemed appropriate by Provider in the event of a breach
+          of the non-solicitation restriction. Client acknowledges and agrees that this amount is an
+          effort by Provider to properly and reasonably assess the damages that would be suffered as a
+          direct result of the breach of this Section 11.3 by Client, or any of Client&rsquo;s
+          Affiliates or subsidiaries, taking into account the fact that Provider will lose significant
+          revenue and incur significant costs and will have to expend significant time and effort in
+          connection with attempts to recruit, train and replace any such employee. In light of these
+          circumstances, Client agrees that these liquidated damages provision represents reasonable
+          compensation to Provider for the losses that it would incur due to any such breach. This
+          Section 11.3 shall survive the expiration or earlier termination of this Agreement for any
+          reason for a period of twelve (12) months.
+        </p>
+        <p>
+          <strong>11.4 Force Majeure.</strong> Neither Party is responsible for delays or failures in
+          performance resulting from acts of God, strikes, lockouts, riots, acts of war and terrorism,
+          embargoes, changes in governmental regulations, epidemics, fire, communication line failures,
+          power failures, earthquakes or other disasters (each, an event of &ldquo;Force
+          Majeure&rdquo;). Neither Party is entitled to relief under this Section 11.4 to the extent
+          that any event otherwise constituting an event of Force Majeure results from the negligence
+          or fault of the Party claiming relief from performance.
+        </p>
+        <p>
+          <strong>11.5 Survival.</strong> The rights and obligations of the Parties set forth in this
+          Agreement that by their nature are intended to survive the expiration or earlier termination
+          of this Agreement — including, but not limited to, Sections 6, 8, and 9 — shall survive the
+          expiration or earlier termination of this Agreement.
+        </p>
+        <p>
+          <strong>11.6 Entire Agreement; Amendment.</strong> This Agreement, including any Exhibits and
+          documents referred to in this Agreement or attached hereto, including, without limitation,
+          the Documentation, and each Order Form executed by the Parties, constitutes the entire and
+          exclusive statement of this Agreement with respect to its subject matter and supersedes any
+          and all oral or written representations, understandings or agreements relating thereto.
+          Without limiting the foregoing, the Parties agree that this Agreement supersedes any prior
+          master services agreement or other similar agreement between the Parties or any of their
+          predecessors-in-interest except as otherwise agreed between the Parties in writing
+          (&ldquo;Prior Agreement&rdquo;) and, unless otherwise agreed in writing between the Parties,
+          any and all such Prior Agreements are hereby terminated as of the Effective Date. This
+          Agreement may be modified, supplemented or changed only by an agreement in writing which
+          makes specific reference to this Agreement and which is signed by both Provider and Client;
+          provided, however, notwithstanding the foregoing, Provider shall have the right to modify the
+          Documentation and any and all Acceptable Use Policies upon thirty (30) days&rsquo; prior
+          written notice to Client.
+        </p>
+        <p>
+          <strong>11.7 Counterparts.</strong> This Agreement may be executed in any number of
+          counterparts, each of which shall be deemed an original, but all of which shall constitute
+          one and the same instrument. A digital reproduction, portable document format (&ldquo;.pdf&rdquo;)
+          or other reproduction of this Agreement may be executed by one or more Parties hereto and
+          delivered by any such Party by electronic signature (including signature via DocuSign or
+          similar services), electronic mail or any similar electronic transmission device pursuant to
+          which the signature of or on behalf of such Party can be seen. Such execution and delivery
+          shall be considered valid, binding and effective for all purposes.
+        </p>
+
+        <p style="text-align: center; font-style: italic;">
+          {'{Remainder of Page Intentionally Left Blank — Signature Page Follows}'}
+        </p>
+
+        <p><strong>IN WITNESS WHEREOF,</strong> Provider and Client have executed this Agreement as of the Effective Date.</p>
+
+        <table>
+          <tbody>
+            <tr><td><strong>[PROVIDER]</strong></td><td><strong>[CLIENT]</strong></td></tr>
+            <tr><td>By:</td><td>By:</td></tr>
+            <tr><td>Name:</td><td>Name:</td></tr>
+            <tr><td>Title:</td><td>Title:</td></tr>
+            <tr><td>Date:</td><td>Date:</td></tr>
+          </tbody>
+        </table>
+
+        <p>
+          Questions about this Agreement? Contact us at
+          <a href={`tel:${site.phoneE164}`}>{site.phone}</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .legal-body :global(h2) {
+    scroll-margin-top: 6rem;
+  }
+  .legal-body :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+  }
+  .legal-body :global(td) {
+    padding: 0.5rem 1rem 0.5rem 0;
+    border-top: 1px solid var(--color-border-subtle);
+  }
+</style>

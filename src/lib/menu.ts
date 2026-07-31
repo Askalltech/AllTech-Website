@@ -71,6 +71,8 @@ export const menuCategories: MenuCategory[] = [
       { title: 'Structured Cabling',      description: 'Low-voltage cabling & drops',      href: '/services/structured-cabling' },
       { title: 'Point-to-Point Wireless', description: 'Bridge buildings & remote sites',  href: '/services/point-to-point-wireless' },
       { title: 'Rack & Server Rooms',     description: 'Racking & server-room buildouts',  href: '/services/rack-server-rooms' },
+      { title: 'Fiber Optic',             description: 'Splicing, termination & OTDR testing', href: '/services/fiber-optic' },
+      { title: 'Network & IoT Cleaning',  description: 'Physical maintenance for hardware', href: '/services/network-iot-cleaning' },
     ],
   },
   {

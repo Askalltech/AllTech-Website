@@ -1,0 +1,158 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * NETWORK / INSTALL family — teal accent, matching the other Install pages.
+ *
+ * New service, requested by the install team manager (separate note from the
+ * 7/31 strategy meeting): physical cleaning/maintenance of network and IoT
+ * hardware (switches, APs, cameras, door readers, rack interiors) as a
+ * standalone offering, distinct from the software-side monitoring already
+ * covered by Remote Monitoring. No photos exist yet — placeholder block,
+ * same pattern as fiber-optic.astro. No dollar figures or frequency
+ * commitments invented; those belong in a quote/SOW, not marketing copy.
+ */
+
+const contactHref = '/contact?service=Network%20Device%20Cleaning';
+
+const included = [
+  ['Rack & cabinet interiors', 'Dust and debris removed from switches, patch panels, and PDUs without powering anything down mid-shift.'],
+  ['Access points & cameras', 'Housings, vents, and lenses cleaned so airflow and image quality stay where they should be.'],
+  ['Door readers & keypads', 'Contact surfaces cleaned without disrupting wiring or credentials.'],
+  ['Filter & vent checks', 'Where equipment has intake filters, checked and cleared as part of the same visit.'],
+  ['Cable dressing touch-up', "Loose or sagging runs re-secured while we're already in the rack."],
+  ['Condition report', 'A written note on anything that looked like it was heading toward a real problem — failing fans, heat staining, loose connections.'],
+];
+
+const faqs: [string, string][] = [
+  ['Is this the same as remote monitoring?', "No — remote monitoring watches the software side (uptime, patching, alerts). This is physical: dust, debris, and airflow on the hardware itself, which monitoring can't see."],
+  ['Do you serve our area?', 'Cache Valley, Box Elder County, the Wasatch Front, and southern Idaho are our home base, and we travel further out for the right project.'],
+  ['How often should this happen?', "Depends on the environment — a clean office closet needs this far less than a shop floor or a warehouse. We'll recommend a schedule after seeing the space."],
+];
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Network & IoT Device Cleaning',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Network & IoT Device Cleaning',
+  description:
+    'Physical cleaning and maintenance for network and IoT hardware — switches, access points, cameras, door readers, and rack interiors.',
+};
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(([question, answer]) => ({
+    '@type': 'Question',
+    name: question,
+    acceptedAnswer: { '@type': 'Answer', text: answer },
+  })),
+};
+---
+
+<BaseLayout
+  title="Network & IoT Device Cleaning"
+  description="Physical cleaning and maintenance for network and IoT hardware — switches, access points, cameras, door readers, and rack interiors."
+  canonical={`${site.url}/services/network-iot-cleaning`}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+
+  <section class="surface-dark relative overflow-hidden net-family">
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">Install · Maintenance</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          The hardware your<br />
+          <span style="color: var(--color-teal-400);">monitoring can't see.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">
+          Dust and debris kill network and IoT hardware slowly — clogged fans, restricted airflow,
+          fouled contacts. We clean and inspect it before it becomes a service call.
+        </p>
+        <div class="mt-9 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Scope a cleaning visit <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+        <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
+          <div>Local since 2009</div>
+          <div>Our own crew</div>
+          <div>Written condition report</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-3">What's included</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight">Every touchpoint, covered.</h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {included.map(([title, body]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Photos pending — placeholder, not fabricated imagery. -->
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="eyebrow mb-3">What it looks like</div>
+      <div
+        class="rounded-xl p-12 lg:p-20 text-center"
+        style="border: 1px dashed var(--color-border-default); color: var(--color-text-subtle);"
+      >
+        <p class="text-sm font-mono uppercase tracking-wider">Photos coming soon</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="surface-dark py-16 lg:py-20 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-3">FAQ</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight">Common questions.</h2>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+        {faqs.map(([q, a]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{q}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="surface-dark py-16 lg:py-24 net-family" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          When did anyone last look inside that rack?
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          Tell us what you've got and where it lives, and we'll scope a cleaning and inspection visit.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={contactHref} class="btn btn-primary">Scope a cleaning visit <span aria-hidden="true">→</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .net-family :global(.eyebrow) {
+    color: var(--color-teal-600);
+  }
+</style>

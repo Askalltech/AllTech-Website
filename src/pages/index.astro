@@ -52,11 +52,18 @@ const aNormalWeek = [
        Same copy/buttons/trust row as before (unchanged, plain Astro/HTML),
        now with the real AllTech video as a full-bleed background instead
        of the aurora CSS effect (.aurora-bg in global.css, still there if
-       ever wanted again) or a side-by-side panel. A left-to-right fade
-       from the page background keeps the text readable over the footage
-       without a flat scrim hiding the video entirely, and top/bottom fades
-       soften the section's edges so the video doesn't cut off hard against
-       the header above and the next section below.
+       ever wanted again) or a side-by-side panel. A left-to-right scrim
+       keeps the text readable over the footage without hiding the video
+       entirely.
+
+       The video's own mask-image (not just an overlay in front of it) fades
+       its opacity to zero at the top and bottom edges. The page-wide dot
+       grid (GlobalBackground.astro) is a fixed layer behind everything,
+       including this section — because the video used to be a flat opaque
+       rectangle, it fully blocked the grid for the whole hero and the grid
+       only ever reappeared once you scrolled past the section entirely, a
+       hard cut rather than a blend. Masking the video itself lets the grid
+       show through progressively at the edges instead.
 
        dark:brightness/saturate: the footage is graded for a light page —
        played at full brightness against the dark theme it reads as a
@@ -66,6 +73,7 @@ const aNormalWeek = [
   <section class="relative overflow-hidden">
     <video
       class="absolute inset-0 h-full w-full object-cover brightness-100 saturate-100 dark:brightness-50 dark:saturate-75"
+      style="mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 78%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 78%, transparent 100%);"
       src="/hero-video.mp4"
       autoplay
       muted
@@ -78,17 +86,9 @@ const aNormalWeek = [
       class="absolute inset-0"
       style="background: linear-gradient(to right, var(--color-bg-page) 0%, color-mix(in oklab, var(--color-bg-page) 88%, transparent) 40%, color-mix(in oklab, var(--color-bg-page) 45%, transparent) 65%, color-mix(in oklab, var(--color-bg-page) 15%, transparent) 100%);"
     ></div>
-    <div
-      class="absolute inset-x-0 top-0 h-32 lg:h-40"
-      style="background: linear-gradient(to bottom, var(--color-bg-page), transparent);"
-    ></div>
-    <div
-      class="absolute inset-x-0 bottom-0 h-40 lg:h-56"
-      style="background: linear-gradient(to top, var(--color-bg-page), transparent);"
-    ></div>
     <div class="relative z-10 container-wide pt-24 pb-32 lg:pt-32 lg:pb-40">
       <div class="max-w-3xl">
-        <div class="eyebrow mb-5">Managed IT · Cybersecurity · Northern Utah</div>
+        <div class="eyebrow mb-5">Managed IT · Cybersecurity</div>
 
         <h1 class="font-display text-5xl md:text-6xl lg:text-7xl font-bold leading-[0.95] tracking-tight" style="color: var(--color-text-primary)">
           IT and <span style="color: var(--color-amber-400)">cybersecurity</span>,<br />
@@ -97,7 +97,7 @@ const aNormalWeek = [
 
         <p class="mt-7 text-xl max-w-2xl leading-relaxed" style="color: var(--color-text-default)">
           AllTech runs the IT and cybersecurity for manufacturers, clinics, law firms,
-          nonprofits, and growing businesses across Northern Utah and southern Idaho.
+          nonprofits, and growing businesses — rooted in Northern Utah, working wherever you need us.
           When you call, you get the same engineers who built your network — not a ticket queue.
         </p>
 
