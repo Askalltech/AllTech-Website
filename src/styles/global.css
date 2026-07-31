@@ -129,6 +129,23 @@
     background: var(--color-bg-page);
   }
 
+  /* Smooth light/dark toggle: every color-bearing property cross-fades
+     instead of flipping instantly when .dark is added/removed on <html>.
+     Low specificity (universal selector) so it never overrides components
+     that already declare their own transition (.btn, .card, etc. keep
+     their fast hover transitions as-is) — this only reaches the plain
+     elements that had no transition at all before. Doesn't affect page
+     navigation: the FOUC-guard script in BaseLayout sets .dark before
+     first paint, so there's nothing to animate on load, only on toggle. */
+  *, *::before, *::after {
+    transition: background-color 700ms var(--ease-out-soft),
+                border-color 700ms var(--ease-out-soft),
+                color 700ms var(--ease-out-soft),
+                fill 700ms var(--ease-out-soft),
+                stroke 700ms var(--ease-out-soft),
+                box-shadow 700ms var(--ease-out-soft);
+  }
+
   body {
     font-family: var(--font-sans);
     color: var(--color-text-default);
