@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { site } from '~/lib/site';
+import { buildBreadcrumbSchema } from '~/lib/schema';
 
 /**
  * NETWORK family — teal accent, matching switching-and-gateways.astro. Buttons
@@ -136,6 +137,13 @@ const faqSchema = {
     acceptedAnswer: { '@type': 'Answer', text: answer },
   })),
 };
+
+const breadcrumbSchema = buildBreadcrumbSchema([
+  { name: 'Home', path: '/' },
+  { name: 'Services', path: '/services' },
+  { name: 'Network', path: '/services/network-design' },
+  { name: 'Wi-Fi Design', path: '/services/wifi-design' },
+]);
 ---
 
 <BaseLayout
@@ -146,6 +154,7 @@ const faqSchema = {
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
 
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
   <!-- Hero -->
   <section class="surface-dark relative overflow-hidden net-family">
     <div class="relative container-wide py-16 lg:py-20">

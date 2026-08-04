@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { site } from '~/lib/site';
+import { buildBreadcrumbSchema } from '~/lib/schema';
 
 // Figures throughout are from AllTech's Datto EDR Executive Threat Report and
 // RocketCyber Managed SOC report, 06/01/2026–07/01/2026, fleet-wide. Every
@@ -76,6 +77,7 @@ const related = [
   ['Managed SOC', 'Detections are only useful if someone reads them at 3 a.m. Last month that was 63 investigations.', '/services/managed-soc'],
   ['Backup & Disaster Recovery', 'Endpoint security reduces the odds. Tested backups are what make the bad day survivable.', '/services/backup-disaster-recovery'],
   ['Microsoft 365 & Entra ID', 'Device compliance, conditional access, and Intune policy are where endpoint security either holds or gets bypassed.', '/services/cloud-microsoft-365'],
+  ['Remote IT Support', 'What we deliver remotely vs. what needs someone on-site, in one place.', '/remote-it-support'],
 ];
 
 const contactHref = '/contact?service=Cybersecurity';
@@ -89,6 +91,13 @@ const faqSchema = {
     acceptedAnswer: { '@type': 'Answer', text: answer },
   })),
 };
+
+const breadcrumbSchema = buildBreadcrumbSchema([
+  { name: 'Home', path: '/' },
+  { name: 'Services', path: '/services' },
+  { name: 'Cybersecurity', path: '/services/cybersecurity' },
+  { name: 'Endpoint Security', path: '/services/endpoint-security' },
+]);
 ---
 
 <BaseLayout
@@ -97,6 +106,7 @@ const faqSchema = {
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
 
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
   <!-- Hero -->
   <section class="surface-dark relative overflow-hidden">
     <div class="relative container-wide py-16 lg:py-20">
@@ -115,6 +125,10 @@ const faqSchema = {
         <div class="mt-8 flex flex-wrap gap-3">
           <a href={contactHref} class="btn btn-primary">Schedule an endpoint security review <span aria-hidden="true">→</span></a>
           <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+        <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
+          <div>Remote + on-site</div>
+          <div>24/7 SOC</div>
         </div>
       </div>
     </div>

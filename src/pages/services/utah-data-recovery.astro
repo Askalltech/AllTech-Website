@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { site } from '~/lib/site';
+import { buildBreadcrumbSchema } from '~/lib/schema';
 
 /**
  * Utah Data Recovery — AllTech's data-recovery brand, same company, same
@@ -39,6 +40,13 @@ const serviceSchema = {
   description:
     'Data recovery for hard drives, SSDs, RAID arrays, NAS systems, and phones, plus digital forensic analysis for civil and criminal cases.',
 };
+
+const breadcrumbSchema = buildBreadcrumbSchema([
+  { name: 'Home', path: '/' },
+  { name: 'Services', path: '/services' },
+  { name: 'IT & Cloud', path: '/services/it-cloud' },
+  { name: 'Utah Data Recovery', path: '/services/utah-data-recovery' },
+]);
 ---
 
 <BaseLayout
@@ -48,6 +56,7 @@ const serviceSchema = {
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
 
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
   <!-- Hero — h1 + intro paragraph copied verbatim from utahdatarecovery.com/data-recovery/ -->
   <section class="surface-dark relative overflow-hidden">
     <div class="relative container-wide py-16 lg:py-20">

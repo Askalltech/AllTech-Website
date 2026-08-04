@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { site } from '~/lib/site';
+import { buildBreadcrumbSchema } from '~/lib/schema';
 
 /**
  * IT & CLOUD family — amber accent.
@@ -104,6 +105,7 @@ const related = [
   ['Help Desk', 'The mailbox, account, and access tickets this generates day to day.', '/services/help-desk'],
   ['Managed IT', 'The full engagement this administration runs inside.', '/services/it-cloud'],
   ['AllTech Top 10', 'Where M365 hardening sits in the baseline security stack.', '/services/alltech-top-10'],
+  ['Remote IT Support', 'What we deliver remotely vs. what needs someone on-site, in one place.', '/remote-it-support'],
 ];
 
 const contactHref = '/contact?service=Microsoft%20365%20%2F%20Cloud';
@@ -128,6 +130,13 @@ const faqSchema = {
     acceptedAnswer: { '@type': 'Answer', text: answer },
   })),
 };
+
+const breadcrumbSchema = buildBreadcrumbSchema([
+  { name: 'Home', path: '/' },
+  { name: 'Services', path: '/services' },
+  { name: 'IT & Cloud', path: '/services/it-cloud' },
+  { name: 'Microsoft 365', path: '/services/cloud-microsoft-365' },
+]);
 ---
 
 <BaseLayout
@@ -138,6 +147,7 @@ const faqSchema = {
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
 
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
   <!-- Hero -->
   <section class="surface-dark relative overflow-hidden">
     <div class="relative container-wide py-16 lg:py-20">
@@ -158,6 +168,7 @@ const faqSchema = {
         </div>
         <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
           <div>Tenant design</div>
+          <div>Delivered remotely</div>
           <div>Email migration</div>
           <div>Entra ID &amp; Intune</div>
           <div>Ongoing administration</div>

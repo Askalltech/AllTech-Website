@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { site } from '~/lib/site';
+import { buildBreadcrumbSchema } from '~/lib/schema';
 
 /**
  * Figures are from AllTech SOC monitoring, June 1 – July 1, 2026.
@@ -95,6 +96,7 @@ const related = [
   ['Email Security & Phishing Protection', 'Most cloud identity incidents start with a message. Filtering reduces what the SOC has to catch later.', '/services/email-security'],
   ['Network Detection & Response', 'The network layer of the same picture — what a device did after it was compromised.', '/services/network-detection'],
   ['Microsoft 365 & Entra ID', 'Half of last month’s incidents originated in cloud identity. Conditional access and MFA policy are where most of them get prevented instead of detected.', '/services/cloud-microsoft-365'],
+  ['Remote IT Support', 'What we deliver remotely vs. what needs someone on-site, in one place.', '/remote-it-support'],
 ];
 
 const contactHref = '/contact?service=Cybersecurity';
@@ -108,6 +110,13 @@ const faqSchema = {
     acceptedAnswer: { '@type': 'Answer', text: answer },
   })),
 };
+
+const breadcrumbSchema = buildBreadcrumbSchema([
+  { name: 'Home', path: '/' },
+  { name: 'Services', path: '/services' },
+  { name: 'Cybersecurity', path: '/services/cybersecurity' },
+  { name: 'Managed SOC', path: '/services/managed-soc' },
+]);
 ---
 
 <BaseLayout
@@ -116,6 +125,7 @@ const faqSchema = {
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
 
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
   <!-- Hero -->
   <section class="surface-dark relative overflow-hidden">
     <div class="relative container-wide py-16 lg:py-20">
@@ -134,6 +144,9 @@ const faqSchema = {
         <div class="mt-8 flex flex-wrap gap-3">
           <a href={contactHref} class="btn btn-primary">Schedule a security review <span aria-hidden="true">→</span></a>
           <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+        <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
+          <div>24/7, delivered remotely</div>
         </div>
       </div>
     </div>

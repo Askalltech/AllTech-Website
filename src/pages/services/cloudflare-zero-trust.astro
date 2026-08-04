@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { site } from '~/lib/site';
+import { buildBreadcrumbSchema } from '~/lib/schema';
 import { HeroGlobe } from '~/components/HeroGlobe';
 
 const serviceSchema = {
@@ -12,6 +13,12 @@ const serviceSchema = {
   name: 'Cloudflare Zero Trust',
   description: 'Design, deployment, and ongoing management of Cloudflare Zero Trust networks including Tunnel, WARP, Gateway, Access, and Email Security.',
 };
+
+const breadcrumbSchema = buildBreadcrumbSchema([
+  { name: 'Home', path: '/' },
+  { name: 'Services', path: '/services' },
+  { name: 'SASE Solutions', path: '/services/cloudflare-zero-trust' },
+]);
 ---
 
 <BaseLayout
@@ -20,6 +27,7 @@ const serviceSchema = {
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
 
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
   <!-- Two-column hero adapted from shadcnblocks Hero249: copy/buttons on the
        left (unchanged, plain Astro/HTML), an interactive globe on the right
        (HeroGlobe.tsx) standing in for Cloudflare's global anycast network —

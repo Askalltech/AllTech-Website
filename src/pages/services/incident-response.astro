@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { site } from '~/lib/site';
+import { buildBreadcrumbSchema } from '~/lib/schema';
 
 /**
  * THE THIRD SOURCE VIGNETTE IS DELIBERATELY NOT BUILT.
@@ -81,12 +82,21 @@ const related = [
 
 // Must match a ContactForm checkbox value exactly or the deep link is inert.
 const contactHref = '/contact?service=Incident%20Response';
+
+const breadcrumbSchema = buildBreadcrumbSchema([
+  { name: 'Home', path: '/' },
+  { name: 'Services', path: '/services' },
+  { name: 'Cybersecurity', path: '/services/cybersecurity' },
+  { name: 'Incident Response', path: '/services/incident-response' },
+]);
 ---
 
 <BaseLayout
   title="Incident Response & Breach Containment"
   description="Incident response for Northern Utah businesses. AllTech contains active intrusions, removes attacker persistence, and tells you exactly what happened."
 >
+
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
   <!-- Hero. This is the one page on the site where the PHONE is the primary
        button — someone landing here mid-incident is not filling out a form. -->
   <section class="surface-dark relative overflow-hidden">
