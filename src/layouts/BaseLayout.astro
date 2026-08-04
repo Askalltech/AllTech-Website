@@ -66,13 +66,18 @@ const { title, description, image, noindex, canonical } = Astro.props;
     <!-- <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "TOKEN_HERE"}'></script> -->
   </head>
   <body class="min-h-screen flex flex-col relative isolate">
+    <!-- Skip link: hidden until keyboard-focused, lets keyboard/screen-reader
+         users bypass the header nav (mega-menu + several top-level links)
+         straight to the page content. WCAG 2.4.1 Bypass Blocks. -->
+    <a href="#main-content" class="skip-link">Skip to content</a>
+
     <!-- Page-wide ambient background — a fixed mesh-glow wallpaper behind
          the whole page, including behind the header. `.surface-dark`
          sections are transparent (see global.css) so this shows through
          consistently. -->
     <GlobalBackground />
     <Header />
-    <main class="flex-1 relative overflow-hidden">
+    <main id="main-content" tabindex="-1" class="flex-1 relative overflow-hidden">
       <slot />
     </main>
     <ClientLogos />

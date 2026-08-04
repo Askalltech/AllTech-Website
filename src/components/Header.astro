@@ -29,7 +29,7 @@ const isActive = (href: string) =>
   >
     <!-- Brand -->
     <a href="/" class="flex items-center gap-2.5 font-display font-semibold tracking-tight text-lg" style="color: var(--color-text-primary)">
-      <img src="/logo.webp" alt="AllTech logo" class="h-9 w-auto" width="36" height="36" onerror="this.style.display='none'" />
+      <img src="/logo.webp" alt="" class="h-9 w-auto" width="36" height="36" onerror="this.style.display='none'" />
       AllTech
     </a>
 
@@ -159,10 +159,12 @@ const isActive = (href: string) =>
       <!-- Mobile menu toggle -->
       <button
         id="mobile-nav-toggle"
+        type="button"
         class="lg:hidden p-2 rounded-md"
         style="color: var(--color-text-primary); border: 1px solid var(--color-border-default);"
         aria-label="Open menu"
         aria-expanded="false"
+        aria-controls="mobile-nav"
       >
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -172,8 +174,9 @@ const isActive = (href: string) =>
   </div>
 
   <!-- Mobile nav drawer (mega-menu collapses to accordions per category) -->
-  <div
+  <nav
     id="mobile-nav"
+    aria-label="Mobile"
     class="container-wide lg:hidden hidden mt-2 rounded-2xl border shadow-sm"
     style="background: var(--color-bg-surface); border-color: var(--color-border-subtle);"
   >
@@ -213,7 +216,7 @@ const isActive = (href: string) =>
       ))}
       <a href="/contact" class="sm:hidden btn btn-primary w-full mt-2">Get in touch</a>
     </div>
-  </div>
+  </nav>
 </header>
 
 <script>
@@ -222,6 +225,7 @@ const isActive = (href: string) =>
   btn?.addEventListener('click', () => {
     const expanded = btn.getAttribute('aria-expanded') === 'true';
     btn.setAttribute('aria-expanded', String(!expanded));
+    btn.setAttribute('aria-label', expanded ? 'Open menu' : 'Close menu');
     nav?.classList.toggle('hidden');
   });
 </script>
