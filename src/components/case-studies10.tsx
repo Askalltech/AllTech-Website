@@ -149,8 +149,9 @@ const CaseStudies10 = (props: Props) => {
               }}
               disabled={!canScrollPrev}
               className="disabled:pointer-events-auto"
+              aria-label="Previous case study"
             >
-              <ArrowLeft className="size-5" />
+              <ArrowLeft className="size-5" aria-hidden="true" />
             </Button>
             <Button
               size="icon"
@@ -160,8 +161,9 @@ const CaseStudies10 = (props: Props) => {
               }}
               disabled={!canScrollNext}
               className="disabled:pointer-events-auto"
+              aria-label="Next case study"
             >
-              <ArrowRight className="size-5" />
+              <ArrowRight className="size-5" aria-hidden="true" />
             </Button>
           </div>
         </div>
@@ -200,7 +202,7 @@ const CaseStudies10 = (props: Props) => {
                   <div className="group relative aspect-4/3 w-full max-w-full overflow-hidden rounded-xl">
                     <img
                       src={item.image}
-                      alt={item.title}
+                      alt=""
                       className="absolute h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 h-full bg-linear-to-t from-black/80 via-black/28 to-transparent" />

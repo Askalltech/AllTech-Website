@@ -118,7 +118,7 @@ export default function AssessmentForm({ turnstileSiteKey }: Props) {
 
   if (status === 'success') {
     return (
-      <div className="text-center py-8">
+      <div className="text-center py-8" role="status">
         <div
           className="inline-flex w-12 h-12 rounded-full items-center justify-center mb-4"
           style={{ background: 'var(--color-amber-glow)', color: 'var(--color-amber-600)' }}
@@ -219,6 +219,7 @@ export default function AssessmentForm({ turnstileSiteKey }: Props) {
 
           {status === 'error' && (
             <div
+              role="alert"
               className="rounded-md px-4 py-3 text-sm"
               style={{
                 background: 'rgba(220, 38, 38, 0.08)',
@@ -270,20 +271,25 @@ export default function AssessmentForm({ turnstileSiteKey }: Props) {
               {ANSWERS.map((a) => {
                 const selected = answers[q.id] === a.value;
                 return (
-                  <button
+                  <label
                     key={a.value}
-                    type="button"
-                    onClick={() => setAnswer(q.id, a.value)}
-                    className="px-4 py-1.5 rounded-md text-sm font-medium transition-colors"
+                    className="px-4 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[var(--color-amber-400)] has-[:focus-visible]:ring-offset-2"
                     style={
                       selected
                         ? { background: 'var(--color-amber-400)', color: 'var(--color-ink-950)', border: '1px solid var(--color-amber-400)' }
                         : { ...inputInlineStyle }
                     }
-                    aria-pressed={selected}
                   >
+                    <input
+                      type="radio"
+                      name={q.id}
+                      value={a.value}
+                      checked={selected}
+                      onChange={() => setAnswer(q.id, a.value)}
+                      className="sr-only"
+                    />
                     {a.label}
-                  </button>
+                  </label>
                 );
               })}
             </div>

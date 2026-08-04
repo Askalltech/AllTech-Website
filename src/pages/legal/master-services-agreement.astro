@@ -472,8 +472,10 @@ import { site } from '~/lib/site';
         <p><strong>IN WITNESS WHEREOF,</strong> Provider and Client have executed this Agreement as of the Effective Date.</p>
 
         <table>
+          <thead>
+            <tr><th scope="col">[PROVIDER]</th><th scope="col">[CLIENT]</th></tr>
+          </thead>
           <tbody>
-            <tr><td><strong>[PROVIDER]</strong></td><td><strong>[CLIENT]</strong></td></tr>
             <tr><td>By:</td><td>By:</td></tr>
             <tr><td>Name:</td><td>Name:</td></tr>
             <tr><td>Title:</td><td>Title:</td></tr>
@@ -502,5 +504,10 @@ import { site } from '~/lib/site';
   .legal-body :global(td) {
     padding: 0.5rem 1rem 0.5rem 0;
     border-top: 1px solid var(--color-border-subtle);
+  }
+  .legal-body :global(th) {
+    padding: 0.5rem 1rem 0.5rem 0;
+    text-align: left;
+    font-weight: 700;
   }
 </style>

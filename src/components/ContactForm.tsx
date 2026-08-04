@@ -122,7 +122,7 @@ export default function ContactForm({ defaultService, turnstileSiteKey }: Props)
 
   if (status === 'success') {
     return (
-      <div className="text-center py-8">
+      <div className="text-center py-8" role="status">
         <div
           className="inline-flex w-12 h-12 rounded-full items-center justify-center mb-4"
           style={{ background: 'var(--color-amber-glow)', color: 'var(--color-amber-600)' }}
@@ -216,6 +216,7 @@ export default function ContactForm({ defaultService, turnstileSiteKey }: Props)
 
       {status === 'error' && (
         <div
+          role="alert"
           className="rounded-md px-4 py-3 text-sm"
           style={{
             background: 'rgba(220, 38, 38, 0.08)',
