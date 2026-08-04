@@ -123,9 +123,10 @@ Both `/api/contact.ts` and `/api/assessment.ts` run as Cloudflare Pages Function
 1. Honeypot check (`company_website` field)
 2. Required-field validation
 3. Optional Turnstile verification (active once `PUBLIC_TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET` are set)
-4. Send via **Cloudflare Email Routing's Send Email binding** — see `src/lib/email.ts`. No third-party transactional provider (Resend, Postmark, etc.) needed. Two things have to be true before mail actually goes out, beyond just setting the env vars above:
+4. Send via **Cloudflare Email Routing's Send Email binding** — see `src/lib/email.ts`. No third-party transactional provider (Resend, Postmark, etc.) needed. This binding **cannot be declared in `wrangler.toml`** — Pages projects fail config validation on a `[[send_email]]` block (Workers-only syntax) and every deploy breaks. Set it up entirely from the dashboard instead:
+   - Add the binding: Workers & Pages → this project → Settings → Bindings → Add → Email → Send email → name it `SEND_EMAIL` (must match `src/env.d.ts`' `Env.SEND_EMAIL`).
    - Your domain must be added under Email Routing (dashboard → your zone → Email → Email Routing), with `CONTACT_FROM`'s domain verified there.
-   - Every address you set `CONTACT_FORWARD_TO` / `ASSESSMENT_FORWARD_TO` to must also be added there **and** listed in the `send_email` binding's `allowed_destination_addresses` in `wrangler.toml` — Cloudflare enforces that allow-list at the binding level, so it can't be driven purely by runtime env vars. Keep the two in sync.
+   - Every address you set `CONTACT_FORWARD_TO` / `ASSESSMENT_FORWARD_TO` to must also be added there **and** selected as an allowed destination on the binding itself — Cloudflare enforces that allow-list at the binding level, so it can't be driven purely by runtime env vars. Keep them in sync.
    - Without a working binding (e.g. running `astro dev` locally, or before the above is set up), submissions are still validated and scored — they just get logged instead of emailed.
 
 ## Before launch
@@ -133,7 +134,7 @@ Both `/api/contact.ts` and `/api/assessment.ts` run as Cloudflare Pages Function
 - [ ] Replace `https://askalltech.com` in `src/lib/site.ts` and `astro.config.mjs` if domain changes
 - [ ] Add the Cloudflare Web Analytics token in `BaseLayout.astro` (uncomment script tag)
 - [ ] Generate `/public/og-default.png` (1200×630 brand image)
-- [ ] Add your domain to Cloudflare Email Routing, verify `CONTACT_FROM`'s domain, and add real addresses to the `send_email` binding's `allowed_destination_addresses` in `wrangler.toml` (see "Contact form & security gap assessment" above)
+- [ ] Add the `SEND_EMAIL` binding via the Pages dashboard (NOT `wrangler.toml` — see "Contact form & security gap assessment" above), add your domain to Cloudflare Email Routing, verify `CONTACT_FROM`'s domain, and allow-list the real forward-to address(es) on the binding
 - [ ] Set environment variables in Pages dashboard
 - [ ] Verify Google Business Profile NAP exactly matches `site.ts`
 - [ ] Submit `sitemap-index.xml` to Google Search Console
@@ -153,11 +154,11 @@ implemented yet.
 - [ ] **Wire up real email delivery.** The code path is done — both
   `/api/contact.ts` and `/api/assessment.ts` send via Cloudflare Email
   Routing's Send Email binding (`src/lib/email.ts`), no third-party sender
-  needed. What's left is account setup, not code: add the domain to Email
-  Routing, verify `CONTACT_FROM`'s domain, and add the real forward-to
-  address(es) to both `CONTACT_FORWARD_TO`/`ASSESSMENT_FORWARD_TO` (Pages
-  dashboard) and `allowed_destination_addresses` (`wrangler.toml`) — see
-  "Contact form & security gap assessment" above.
+  needed. What's left is account/dashboard setup, not code: add the
+  `SEND_EMAIL` binding itself (Pages dashboard → Settings → Bindings —
+  this can't go in `wrangler.toml` for a Pages project), add the domain to
+  Email Routing, verify `CONTACT_FROM`'s domain, and allow-list the real
+  forward-to address(es) — see "Contact form & security gap assessment" above.
 - [ ] **Turnstile site key / secret.** Same category — `PUBLIC_TURNSTILE_SITE_KEY`
   and `TURNSTILE_SECRET` aren't set yet, so the captcha on the contact and
   assessment forms is currently inactive. The widget and server-side
