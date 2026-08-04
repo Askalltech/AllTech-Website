@@ -60,13 +60,18 @@ export const site = {
 
 // Top-level service catalogue. Each entry maps to /services/<slug>.
 // `icon` matches a name in src/components/Icon.astro's icon kit.
+//
+// Kept in sync with the 5 real categories in src/lib/menu.ts's
+// menuCategories BY NAME AND SLUG (Cybersecurity, SASE Solutions, Network,
+// Install, IT & Cloud) — this list drives the footer's "Services" column,
+// and it had drifted from the header mega-menu: "Managed IT" pointed at
+// managed-it, which has no custom page and fell through to [service].astro's
+// generic stub; "Cloudflare Zero Trust" and the header's "SASE Solutions"
+// were the same page under two different names; Install had no footer
+// entry at all despite being a full mega-menu column. Fixed below. If you
+// add a mega-menu category, add it here too — nothing keeps these in sync
+// automatically.
 export const services = [
-  {
-    slug: "managed-it",
-    name: "Managed IT",
-    short: "Help desk, monitoring, patching, vendor management — your outsourced IT department.",
-    icon: "endpoint",
-  },
   {
     slug: "cybersecurity",
     name: "Cybersecurity",
@@ -75,7 +80,7 @@ export const services = [
   },
   {
     slug: "cloudflare-zero-trust",
-    name: "Cloudflare Zero Trust",
+    name: "SASE Solutions",
     short:
       "As a Cloudflare Partner we design, deploy, and manage Zero Trust networks — tunnels, WARP, Gateway, Access — for multi-site organizations.",
     icon: "gateway",
@@ -88,10 +93,16 @@ export const services = [
     icon: "node",
   },
   {
-    slug: "cloud-microsoft-365",
-    name: "Microsoft 365 & Cloud",
-    short: "M365 tenant setup, migration, Intune, Entra ID, and ongoing administration.",
-    icon: "cloud-sync",
+    slug: "install",
+    name: "Install",
+    short: "On-site low-voltage installation: UniFi Protect cameras, door access control, structured cabling, point-to-point wireless, fiber, and server-room buildouts.",
+    icon: "camera",
+  },
+  {
+    slug: "it-cloud",
+    name: "IT & Cloud",
+    short: "Outsourced IT: help desk, Datto RMM monitoring and patching, vendor management, Microsoft 365, Entra ID and Intune, and backup and disaster recovery.",
+    icon: "endpoint",
   },
   {
     slug: "alltech-top-10",
