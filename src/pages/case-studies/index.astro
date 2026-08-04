@@ -1,10 +1,6 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
 import { CaseStudies10 } from '~/components/case-studies10';
-
-const studies = (await getCollection('caseStudies', ({ data }) => !data.draft))
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 ---
 
 <BaseLayout
@@ -20,41 +16,15 @@ const studies = (await getCollection('caseStudies', ({ data }) => !data.draft))
     </div>
   </section>
 
-  <section class="surface-dark py-16">
-    <div class="container-prose">
-      {studies.length === 0 ? (
-        <p class="text-lg text-muted">Case studies coming soon.</p>
-      ) : (
-        <ul class="space-y-6">
-          {studies.map((s) => (
-            <li>
-              <a href={`/case-studies/${s.slug}`} class="card block group">
-                <div class="text-xs font-mono mb-2" style="color: var(--color-amber-300);">{s.data.industry}</div>
-                <h2 class="font-display text-2xl font-semibold mb-2 group-hover:text-amber-300 transition-colors">{s.data.title}</h2>
-                <p class="text-muted leading-relaxed">{s.data.summary}</p>
-                <div class="mt-4 flex flex-wrap gap-2">
-                  {s.data.services.map((tag) => (
-                    <span class="text-xs px-2 py-1 rounded font-medium" style="background: var(--color-surface-3); color: var(--color-text-secondary);">{tag}</span>
-                  ))}
-                </div>
-              </a>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  </section>
-
   <!-- shadcnblocks case-studies10: horizontal carousel. Wired to its own
        default (fictional companies, stock CDN photos) rather than the real
        caseStudies collection — that collection is empty right now, so
        there's nothing real to show yet. Swap `items` for real client
-       stories/logos/photos as they're written, same as the "coming soon"
-       list above. -->
-  <section style="border-top: 1px solid var(--color-line-faint);">
+       stories/logos/photos as they're written. -->
+  <section>
     <CaseStudies10
-      title="More stories"
-      description="A closer look at a few of the projects above — swap for real client stories, logos, and photos as they're written."
+      title="Real projects, real outcomes."
+      description="A closer look at a few of the projects we've delivered — swap for real client stories, logos, and photos as they're written."
       client:visible
     />
   </section>
