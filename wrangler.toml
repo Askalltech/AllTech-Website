@@ -12,14 +12,20 @@ pages_build_output_dir = "./dist"
 
 # Cloudflare Email Routing's "Send Email" binding — used by src/lib/email.ts
 # to deliver both /api/contact and /api/assessment, no third-party
-# transactional provider needed. Requirements before this can actually send:
+# transactional provider needed.
+#
+# IMPORTANT: unlike plain Workers, Pages projects can't declare this binding
+# in wrangler.toml — a `[[send_email]]` block here fails Pages config
+# validation entirely ("does not support send_email") and blocks every
+# deploy. It must be added instead via the dashboard:
+#   Workers & Pages → this project → Settings → Bindings → Add → Email →
+#   Send email → binding name SEND_EMAIL (must match src/env.d.ts' Env.SEND_EMAIL).
+# Requirements before this can actually send:
 #   1. The site's domain must be added under Email Routing (dashboard → your
 #      zone → Email → Email Routing) with routing enabled.
 #   2. Every address you intend to forward to (i.e. whatever you set
 #      CONTACT_FORWARD_TO / ASSESSMENT_FORWARD_TO to) must be added and
-#      verified there, AND listed below — Cloudflare enforces the allow-list
-#      at the binding level, so it can't be driven purely by the runtime env
-#      vars above. Keep this list in sync with those two variables.
-[[send_email]]
-name = "SEND_EMAIL"
-allowed_destination_addresses = ["sales@askalltech.com"]  # TODO: replace with your real forward-to inbox(es)
+#      verified there, AND selected as an allowed destination on the binding
+#      itself — Cloudflare enforces that allow-list at the binding level, so
+#      it can't be driven purely by the runtime env vars above. Keep them
+#      in sync.
