@@ -60,9 +60,11 @@ src/
 │   └── config.ts      Typed frontmatter schemas
 ├── layouts/           BaseLayout.astro wraps all pages
 ├── lib/site.ts        Single source of truth: NAP, services, locations
+├── lib/schema.ts      Shared JSON-LD builders (Service, FAQPage, BreadcrumbList)
 ├── pages/             File-based routes
 │   ├── api/contact.ts SSR endpoint (only non-static route)
 │   ├── locations/     Auto-generates a page per service-area city
+│   ├── remote-it-support.astro  Location-agnostic "remote MSP" landing page
 │   └── services/      One page per service
 ├── styles/global.css  Design tokens, dark mode, Tailwind theme, component classes
 public/                Static assets (favicon, robots.txt, OG image, hero video)
@@ -72,9 +74,10 @@ public/                Static assets (favicon, robots.txt, OG image, hero video)
 
 ### A new service
 
-1. Add it to the `services` array in `src/lib/site.ts`.
+1. Add it to the `services` array in `src/lib/site.ts`. Services normally resolve to `/services/<slug>` via `serviceLink()`; if the page needs to live somewhere else (like `remote-it-support.astro`, at the site root), give the entry a `path` instead and `serviceLink()` will use that.
 2. It will automatically appear in nav, footer, the home services grid, and get a placeholder page at `/services/<slug>` via the `[service].astro` catch-all.
-3. To customize that service's page, create `src/pages/services/<slug>.astro` and add the slug to the exclusion list in `[service].astro`. Use `cloudflare-zero-trust.astro` as the template.
+3. To customize that service's page, create `src/pages/services/<slug>.astro` (or the page at whatever `path` you gave it) and add the slug to the exclusion list in `[service].astro`. Use `cloudflare-zero-trust.astro` as the template.
+4. Use `src/lib/schema.ts`'s `buildServiceSchema` / `buildFaqSchema` / `buildBreadcrumbSchema` for that page's JSON-LD rather than hand-writing the object again — see any recently-added service page for the pattern. `REMOTE_AREA_SERVED` vs. the default `LOCAL_AREA_SERVED` decides whether the service claims to be deliverable outside the physical service area; only use `REMOTE_AREA_SERVED` for services that genuinely don't require an on-site visit.
 
 ### A new location
 
@@ -180,6 +183,14 @@ implemented yet.
   Separately, Speaker 4 offered AI/SEO-oriented writing templates and advice
   (optimizing for AI-driven search, not just traditional SEO) — worth
   following up on before writing more posts.
+- [ ] **Off-site AI-visibility signals** — a first on-site pass (remote-MSP
+  positioning, `Service`/`FAQPage`/`BreadcrumbList` schema, see
+  `remote-it-support.astro` and `src/lib/schema.ts`) is done, but nothing
+  off-site could be changed from this repo: Google Business Profile /
+  Bing Places service-area settings, directory NAP consistency, and
+  `site.ts`'s `social` object (still empty — populate once real
+  LinkedIn/Facebook/directory URLs exist, then wire them into
+  `LocalBusinessSchema.astro`'s `sameAs` array).
 - [ ] **Legal review** of the Terms of Use, Privacy Policy, and the new
   Master Services Agreement page (`src/pages/legal/master-services-agreement.astro`,
   deliberately not linked from any nav — direct-link only). The MSA is a
