@@ -30,6 +30,9 @@ export const site = {
   },
   geo: { latitude: 41.7977, longitude: -111.8222 }, // Hyde Park, UT
 
+  // Existing-client ticket portal — separate system, separate domain.
+  clientPortalUrl: "https://askalltech.itclientportal.com/ClientPortal/Login.aspx",
+
   hours: [
     // ISO weekday format for schema.org/OpeningHoursSpecification
     { days: ["Monday","Tuesday","Wednesday","Thursday","Friday"], open: "08:00", close: "17:00" },
@@ -113,10 +116,8 @@ export const services = [
   {
     slug: "utah-data-recovery",
     name: "Utah Data Recovery",
-    short: "Professional recovery for failed drives, SSDs, RAID arrays, and NAS systems — local, confidential, and handled in-house.",
+    short: "Professional recovery for failed drives, SSDs, RAID arrays, NAS systems, and phones — the only Class 100 cleanroom in Utah, plus digital forensic analysis for civil and criminal cases.",
     icon: "disk-recovery",
-    // Routes to our dedicated data-recovery site rather than an internal page.
-    url: "https://utahdatarecovery.com/",
   },
 ] as const;
 

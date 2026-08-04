@@ -32,7 +32,9 @@ HOME  (/)
 │   ├── IT & Cloud                   Help desk, monitoring, Microsoft 365
 │   ├── AllTech Top 10               Our pre-selected security stack for
 │   │                                 small & mid-sized business
-│   └── Utah Data Recovery  ↗        Links out to utahdatarecovery.com
+│   └── Utah Data Recovery           AllTech's data-recovery brand — its own
+│                                     page, phone/email CTA only (no
+│                                     assessment or ticket buttons)
 │
 ├── SECURITY GAP ASSESSMENT  (/assessment)
 │       12-step questionnaire → posture score → results sent to sales.
@@ -49,7 +51,10 @@ HOME  (/)
 │       Providence · Wellsville · Tremonton · Brigham City ·
 │       Willard · Preston (ID)
 │
-├── CONTACT                          Contact form + phone, address, hours
+├── CONTACT                          Splits into "already a customer" (client
+│                                     portal) vs. "new to AllTech" (assessment)
+│                                     up top, then a contact form + phone,
+│                                     address, hours below
 │
 └── FOOTER  (on every page)
         • Company info & phone

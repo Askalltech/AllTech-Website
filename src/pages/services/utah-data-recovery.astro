@@ -1,0 +1,181 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * Utah Data Recovery — AllTech's data-recovery brand, same company, same
+ * Hyde Park address and phone. Content adapted from utahdatarecovery.com
+ * (its own live site) into AllTech's voice — not a third-party referral.
+ *
+ * Deliberately no "Free Assessment" or "Submit a ticket" CTAs: this is an
+ * urgency-driven, phone/email-first funnel, separate from the managed-IT
+ * lead flow used on every other service page.
+ */
+
+const recoveryTypes: { title: string; points: string[] }[] = [
+  {
+    title: 'Hard Drive Recovery',
+    points: [
+      'HDD, SSD, external, and hybrid (SSHD) drives.',
+      'Physical damage — drops, water, and fire.',
+      'Mechanical failures — head crashes, failed motors, stuck spindle bearings.',
+      'Logical failures — file-system corruption and accidental deletion.',
+      'Electronic and firmware issues requiring board-level repair.',
+    ],
+  },
+  {
+    title: 'RAID & NAS Recovery',
+    points: [
+      'RAID 0, 1, 5, 6, 10, and 50 — hardware and software arrays.',
+      'Controllers: Adaptec, Dell PERC, Intel, HP, LSI, MegaRAID, Promise, Syba.',
+      'NAS and enclosures: Synology, QNAP, Drobo, LaCie.',
+      'Linux MD, Windows dynamic disks, XFS and ZFS pools.',
+      'Individual members up to 10TB, no span-width limit.',
+    ],
+  },
+  {
+    title: 'Phone & Mobile Recovery',
+    points: [
+      'iOS and Android devices, working or broken.',
+      'Photos, video, messages, and contacts.',
+      'Recovery from physically damaged handsets, not just software resets.',
+    ],
+  },
+  {
+    title: 'Digital Forensic Analysis',
+    points: [
+      'Data discovery and evidence preservation for civil and criminal cases.',
+      'Chain-of-custody handling from first-on-scene through the courtroom.',
+      'Expert testimony and cross-examination support.',
+      'Unbeholden to party type — a balanced history representing both defendant and petitioner.',
+    ],
+  },
+];
+
+const contactEmail = 'info@askalltech.com';
+
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Data Recovery',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Utah Data Recovery',
+  description:
+    'Data recovery for hard drives, SSDs, RAID arrays, NAS systems, and phones — Class 100 cleanroom, plus digital forensic analysis for civil and criminal cases.',
+};
+---
+
+<BaseLayout
+  title="Utah Data Recovery — Hard Drive, RAID, and Phone Recovery"
+  description="Expert Utah-based data recovery: hard drives, SSDs, RAID and NAS arrays, and phones. The only Class 100 cleanroom in Utah, plus digital forensic analysis for civil and criminal cases."
+  canonical={`${site.url}/services/utah-data-recovery`}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden">
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">Utah Data Recovery &middot; An AllTech Service</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          Expert, Utah-based<br />
+          <span style="color: var(--color-amber-400);">data recovery.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">
+          Hard drives, SSDs, RAID arrays, NAS systems, and phones — recovered in the only
+          Class 100 cleanroom in Utah, by accredited staff, with some of the highest
+          recovery rates in the nation.
+        </p>
+        <div class="mt-9 flex flex-wrap gap-3">
+          <a href={`tel:${site.phoneE164}`} class="btn btn-primary font-mono">{site.phone}</a>
+          <a href={`mailto:${contactEmail}`} class="btn btn-ghost">Email us <span aria-hidden="true">&rarr;</span></a>
+        </div>
+        <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
+          <div>The only Class 100 cleanroom in Utah</div>
+          <div>No Data, No Charge</div>
+          <div>24/7 emergency service</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- What we recover -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">What we recover</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Drives, arrays, phones, and evidence.
+        </h2>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+        {recoveryTypes.map(({ title, points }) => (
+          <div class="card">
+            <h3 class="font-display text-xl font-bold mb-3" style="color: var(--color-text-primary);">{title}</h3>
+            <ul class="space-y-2.5 list-none p-0 m-0">
+              {points.map((pt) => (
+                <li class="flex items-start gap-2.5">
+                  <svg class="w-4 h-4 mt-1 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <span class="text-sm leading-snug" style="color: var(--color-text-default);">{pt}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Why -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">Why Utah Data Recovery</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Built for the cases that can't wait.
+        </h2>
+      </div>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div>
+          <div class="font-display text-2xl font-semibold" style="color: var(--color-amber-500);">No Data, No Charge</div>
+          <div class="mt-2 leading-relaxed text-muted">If we can't recover it, you don't pay for the attempt.</div>
+        </div>
+        <div>
+          <div class="font-display text-2xl font-semibold" style="color: var(--color-amber-500);">Fast diagnosis</div>
+          <div class="mt-2 leading-relaxed text-muted">RAID array members diagnosed in about 20 minutes on average; full recoveries average 7 business days, some as fast as two.</div>
+        </div>
+        <div>
+          <div class="font-display text-2xl font-semibold" style="color: var(--color-amber-500);">Confidential, in-house</div>
+          <div class="mt-2 leading-relaxed text-muted">Every job stays in our own Hyde Park cleanroom under strict data-security protocols — nothing shipped off to a third party.</div>
+        </div>
+      </div>
+      <p class="mt-10 text-sm text-subtle max-w-2xl">
+        Our recovery and forensic work has served organizations including Weber State
+        University, the University of Utah, Utah State University, Brigham Young University,
+        Subway, the U.S. Forest Service, and the Department of Justice.
+      </p>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="surface-dark py-16 lg:py-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Every hour matters with a failed drive.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          Call or email us directly — data recovery is a different, time-sensitive process
+          from a standard support ticket, so it skips the queue.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={`tel:${site.phoneE164}`} class="btn btn-primary font-mono">{site.phone}</a>
+          <a href={`mailto:${contactEmail}`} class="btn btn-ghost">Email us <span aria-hidden="true">&rarr;</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

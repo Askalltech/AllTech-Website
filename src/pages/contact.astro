@@ -19,17 +19,38 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
     <div class="relative container-wide py-16 lg:py-20">
       <div class="eyebrow mb-4">Contact</div>
       <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-tight max-w-3xl">
-        Tell us what you're <span style="color: var(--color-amber-400);">working on</span>.
+        Already a client, or <span style="color: var(--color-amber-400);">just getting started?</span>
       </h1>
       <p class="mt-5 text-xl max-w-2xl leading-relaxed text-muted">
-        A real person reads every message and connects you with the right expert on our team.
+        Two different paths, so you land in the right place the first time.
       </p>
     </div>
   </section>
 
-  <section class="surface-dark py-16 lg:py-20">
+  <!-- Existing customer / new inquiry split -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide grid sm:grid-cols-2 gap-4">
+      <div class="card">
+        <h2 class="font-display text-xl font-bold mb-2" style="color: var(--color-text-primary);">Already a customer?</h2>
+        <p class="text-sm leading-relaxed mb-5" style="color: var(--color-text-default);">Submit or track a support ticket in the client portal.</p>
+        <a href={site.clientPortalUrl} target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+          Submit a ticket <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+      <div class="card">
+        <h2 class="font-display text-xl font-bold mb-2" style="color: var(--color-text-primary);">New to AllTech?</h2>
+        <p class="text-sm leading-relaxed mb-5" style="color: var(--color-text-default);">Start with the free security gap assessment — a short quiz that scores your posture and gets you in front of the right engineer.</p>
+        <a href="/assessment" class="btn btn-primary">
+          Take the free security gap assessment <span aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
     <div class="container-wide grid lg:grid-cols-12 gap-12">
       <div class="lg:col-span-7">
+        <div class="eyebrow mb-3">Or send us a message directly</div>
         <div class="rounded-lg p-8 lg:p-10" style="background: var(--color-bg-surface); border: 1px solid var(--color-border-subtle);">
           <ContactForm
             client:load
