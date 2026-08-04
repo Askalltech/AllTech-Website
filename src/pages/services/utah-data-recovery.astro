@@ -4,53 +4,28 @@ import { site } from '~/lib/site';
 
 /**
  * Utah Data Recovery — AllTech's data-recovery brand, same company, same
- * Hyde Park address and phone. Content adapted from utahdatarecovery.com
- * (its own live site) into AllTech's voice — not a third-party referral.
+ * Hyde Park address and phone. Body copy is copied verbatim from
+ * utahdatarecovery.com's own pages (data-recovery, hard-drive-recovery,
+ * raid-recovery, digital-forensic-analysis) per explicit instruction — not
+ * paraphrased.
+ *
+ * Deliberately excluded, confirmed inaccurate for how AllTech actually
+ * operates (per direct correction, not guesswork):
+ *   - "No Data, No Charge" / "if we can't recover it you don't pay" — a
+ *     non-refundable deposit is charged to begin work regardless of outcome.
+ *   - "The only Class 100 cleanroom in Utah" (exclusivity claim)
+ *   - "Accredited staff"
+ *   - "Highest recovery rates in the nation" / generic "high success rate" claims
+ *   - "24/7 emergency service" / "24x7 emergency services for businesses"
+ *   - RAID diagnosis-time / average-recovery-time figures (20 min / 7 days)
+ * Also excluded: the source pages' client-logo/testimonial sections — no
+ * verbatim testimonial text was available to copy, and a decision was made
+ * earlier not to build a client-logos section for this page.
  *
  * Deliberately no "Free Assessment" or "Submit a ticket" CTAs: this is an
  * urgency-driven, phone/email-first funnel, separate from the managed-IT
  * lead flow used on every other service page.
  */
-
-const recoveryTypes: { title: string; points: string[] }[] = [
-  {
-    title: 'Hard Drive Recovery',
-    points: [
-      'HDD, SSD, external, and hybrid (SSHD) drives.',
-      'Physical damage — drops, water, and fire.',
-      'Mechanical failures — head crashes, failed motors, stuck spindle bearings.',
-      'Logical failures — file-system corruption and accidental deletion.',
-      'Electronic and firmware issues requiring board-level repair.',
-    ],
-  },
-  {
-    title: 'RAID & NAS Recovery',
-    points: [
-      'RAID 0, 1, 5, 6, 10, and 50 — hardware and software arrays.',
-      'Controllers: Adaptec, Dell PERC, Intel, HP, LSI, MegaRAID, Promise, Syba.',
-      'NAS and enclosures: Synology, QNAP, Drobo, LaCie.',
-      'Linux MD, Windows dynamic disks, XFS and ZFS pools.',
-      'Individual members up to 10TB, no span-width limit.',
-    ],
-  },
-  {
-    title: 'Phone & Mobile Recovery',
-    points: [
-      'iOS and Android devices, working or broken.',
-      'Photos, video, messages, and contacts.',
-      'Recovery from physically damaged handsets, not just software resets.',
-    ],
-  },
-  {
-    title: 'Digital Forensic Analysis',
-    points: [
-      'Data discovery and evidence preservation for civil and criminal cases.',
-      'Chain-of-custody handling from first-on-scene through the courtroom.',
-      'Expert testimony and cross-examination support.',
-      'Unbeholden to party type — a balanced history representing both defendant and petitioner.',
-    ],
-  },
-];
 
 const contactEmail = 'info@askalltech.com';
 
@@ -62,114 +37,245 @@ const serviceSchema = {
   areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
   name: 'Utah Data Recovery',
   description:
-    'Data recovery for hard drives, SSDs, RAID arrays, NAS systems, and phones — Class 100 cleanroom, plus digital forensic analysis for civil and criminal cases.',
+    'Data recovery for hard drives, SSDs, RAID arrays, NAS systems, and phones, plus digital forensic analysis for civil and criminal cases.',
 };
 ---
 
 <BaseLayout
   title="Utah Data Recovery — Hard Drive, RAID, and Phone Recovery"
-  description="Expert Utah-based data recovery: hard drives, SSDs, RAID and NAS arrays, and phones. The only Class 100 cleanroom in Utah, plus digital forensic analysis for civil and criminal cases."
+  description="Data recovery for hard drives, SSDs, RAID and NAS arrays, and phones, plus digital forensic analysis for civil and criminal cases."
   canonical={`${site.url}/services/utah-data-recovery`}
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
 
-  <!-- Hero -->
+  <!-- Hero — h1 + intro paragraph copied verbatim from utahdatarecovery.com/data-recovery/ -->
   <section class="surface-dark relative overflow-hidden">
     <div class="relative container-wide py-16 lg:py-20">
       <div class="max-w-3xl">
         <div class="eyebrow mb-4">Utah Data Recovery &middot; An AllTech Service</div>
         <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
-          Expert, Utah-based<br />
-          <span style="color: var(--color-amber-400);">data recovery.</span>
+          Your <span style="color: var(--color-amber-400);">Memories Recovered</span>.
         </h1>
         <p class="mt-6 text-xl leading-relaxed text-muted">
-          Hard drives, SSDs, RAID arrays, NAS systems, and phones — recovered in the only
-          Class 100 cleanroom in Utah, by accredited staff, with some of the highest
-          recovery rates in the nation.
+          At Utah Data Recovery, we understand how critical your data is to your personal and
+          professional life. Whether you've lost family photos, important tax documents, or need
+          to recover business data from a failed server, we are here to help. Our comprehensive
+          data recovery services are designed to address a wide range of data loss situations.
+          Explore our services below to find the perfect solution for your data recovery needs.
         </p>
         <div class="mt-9 flex flex-wrap gap-3">
           <a href={`tel:${site.phoneE164}`} class="btn btn-primary font-mono">{site.phone}</a>
           <a href={`mailto:${contactEmail}`} class="btn btn-ghost">Email us <span aria-hidden="true">&rarr;</span></a>
         </div>
-        <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
-          <div>The only Class 100 cleanroom in Utah</div>
-          <div>No Data, No Charge</div>
-          <div>24/7 emergency service</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hard Drive Recovery — copied verbatim from utahdatarecovery.com/hard-drive-recovery/ -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <h2 class="eyebrow font-normal mb-4">Hard Drive Recovery</h2>
+        <p class="mt-2 text-lg leading-relaxed text-muted">
+          At Utah Data Recovery, we specialize in recovering data from all types of hard drives,
+          ensuring your valuable information is restored quickly and securely. Hard drives can
+          fail for a variety of reasons, and understanding these can help in the recovery process.
+          Our team of experienced technicians is equipped with state-of-the-art technology to
+          tackle any hard drive failure scenario you might encounter.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <div>
+          <h3 class="font-display text-xl font-bold mb-3" style="color: var(--color-text-primary);">Types of Hard Drives We Recover</h3>
+          <ul class="space-y-3 list-none p-0 m-0">
+            <li class="text-sm leading-relaxed" style="color: var(--color-text-default);"><strong style="color: var(--color-text-primary);">HDD (Hard Disk Drive):</strong> The traditional spinning disk technology prone to mechanical failures such as head crashes or motor defects.</li>
+            <li class="text-sm leading-relaxed" style="color: var(--color-text-default);"><strong style="color: var(--color-text-primary);">SSD (Solid State Drive):</strong> While SSDs have no moving parts and are less prone to mechanical failure, they can experience electronic or controller malfunctions that need expert attention.</li>
+            <li class="text-sm leading-relaxed" style="color: var(--color-text-default);"><strong style="color: var(--color-text-primary);">External Hard Drives:</strong> Portable drives are susceptible to physical damage from drops or environmental factors that can lead to data loss.</li>
+            <li class="text-sm leading-relaxed" style="color: var(--color-text-default);"><strong style="color: var(--color-text-primary);">Hybrid Drives (SSHD):</strong> Combining HDD and SSD technologies, these drives can suffer from the issues affecting both types of storage.</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-display text-xl font-bold mb-3" style="color: var(--color-text-primary);">Common Hard Drive Failure Modes</h3>
+          <ul class="space-y-3 list-none p-0 m-0">
+            <li class="text-sm leading-relaxed" style="color: var(--color-text-default);"><strong style="color: var(--color-text-primary);">Physical Damage:</strong> From drops, water, or fire damage, physical trauma can cause significant harm to the internal components of a hard drive.</li>
+            <li class="text-sm leading-relaxed" style="color: var(--color-text-default);"><strong style="color: var(--color-text-primary);">Mechanical Failures:</strong> These include head crashes, failed motors, or stuck spindle bearings, typically indicated by unusual noises like clicking or grinding.</li>
+            <li class="text-sm leading-relaxed" style="color: var(--color-text-default);"><strong style="color: var(--color-text-primary);">Logical Failures:</strong> Corruption of the file system or accidental deletion of data, which can often be resolved without the need to repair the drive physically.</li>
+            <li class="text-sm leading-relaxed" style="color: var(--color-text-default);"><strong style="color: var(--color-text-primary);">Electronic Issues:</strong> Problems with the drive's electronic board can lead to drive unreadability, often requiring component repairs or replacements.</li>
+            <li class="text-sm leading-relaxed" style="color: var(--color-text-default);"><strong style="color: var(--color-text-primary);">Firmware Corruption:</strong> Firmware issues can render a hard drive inoperable, necessitating specialized tools to rewrite or repair the firmware.</li>
+          </ul>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- What we recover -->
+  <!-- RAID Recovery — copied verbatim from utahdatarecovery.com/raid-recovery/ -->
   <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
     <div class="container-wide">
-      <div class="max-w-2xl mb-12">
-        <div class="eyebrow mb-4">What we recover</div>
-        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
-          Drives, arrays, phones, and evidence.
-        </h2>
+      <div class="max-w-2xl mb-10">
+        <h2 class="eyebrow font-normal mb-4">RAID Data Recovery</h2>
+        <p class="text-lg leading-relaxed text-muted">
+          Our RAID data recovery services can restore your critical business data from hardware
+          and software arrays of any standard RAID level.
+        </p>
+        <p class="mt-4 leading-relaxed text-muted">
+          Has your storage array stopped booting or is it degraded and offline? We have a clean
+          lab with the capabilities to reconstruct arrays. Our expert approach to RAID data
+          recovery is possible due to specialized equipment and techniques. We have a 12-point
+          inspection for array members and then tools to work with any rotation and striping layout.
+        </p>
+        <p class="mt-4 leading-relaxed text-muted">
+          We successfully recover arrays of all RAID levels. Most businesses bring us raid1,
+          raid5, or raid10 devices however we can handle levels like raid6, raid10, raid50, and
+          larger. We understand various striping and checksum patterns. There are many ways in
+          which devices break and we have seen them all. We have a 12 point inspection to find
+          the causes of failure.
+        </p>
+      </div>
+
+      <div class="max-w-2xl mb-8">
+        <h3 class="font-display text-xl font-bold" style="color: var(--color-text-primary);">We Specialize In The Following</h3>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="card">
+          <h4 class="font-display text-base font-bold mb-2" style="color: var(--color-text-primary);">All RAID Levels</h4>
+          <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">We do raid data recovery for common levels like RAID0, RAID1, RAID5, RAID6, RAID10, RAID50.</p>
+        </div>
+        <div class="card">
+          <h4 class="font-display text-base font-bold mb-2" style="color: var(--color-text-primary);">Large Arrays</h4>
+          <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">We recover large storage volumes with individual disk members up to 10TB with no limit on the width of spans.</p>
+        </div>
+        <div class="card">
+          <h4 class="font-display text-base font-bold mb-2" style="color: var(--color-text-primary);">SSD and Flash</h4>
+          <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">We handle hybrid and solid state cached arrays using SATA, SAS, or NVME drives in both read through and write back modes.</p>
+        </div>
+        <div class="card">
+          <h4 class="font-display text-base font-bold mb-2" style="color: var(--color-text-primary);">Hardware RAID</h4>
+          <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">We can recover data from hardware RAID arrays from common providers like Adaptec, Dell Perc, Intel, HP, LSI, Megaraid, Promise, Syba.</p>
+        </div>
+        <div class="card">
+          <h4 class="font-display text-base font-bold mb-2" style="color: var(--color-text-primary);">Software RAID</h4>
+          <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">We have recovered data from Linux MD devices and logical volumes, Windows dynamic disk volumes, and large XFS and ZFS pools.</p>
+        </div>
+        <div class="card">
+          <h4 class="font-display text-base font-bold mb-2" style="color: var(--color-text-primary);">External Enclosures</h4>
+          <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">Our team can handle external RAID enclosures like Drobo, Lacie, Qnap, Synology.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Other services — short descriptions copied verbatim from utahdatarecovery.com/data-recovery/ -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <h2 class="eyebrow font-normal mb-4">What else we recover</h2>
       </div>
       <div class="grid md:grid-cols-2 gap-4">
-        {recoveryTypes.map(({ title, points }) => (
-          <div class="card">
-            <h3 class="font-display text-xl font-bold mb-3" style="color: var(--color-text-primary);">{title}</h3>
-            <ul class="space-y-2.5 list-none p-0 m-0">
-              {points.map((pt) => (
-                <li class="flex items-start gap-2.5">
-                  <svg class="w-4 h-4 mt-1 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                    <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                  <span class="text-sm leading-snug" style="color: var(--color-text-default);">{pt}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+        <div class="card">
+          <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">Mobile Device Recovery</h3>
+          <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">Losing data from mobile devices like smartphones and tablets can be particularly distressing. Our mobile device recovery service is designed to retrieve data lost due to accidental deletion, device damage, or software issues. We support a variety of operating systems including iOS and Android.</p>
+        </div>
+        <div class="card">
+          <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">USB and Memory Card Recovery</h3>
+          <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">USB flash drives and memory cards are prone to data loss due to their portable nature. Whether it's a corrupted file system or physical damage, we have the tools to recover your files safely and securely.</p>
+        </div>
+        <div class="card">
+          <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">SSD Data Recovery</h3>
+          <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">SSDs require specific knowledge due to their unique data storage architecture. Our technicians are skilled in the latest SSD-specific data recovery techniques and can handle issues like controller chip failures, worn-out memory cells, and firmware bugs.</p>
+        </div>
+        <div class="card">
+          <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">Cleanroom Recovery</h3>
+          <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">For drives and devices that require physical repair, our state-of-the-art cleanroom facilities provide a safe environment to avoid any further damage during the data recovery process. Our Class 100 cleanrooms are designed to maintain high air purity, controlling particles that could harm drive components and data integrity.</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Why -->
+  <!-- Digital Forensic Analysis — copied verbatim from utahdatarecovery.com/digital-forensic-analysis/ -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-8">
+        <h2 class="eyebrow font-normal mb-4">Data Discovery and Forensic Analysis</h2>
+        <p class="text-lg leading-relaxed text-muted">
+          The process of discovery and preservation makes the difference between conviction and
+          exoneration. Each device, image, app, and account has a story to preserve in today's
+          interconnected world. The digital world is continually evolving and we're here to
+          provide the latest advances to you and your client.
+        </p>
+        <p class="mt-4 leading-relaxed text-muted">
+          Every case needs a strategy for discovery, testimony and cross examination. We work
+          with attorneys to provide cutting edge representation. We're unbeholden and have served
+          both sides so we know what to look for and how to prepare for what the other side will
+          likely do. We work with the chain of custody and with everybody in the chain of events
+          from those who are first on scene to those who leave the courthouse last.
+        </p>
+      </div>
+
+      <div class="max-w-2xl">
+        <h3 class="font-display text-xl font-bold mb-4" style="color: var(--color-text-primary);">You need a discovery expert who is:</h3>
+        <ul class="space-y-2.5 list-none p-0 m-0">
+          <li class="flex items-start gap-2.5">
+            <svg class="w-4 h-4 mt-1 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="text-sm leading-snug" style="color: var(--color-text-default);">Unbiased/unbeholden to party types with an evenly balanced history representing defendant &amp; petitioner</span>
+          </li>
+          <li class="flex items-start gap-2.5">
+            <svg class="w-4 h-4 mt-1 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="text-sm leading-snug" style="color: var(--color-text-default);">Intimate knowledge of both sides' strengths and weaknesses</span>
+          </li>
+          <li class="flex items-start gap-2.5">
+            <svg class="w-4 h-4 mt-1 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="text-sm leading-snug" style="color: var(--color-text-default);">Experienced with consulting and delivering expert testimony on the stand</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Choose Utah Data Recovery — copied verbatim from utahdatarecovery.com/data-recovery/,
+       minus the "High Success Rate" and "No Data, No Charge Policy" bullets (confirmed
+       inaccurate for AllTech's actual practice) — replaced with the correct deposit-based
+       pricing description. -->
   <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
     <div class="container-wide">
       <div class="max-w-2xl mb-12">
-        <div class="eyebrow mb-4">Why Utah Data Recovery</div>
-        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
-          Built for the cases that can't wait.
-        </h2>
+        <h2 class="eyebrow font-normal mb-4">Why Choose Utah Data Recovery?</h2>
       </div>
-      <div class="grid md:grid-cols-3 gap-6">
+      <div class="grid md:grid-cols-2 gap-6">
         <div>
-          <div class="font-display text-2xl font-semibold" style="color: var(--color-amber-500);">No Data, No Charge</div>
-          <div class="mt-2 leading-relaxed text-muted">If we can't recover it, you don't pay for the attempt.</div>
+          <div class="font-display text-2xl font-semibold" style="color: var(--color-amber-500);">Expert Technicians</div>
+          <div class="mt-2 leading-relaxed text-muted">Our team consists of industry experts with years of experience in data recovery.</div>
         </div>
         <div>
-          <div class="font-display text-2xl font-semibold" style="color: var(--color-amber-500);">Fast diagnosis</div>
-          <div class="mt-2 leading-relaxed text-muted">RAID array members diagnosed in about 20 minutes on average; full recoveries average 7 business days, some as fast as two.</div>
+          <div class="font-display text-2xl font-semibold" style="color: var(--color-amber-500);">Confidentiality Guaranteed</div>
+          <div class="mt-2 leading-relaxed text-muted">We guarantee that your data will be handled with the utmost confidentiality. We are committed to ensuring your data's privacy through secure processes.</div>
         </div>
         <div>
-          <div class="font-display text-2xl font-semibold" style="color: var(--color-amber-500);">Confidential, in-house</div>
-          <div class="mt-2 leading-relaxed text-muted">Every job stays in our own Hyde Park cleanroom under strict data-security protocols — nothing shipped off to a third party.</div>
+          <div class="font-display text-2xl font-semibold" style="color: var(--color-amber-500);">Deposit-Based Pricing</div>
+          <div class="mt-2 leading-relaxed text-muted">A non-refundable deposit gets recovery started. If we can't recover your data, you won't be charged anything beyond that deposit.</div>
         </div>
       </div>
-      <p class="mt-10 text-sm text-subtle max-w-2xl">
-        Our recovery and forensic work has served organizations including Weber State
-        University, the University of Utah, Utah State University, Brigham Young University,
-        Subway, the U.S. Forest Service, and the Department of Justice.
-      </p>
     </div>
   </section>
 
-  <!-- CTA -->
+  <!-- Get Started — copied verbatim from utahdatarecovery.com/data-recovery/ -->
   <section class="surface-dark py-16 lg:py-24" style="border-top: 1px solid var(--color-line-faint);">
     <div class="container-wide">
       <div class="max-w-3xl">
         <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
-          Every hour matters with a failed drive.
+          Get Started
         </h2>
         <p class="mt-5 text-lg leading-relaxed text-muted">
-          Call or email us directly — data recovery is a different, time-sensitive process
-          from a standard support ticket, so it skips the queue.
+          Losing data can be stressful, but recovering it doesn't have to be. Contact Utah Data
+          Recovery today to schedule a free consultation, and let us help you reclaim what you
+          thought was lost. Our friendly and knowledgeable team is ready to assist you every step
+          of the way.
         </p>
         <div class="mt-8 flex flex-wrap gap-3">
           <a href={`tel:${site.phoneE164}`} class="btn btn-primary font-mono">{site.phone}</a>
