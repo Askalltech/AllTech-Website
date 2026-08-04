@@ -133,9 +133,11 @@ const CaseStudies10 = (props: Props) => {
       <div className="container">
         <div className="mb-6 flex items-end justify-between md:mb-9 lg:mb-10">
           <div className="flex flex-col gap-4">
-            <h2 className="text-3xl font-medium md:text-4xl lg:text-5xl">
-              {title}
-            </h2>
+            {title && (
+              <h2 className="text-3xl font-medium md:text-4xl lg:text-5xl">
+                {title}
+              </h2>
+            )}
             <p className="max-w-xl text-muted-foreground">{description}</p>
           </div>
           <div className="hidden shrink-0 gap-2 md:flex">
