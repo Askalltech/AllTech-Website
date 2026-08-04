@@ -9,6 +9,24 @@ const schema = {
   description: site.description,
   url: site.url,
   telephone: site.phone,
+  logo: `${site.url}/logo.webp`,
+  // Same default OG image SEO.astro already falls back to (public/og-default.png
+  // doesn't exist yet — tracked in README's "Before launch" checklist; this
+  // will resolve once that file is generated, same as the OG tags already do).
+  image: `${site.url}/og-default.png`,
+  // Populate once real profile URLs exist (LinkedIn, Facebook, industry
+  // directories) — site.social is currently empty. Don't fabricate URLs.
+  sameAs: [],
+  knowsAbout: [
+    'Managed IT Services',
+    'Cybersecurity',
+    'Cloud Computing',
+    'Microsoft 365',
+    'Network Infrastructure',
+    'Zero Trust Security',
+    'Backup and Disaster Recovery',
+    'VoIP',
+  ],
   address: {
     '@type': 'PostalAddress',
     streetAddress: site.address.street,

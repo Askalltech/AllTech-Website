@@ -1,0 +1,194 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+import { buildServiceSchema, buildFaqSchema, buildBreadcrumbSchema, REMOTE_AREA_SERVED, type FaqEntry } from '~/lib/schema';
+
+/**
+ * Location-agnostic landing page for "remote MSP" / "managed IT services
+ * anywhere" / "virtual IT support" queries — added per the AI-visibility
+ * audit (2026-08). Every capability listed here already has its own full
+ * service page; this page exists to state, in one place, which of those
+ * are actually deliverable without a site visit, and which aren't.
+ *
+ * Deliberately excludes the Install family (cameras, door access, cabling,
+ * fiber, rack builds, point-to-point wireless) from the "delivered
+ * remotely" claim — those require physical presence, and claiming
+ * otherwise would be exactly the overclaiming this page needs to avoid.
+ * They get their own honest section below instead, linking to
+ * /services/install rather than pretending they're remote.
+ */
+
+const remoteCapabilities: { title: string; href: string; body: string }[] = [
+  {
+    title: 'Help Desk',
+    href: '/services/help-desk',
+    body: 'Most issues are resolved remotely the same day — the same engineers who know your environment, not a rotating overseas queue.',
+  },
+  {
+    title: 'Remote Monitoring & Patching',
+    href: '/services/remote-monitoring',
+    body: 'Datto RMM watches every workstation and server around the clock, catching failing drives, stalled backups, and missed patches before they become downtime.',
+  },
+  {
+    title: 'Cybersecurity',
+    href: '/services/cybersecurity',
+    body: 'Endpoint protection, email security, SOC monitoring, penetration testing, and incident response — deployed and managed without anyone on-site.',
+  },
+  {
+    title: 'Microsoft 365 & Cloud',
+    href: '/services/cloud-microsoft-365',
+    body: 'Tenant design, licensing, migration, and ongoing administration for Microsoft 365, wherever your team is logging in from.',
+  },
+  {
+    title: 'SASE Solutions',
+    href: '/services/cloudflare-zero-trust',
+    body: 'Cloudflare Zero Trust access, secure web gateway, and DNS/DDoS protection built for teams that aren\'t all in one building — or one state.',
+  },
+  {
+    title: 'Backup & Disaster Recovery',
+    href: '/services/backup-disaster-recovery',
+    body: 'Immutable, tested backups and documented recovery objectives, managed and monitored remotely.',
+  },
+  {
+    title: 'Vendor Management',
+    href: '/services/vendor-management',
+    body: 'One number for your ISP, phone system, and line-of-business software — we make the calls so your team doesn\'t have to be in the office to get an answer.',
+  },
+];
+
+const faqs: FaqEntry[] = [
+  ['Does AllTech support businesses outside Utah?', "Yes, for the services that don't require physical hardware work — help desk, remote monitoring, cybersecurity, Microsoft 365/cloud, SASE/Zero Trust, backup and disaster recovery, and vendor management are all delivered remotely. Installation and on-site work (cameras, cabling, fiber, rack builds) is scoped to Northern Utah and southern Idaho, where our crews can actually reach you."],
+  ['Can I get managed IT services if my team works remotely or hybrid?', "Yes. Company-managed devices are supported the same way regardless of where they're being used, secured through Zero Trust Access rather than a legacy site-to-site VPN."],
+  ['What IT services can be delivered virtually vs. require an on-site visit?', "Help desk, monitoring and patching, cybersecurity, cloud/Microsoft 365, SASE/Zero Trust networking, and backup and disaster recovery are all handled remotely. Anything involving physical hardware — new cameras, cabling, fiber runs, door access hardware, or a rack build — needs an engineer on-site, which is why those stay scoped to our physical service area."],
+  ['Do you support distributed or multi-location teams?', 'Yes — remote monitoring and management apply the same standard to every location, including sites without any on-site IT staff.'],
+  ['How fast can a remote engineer respond to an issue?', "Most issues reported by phone, email, or the client portal reach an engineer the same day; monitored systems are watched continuously, so many problems are caught and resolved before anyone has to report them."],
+];
+
+const serviceSchema = buildServiceSchema({
+  serviceType: 'Remote Managed IT Services',
+  name: 'Remote Managed IT & Cybersecurity',
+  description:
+    "Help desk, remote monitoring, cybersecurity, Microsoft 365/cloud, SASE/Zero Trust networking, and backup and disaster recovery, delivered remotely. On-site visits remain available, and installation work stays scoped to Northern Utah and southern Idaho.",
+  areaServed: REMOTE_AREA_SERVED,
+});
+
+const faqSchema = buildFaqSchema(faqs);
+
+const breadcrumbSchema = buildBreadcrumbSchema([
+  { name: 'Home', path: '/' },
+  { name: 'Remote IT Support', path: '/remote-it-support' },
+]);
+---
+
+<BaseLayout
+  title="Remote IT Support & Managed Services"
+  description="Managed IT and cybersecurity delivered remotely: help desk, monitoring, cybersecurity, cloud, and backup and disaster recovery — with on-site visits available for hardware and installs."
+  canonical={`${site.url}/remote-it-support`}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
+
+  <!-- Hero -->
+  <section class="surface-dark relative overflow-hidden">
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="max-w-3xl">
+        <div class="eyebrow mb-4">Remote IT Support</div>
+        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+          Managed IT and cybersecurity,<br />
+          <span style="color: var(--color-amber-400);">delivered wherever your team works.</span>
+        </h1>
+        <p class="mt-6 text-xl leading-relaxed text-muted">
+          Help desk, monitoring, cybersecurity, cloud, and backup — handled remotely by the same
+          engineers, with on-site visits available for hardware and network installs.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="/contact" class="btn btn-primary">Talk to an engineer <span aria-hidden="true">&rarr;</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- What we deliver remotely -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-12">
+        <div class="eyebrow mb-4">What we deliver remotely</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          No site visit required.
+        </h2>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+        {remoteCapabilities.map(({ title, href, body }) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{title}</h3>
+            <p class="text-sm leading-relaxed mb-4" style="color: var(--color-text-default);">{body}</p>
+            <a href={href} class="inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">
+              Learn more <span aria-hidden="true">&rarr;</span>
+            </a>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- What still needs boots on the ground -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl">
+        <div class="eyebrow mb-4">What still needs boots on the ground</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          We won't pretend otherwise.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          Cameras, door access hardware, structured cabling, fiber runs, point-to-point wireless,
+          and server-room buildouts require an engineer physically at your site. That work stays
+          scoped to Northern Utah and southern Idaho, where our own crews can reach you.
+        </p>
+        <a href="/services/install" class="mt-6 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">
+          See on-site install services <span aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-2xl mb-10">
+        <div class="eyebrow mb-4">FAQ</div>
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Common questions.
+        </h2>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+        {faqs.map(([q, a]) => (
+          <div class="card">
+            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary);">{q}</h3>
+            <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{a}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="surface-dark py-16 lg:py-24" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="max-w-3xl">
+        <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
+          Wherever your team is, we can support it.
+        </h2>
+        <p class="mt-5 text-lg leading-relaxed text-muted">
+          Send a short note about your environment. We'll tell you honestly what's deliverable
+          remotely and what would need someone on-site.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="/contact" class="btn btn-primary">Talk to an engineer <span aria-hidden="true">&rarr;</span></a>
+          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

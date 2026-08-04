@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { site } from '~/lib/site';
+import { buildBreadcrumbSchema } from '~/lib/schema';
 
 /**
  * NETWORK family — teal accent, matching switching-and-gateways.astro and
@@ -83,6 +84,13 @@ const serviceSchema = {
   description:
     'Business firewall configuration, VLAN segmentation, and multi-WAN failover. UniFi and Cloudflare-integrated edge security, deployed and managed by local engineers.',
 };
+
+const breadcrumbSchema = buildBreadcrumbSchema([
+  { name: 'Home', path: '/' },
+  { name: 'Services', path: '/services' },
+  { name: 'Network', path: '/services/network-design' },
+  { name: 'Firewall & Routing', path: '/services/firewall-routing' },
+]);
 ---
 
 <BaseLayout
@@ -92,6 +100,7 @@ const serviceSchema = {
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
 
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
   <!-- Hero -->
   <section class="surface-dark relative overflow-hidden net-family">
     <div class="relative container-wide py-16 lg:py-20">

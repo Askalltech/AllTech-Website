@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { site } from '~/lib/site';
+import { buildBreadcrumbSchema } from '~/lib/schema';
 
 /**
  * PARENT LANDING PAGE for the IT & Cloud menu column.
@@ -103,6 +104,12 @@ const serviceSchema = {
   name: 'Managed IT & Cloud Services',
   description: 'Outsourced IT for northern Utah businesses: local help desk, Datto RMM monitoring and patching, vendor management, Microsoft 365, Entra ID and Intune, and tested backup and disaster recovery.',
 };
+
+const breadcrumbSchema = buildBreadcrumbSchema([
+  { name: 'Home', path: '/' },
+  { name: 'Services', path: '/services' },
+  { name: 'IT & Cloud', path: '/services/it-cloud' },
+]);
 ---
 
 <BaseLayout
@@ -112,6 +119,7 @@ const serviceSchema = {
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
 
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
   <!-- Hero -->
   <section class="surface-dark relative overflow-hidden">
     <div class="relative container-wide py-16 lg:py-20">

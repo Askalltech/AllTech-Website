@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { site } from '~/lib/site';
+import { buildBreadcrumbSchema } from '~/lib/schema';
 
 /**
  * IT & CLOUD family — amber accent.
@@ -73,6 +74,7 @@ const related = [
   ['Remote Monitoring', 'Monitoring is how we know a circuit is flapping before your vendor tells us it isn\'t.', '/services/remote-monitoring'],
   ['Managed IT', 'Vendor management is one piece of the outsourced IT department.', '/services/it-cloud'],
   ['Microsoft 365 & Cloud', 'Licensing, tenant administration, and the renewals nobody reviews.', '/services/cloud-microsoft-365'],
+  ['Remote IT Support', 'What we deliver remotely vs. what needs someone on-site, in one place.', '/remote-it-support'],
 ];
 
 // Matches a ContactForm.tsx checkbox label exactly, as the copy specified.
@@ -98,6 +100,13 @@ const faqSchema = {
     acceptedAnswer: { '@type': 'Answer', text: answer },
   })),
 };
+
+const breadcrumbSchema = buildBreadcrumbSchema([
+  { name: 'Home', path: '/' },
+  { name: 'Services', path: '/services' },
+  { name: 'IT & Cloud', path: '/services/it-cloud' },
+  { name: 'Vendor Management', path: '/services/vendor-management' },
+]);
 ---
 
 <BaseLayout
@@ -108,6 +117,7 @@ const faqSchema = {
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
 
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
   <!-- Hero -->
   <section class="surface-dark relative overflow-hidden">
     <div class="relative container-wide py-16 lg:py-20">
@@ -126,6 +136,9 @@ const faqSchema = {
         <div class="mt-8 flex flex-wrap gap-3">
           <a href={contactHref} class="btn btn-primary">Talk to us about vendor management <span aria-hidden="true">→</span></a>
           <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+        </div>
+        <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
+          <div>Handled remotely</div>
         </div>
       </div>
     </div>

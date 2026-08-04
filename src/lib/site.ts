@@ -108,6 +108,14 @@ export const services = [
     icon: "endpoint",
   },
   {
+    slug: "remote-it-support",
+    name: "Remote IT Support",
+    short: "Managed IT and cybersecurity delivered remotely — help desk, monitoring, cybersecurity, cloud, and backup and disaster recovery — wherever your team works.",
+    icon: "cloud-sync",
+    // Lives at the site root, not /services/<slug> — serviceLink() reads this.
+    path: "/remote-it-support",
+  },
+  {
     slug: "alltech-top-10",
     name: "AllTech Top 10",
     short: "A pre-selected security stack for small and mid-sized business — the ten controls we deploy first, mapped to leading frameworks and continually refined as threats evolve.",
@@ -124,11 +132,13 @@ export const services = [
 export type ServiceSlug = typeof services[number]["slug"];
 
 /**
- * Resolve a service's link target. If a service defines an external `url`
- * (e.g. Utah Data Recovery), link out to it; otherwise link to its detail page.
+ * Resolve a service's link target. If a service defines an external `url`,
+ * link out to it. If it defines an internal `path` (for a page that doesn't
+ * live at /services/<slug>, e.g. Remote IT Support at the site root), use
+ * that. Otherwise link to its /services/<slug> detail page.
  */
-export function serviceLink(s: { slug: string; url?: string }) {
-  return s.url
-    ? { href: s.url, external: true as const }
-    : { href: `/services/${s.slug}`, external: false as const };
+export function serviceLink(s: { slug: string; url?: string; path?: string }) {
+  if (s.url) return { href: s.url, external: true as const };
+  if (s.path) return { href: s.path, external: false as const };
+  return { href: `/services/${s.slug}`, external: false as const };
 }

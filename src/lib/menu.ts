@@ -80,6 +80,7 @@ export const menuCategories: MenuCategory[] = [
     label: 'IT & Cloud',
     href: '/services/it-cloud',
     tiles: [
+      { title: 'Remote IT Support',     description: 'Managed IT, wherever your team works',   href: '/remote-it-support' },
       { title: 'Help Desk',             description: 'Local engineers, fast response',         href: '/services/help-desk' },
       { title: 'Remote Monitoring',     description: 'Datto RMM, patching, automation',        href: '/services/remote-monitoring' },
       { title: 'Vendor Management',     description: 'One number for all your tech vendors',   href: '/services/vendor-management' },

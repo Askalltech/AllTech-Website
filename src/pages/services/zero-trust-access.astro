@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { site } from '~/lib/site';
+import { buildBreadcrumbSchema } from '~/lib/schema';
 
 const problems = [
   ['Open ports are scanned in minutes', 'Anything published to a public IP gets found. RDP and VPN appliances are the two most common ransomware entry points we see.'],
@@ -52,6 +53,7 @@ const related = [
   ['Cloudflare Zero Trust', 'The full Cloudflare One platform this sits inside — Gateway, Email Security, DNS, and DDoS protection.', '/services/cloudflare-zero-trust'],
   ['Network & Infrastructure', 'The edge device, segmentation, and multi-WAN failover that Tunnel sits on top of rather than replaces.', '/services/network-design'],
   ['AllTech Top 10', 'Where identity-aware remote access fits in the wider security stack we deploy first.', '/services/alltech-top-10'],
+  ['Remote IT Support', 'What we deliver remotely vs. what needs someone on-site, in one place.', '/remote-it-support'],
 ];
 
 // Zero Trust Access is a component of the Cloudflare Zero Trust engagement, so
@@ -79,6 +81,13 @@ const faqSchema = {
     acceptedAnswer: { '@type': 'Answer', text: answer },
   })),
 };
+
+const breadcrumbSchema = buildBreadcrumbSchema([
+  { name: 'Home', path: '/' },
+  { name: 'Services', path: '/services' },
+  { name: 'SASE Solutions', path: '/services/cloudflare-zero-trust' },
+  { name: 'Zero Trust Access (ZTNA)', path: '/services/zero-trust-access' },
+]);
 ---
 
 <BaseLayout
@@ -88,6 +97,7 @@ const faqSchema = {
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
 
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
   <!-- Hero -->
   <section class="surface-dark relative overflow-hidden">
     <div class="relative container-wide py-16 lg:py-20">
@@ -108,6 +118,7 @@ const faqSchema = {
         </div>
         <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
           <div>Cloudflare Partner</div>
+          <div>Built for remote &amp; distributed teams</div>
           <div>Multi-site deployments</div>
           <div>Terraform-managed</div>
           <div>Local engineers</div>
