@@ -32,9 +32,16 @@ HOME  (/)
 │   ├── IT & Cloud                   Help desk, monitoring, Microsoft 365
 │   ├── AllTech Top 10               Our pre-selected security stack for
 │   │                                 small & mid-sized business
-│   └── Utah Data Recovery           AllTech's data-recovery brand — its own
-│                                     page, phone/email CTA only (no
-│                                     assessment or ticket buttons)
+│   ├── Utah Data Recovery           AllTech's data-recovery brand — its own
+│   │                                 page, phone/email CTA only (no
+│   │                                 assessment or ticket buttons)
+│   └── Remote IT Support            "We can help wherever your team is" —
+│                                     what we deliver remotely vs. what
+│                                     needs someone on-site
+│
+├── REMOTE IT SUPPORT  (/remote-it-support)
+│       Not under /services — same nav placement (first IT & Cloud tile,
+│       footer). Built for "remote MSP" / "managed IT anywhere" searches.
 │
 ├── SECURITY GAP ASSESSMENT  (/assessment)
 │       12-step questionnaire → posture score → results sent to sales.
