@@ -31,6 +31,7 @@ export const menuCategories: MenuCategory[] = [
     label: 'Cybersecurity',
     href: '/services/cybersecurity',
     tiles: [
+      { title: 'AllTech Top 10',      description: 'Our essential security controls, ranked',     href: '/services/alltech-top-10' },
       { title: 'Endpoint Security',   description: 'EDR & ransomware protection',                href: '/services/endpoint-security' },
       { title: 'Email Security',      description: 'Stop phishing, BEC, malware before delivery', href: '/services/email-security' },
       { title: 'Network Detection (NDR)', description: 'AI anomaly-based network threat detection',  href: '/services/network-detection' },
