@@ -86,6 +86,7 @@ export const menuCategories: MenuCategory[] = [
       { title: 'Microsoft 365',         description: 'Tenant design, licensing, migration',    href: '/services/cloud-microsoft-365#m365' },
       { title: 'Entra ID & Intune',     description: 'Identity & device management',           href: '/services/entra-id-intune' },
       { title: 'Backup & Disaster Recovery', description: 'Immutable copies & tested restores', href: '/services/backup-disaster-recovery' },
+      { title: 'Utah Data Recovery',    description: 'Hard drive, RAID, and phone data recovery', href: '/services/utah-data-recovery' },
     ],
   },
 ];
