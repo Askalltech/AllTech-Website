@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { sendEmail } from '~/lib/email';
 
 /**
  * Opt out of prerendering — this needs to run server-side on Cloudflare.
@@ -53,7 +54,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 
   // 3. Turnstile verification (only if secret is configured)
-  // @ts-expect-error - env is provided by the Cloudflare runtime via Astro adapter
   const env = locals.runtime?.env ?? {};
   if (env.TURNSTILE_SECRET) {
     const token = data['cf-turnstile-response'];
@@ -69,9 +69,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
   }
 
-  // 4. Forward — easiest path is Cloudflare Email Routing's send_email binding,
-  //    or any transactional service (Resend, Postmark, SendGrid).
-  //    For now we log and return success. Replace this block with your sender of choice.
+  // 4. Forward via Cloudflare Email Routing's Send Email binding (see
+  //    src/lib/email.ts and the `send_email` block in wrangler.toml).
   //
   //    Routing note: help@askalltech.com is reserved for EXISTING customers.
   //    New/prospective inquiries from this form should go to the shared managers'
@@ -89,25 +88,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
     data.message || '—',
   ].join('\n');
 
-  console.log(`[contact] ${subject}\n${body}`);
-
-  // === REPLACE WITH YOUR SENDER ===
-  // Example with Resend:
-  //
-  // await fetch('https://api.resend.com/emails', {
-  //   method: 'POST',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //     Authorization: `Bearer ${env.RESEND_API_KEY}`,
-  //   },
-  //   body: JSON.stringify({
-  //     from: env.CONTACT_FROM,
-  //     to: env.CONTACT_FORWARD_TO,
-  //     reply_to: data.email,
-  //     subject,
-  //     text: body,
-  //   }),
-  // });
+  await sendEmail({
+    binding: env.SEND_EMAIL,
+    to: env.CONTACT_FORWARD_TO,
+    from: env.CONTACT_FROM,
+    replyTo: data.email,
+    subject,
+    text: body,
+  });
 
   return json({ ok: true });
 };

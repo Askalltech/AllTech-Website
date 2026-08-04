@@ -110,27 +110,30 @@ Set these in the Pages dashboard (Settings → Environment variables):
 |---|---|
 | `PUBLIC_TURNSTILE_SITE_KEY` | Cloudflare Turnstile public key (exposed to browser) |
 | `TURNSTILE_SECRET` | Turnstile secret (server-side verification) |
-| `RESEND_API_KEY` | If using Resend for transactional email |
-| `CONTACT_FROM` | From address (must be on a verified domain) |
+| `CONTACT_FROM` | From address (must be on a domain verified in Cloudflare Email Routing) |
 | `CONTACT_FORWARD_TO` | Where contact form submissions are delivered |
+| `ASSESSMENT_FORWARD_TO` | Where gap-assessment results are delivered (falls back to `CONTACT_FORWARD_TO`) |
 
 `SHADCNBLOCKS_API_KEY` is only needed locally when pulling new blocks (see "Design system" above) — it's not used at runtime, so it doesn't need to be set in Pages.
 
-## Contact form
+## Contact form & security gap assessment
 
-The form posts JSON to `/api/contact.ts`, which runs as a Cloudflare Pages Function. The handler currently:
+Both `/api/contact.ts` and `/api/assessment.ts` run as Cloudflare Pages Functions and:
 
 1. Honeypot check (`company_website` field)
 2. Required-field validation
-3. Optional Turnstile verification (active if `TURNSTILE_SECRET` is set)
-4. **Logs the submission** — you must wire this up to an actual sender. See the `=== REPLACE WITH YOUR SENDER ===` block in `src/pages/api/contact.ts`. Recommended: Resend, since it integrates cleanly with Cloudflare.
+3. Optional Turnstile verification (active once `PUBLIC_TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET` are set)
+4. Send via **Cloudflare Email Routing's Send Email binding** — see `src/lib/email.ts`. No third-party transactional provider (Resend, Postmark, etc.) needed. Two things have to be true before mail actually goes out, beyond just setting the env vars above:
+   - Your domain must be added under Email Routing (dashboard → your zone → Email → Email Routing), with `CONTACT_FROM`'s domain verified there.
+   - Every address you set `CONTACT_FORWARD_TO` / `ASSESSMENT_FORWARD_TO` to must also be added there **and** listed in the `send_email` binding's `allowed_destination_addresses` in `wrangler.toml` — Cloudflare enforces that allow-list at the binding level, so it can't be driven purely by runtime env vars. Keep the two in sync.
+   - Without a working binding (e.g. running `astro dev` locally, or before the above is set up), submissions are still validated and scored — they just get logged instead of emailed.
 
 ## Before launch
 
 - [ ] Replace `https://askalltech.com` in `src/lib/site.ts` and `astro.config.mjs` if domain changes
 - [ ] Add the Cloudflare Web Analytics token in `BaseLayout.astro` (uncomment script tag)
 - [ ] Generate `/public/og-default.png` (1200×630 brand image)
-- [ ] Wire up email sender in `src/pages/api/contact.ts`
+- [ ] Add your domain to Cloudflare Email Routing, verify `CONTACT_FROM`'s domain, and add real addresses to the `send_email` binding's `allowed_destination_addresses` in `wrangler.toml` (see "Contact form & security gap assessment" above)
 - [ ] Set environment variables in Pages dashboard
 - [ ] Verify Google Business Profile NAP exactly matches `site.ts`
 - [ ] Submit `sitemap-index.xml` to Google Search Console
@@ -144,20 +147,22 @@ Each is a business/content decision or needs something outside this
 codebase (an account, a photo, a legal review) — none of these are
 implemented yet.
 
-- [ ] **Non-customer inquiry flow.** The meeting didn't reach a final
-  decision — options floated were a callback system or a guided client-portal
-  signup. Needs a decision before any code changes here.
-- [ ] **Wire up real email delivery.** Both `/api/contact.ts` and
-  `/api/assessment.ts` validate real submissions (including Turnstile if
-  configured) but only `console.log` them — nothing is actually emailed to
-  anyone today. The Resend integration is stubbed and commented out in both
-  files, matching the env vars already documented above. Needs a Resend
-  account + verified sending domain, then `RESEND_API_KEY`,
-  `CONTACT_FORWARD_TO`, and `ASSESSMENT_FORWARD_TO` set in the Pages
-  dashboard.
+- [x] **Non-customer inquiry flow.** `/contact` now splits into "already a
+  customer" (client portal) vs. "new to AllTech" (the free security gap
+  assessment) up top, mirroring the homepage hero's existing CTA pair.
+- [ ] **Wire up real email delivery.** The code path is done — both
+  `/api/contact.ts` and `/api/assessment.ts` send via Cloudflare Email
+  Routing's Send Email binding (`src/lib/email.ts`), no third-party sender
+  needed. What's left is account setup, not code: add the domain to Email
+  Routing, verify `CONTACT_FROM`'s domain, and add the real forward-to
+  address(es) to both `CONTACT_FORWARD_TO`/`ASSESSMENT_FORWARD_TO` (Pages
+  dashboard) and `allowed_destination_addresses` (`wrangler.toml`) — see
+  "Contact form & security gap assessment" above.
 - [ ] **Turnstile site key / secret.** Same category — `PUBLIC_TURNSTILE_SITE_KEY`
   and `TURNSTILE_SECRET` aren't set yet, so the captcha on the contact and
-  assessment forms is currently inactive.
+  assessment forms is currently inactive. The widget and server-side
+  verification are already wired up in both forms; it just needs a
+  Turnstile site created in the Cloudflare dashboard.
 - [ ] **Client portal branding + wider access.** Only a limited set of
   clients currently have portal access; the meeting wants it broadened and
   visually matched to the site. External system (askalltech.itclientportal.com),

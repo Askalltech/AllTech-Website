@@ -1,9 +1,10 @@
 import type { APIRoute } from 'astro';
 import { domains, allQuestions, scoreAssessment, type Answer } from '~/lib/assessment';
+import { sendEmail } from '~/lib/email';
 
 /**
  * Opt out of prerendering — this needs to run server-side on Cloudflare.
- * Mirrors src/pages/api/contact.ts (honeypot, Turnstile, stubbed send).
+ * Mirrors src/pages/api/contact.ts (honeypot, Turnstile, Cloudflare Send Email).
  */
 export const prerender = false;
 
@@ -39,8 +40,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 
   // 3. Turnstile verification (only if secret is configured)
-  // env is provided by the Cloudflare runtime via the Astro adapter
-  const env = (locals as { runtime?: { env?: Record<string, string> } }).runtime?.env ?? {};
+  const env = locals.runtime?.env ?? {};
   if (env.TURNSTILE_SECRET) {
     const token = data['cf-turnstile-response'];
     if (!token) return json({ ok: false, message: 'Captcha missing.' }, 400);
@@ -61,8 +61,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   // 4. Forward to SALES — the prospect's contact info + their score + every answer.
   //    Set ASSESSMENT_FORWARD_TO to the sales inbox (falls back to CONTACT_FORWARD_TO).
-  //    Send is stubbed (console.log) exactly like contact.ts — wire a transactional
-  //    sender (Resend/Postmark/Cloudflare Email) to take both routes live together.
+  //    Sent via the same Cloudflare Send Email binding as contact.ts (src/lib/email.ts).
   const labelFor = (id: string) => allQuestions.find((q) => q.id === id)?.text ?? id;
   const answerLabel: Record<Answer, string> = { yes: 'Yes', no: 'No', unsure: 'Not sure' };
 
@@ -98,15 +97,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
     answerLines,
   ].join('\n');
 
-  console.log(`[assessment] ${subject}\n${body}`);
-
-  // === REPLACE WITH YOUR SENDER ===
-  // const to = env.ASSESSMENT_FORWARD_TO || env.CONTACT_FORWARD_TO;
-  // await fetch('https://api.resend.com/emails', {
-  //   method: 'POST',
-  //   headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${env.RESEND_API_KEY}` },
-  //   body: JSON.stringify({ from: env.CONTACT_FROM, to, reply_to: data.email, subject, text: body }),
-  // });
+  await sendEmail({
+    binding: env.SEND_EMAIL,
+    to: env.ASSESSMENT_FORWARD_TO || env.CONTACT_FORWARD_TO,
+    from: env.CONTACT_FROM,
+    replyTo: data.email,
+    subject,
+    text: body,
+  });
 
   return json({ ok: true });
 };

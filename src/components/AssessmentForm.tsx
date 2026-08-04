@@ -43,7 +43,23 @@ export default function AssessmentForm({ turnstileSiteKey }: Props) {
   const score = useMemo(() => scoreAssessment(answers), [answers]);
 
   function setAnswer(id: string, value: Answer) {
-    setAnswers((prev) => ({ ...prev, [id]: value }));
+    setAnswers((prev) => {
+      const next = { ...prev, [id]: value };
+
+      // Auto-advance the moment this answer completes the domain shown —
+      // but only on that transition, so re-picking an answer after going
+      // back doesn't yank the user forward again.
+      if (!onResults) {
+        const domain = domains[step];
+        const wasComplete = domain.questions.every((q) => prev[q.id]);
+        const isComplete = domain.questions.every((q) => next[q.id]);
+        if (!wasComplete && isComplete) {
+          window.setTimeout(() => setStep((s) => s + 1), 350);
+        }
+      }
+
+      return next;
+    });
   }
 
   function currentDomainAnswered() {
