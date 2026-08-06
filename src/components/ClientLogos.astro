@@ -81,12 +81,17 @@ const clients = [
     margin: 0;
     padding: 0;
     list-style: none;
-    /* Duration scales with the client list so per-logo scroll speed stays
-       constant as logos are added — was 42s for the original 9 logos;
-       now 23 logos, so 42s * (23/9) ≈ 108s. If you add more logos, bump
-       this proportionally (roughly 4.7s per logo) rather than leaving it
-       fixed, or the strip visibly speeds up. */
-    animation: client-marquee 108s linear infinite;
+    /* Duration is computed at runtime (see the script below) from the
+       actual rendered width of the logo strip, targeting a fixed
+       px/second scroll speed — not a hardcoded seconds value. A fixed
+       duration drifts every time a logo is added, removed, resized, or
+       re-cropped (this happened twice: once going from 9→23 logos, once
+       when cropping changed several logos' rendered aspect ratio), so the
+       speed silently changes each time someone edits the `clients` array.
+       Measuring width and dividing by a constant speed makes it
+       self-correcting. 108s/125s here are just the pre-JS fallback for
+       the split second before the script runs (avoids a jump/flash). */
+    animation: client-marquee var(--marquee-duration, 125s) linear infinite;
   }
   .marquee:hover .marquee-group,
   .marquee:focus-within .marquee-group {
@@ -124,3 +129,36 @@ const clients = [
     .marquee-group[aria-hidden='true'] { display: none; }
   }
 </style>
+
+<script>
+  // Keeps scroll speed constant regardless of how many logos are in the
+  // list or how they're sized/cropped — see the comment on `animation` in
+  // the <style> block above for why this exists instead of a hardcoded
+  // duration.
+  const SPEED_PX_PER_SEC = 36; // matches the original 9-logo marquee's pace (~1527px / 42s)
+
+  function setMarqueeDuration() {
+    const groups = document.querySelectorAll<HTMLElement>('.marquee-group');
+    if (!groups.length) return;
+    const width = groups[0].getBoundingClientRect().width;
+    if (!width) return;
+    const duration = Math.round((width / SPEED_PX_PER_SEC) * 10) / 10;
+    groups.forEach((g) => g.style.setProperty('--marquee-duration', `${duration}s`));
+  }
+
+  const images = document.querySelectorAll<HTMLImageElement>('.marquee-group img');
+  const pending = [...images].filter((img) => !img.complete);
+  if (pending.length === 0) {
+    setMarqueeDuration();
+  } else {
+    let remaining = pending.length;
+    pending.forEach((img) => {
+      const done = () => {
+        remaining -= 1;
+        if (remaining === 0) setMarqueeDuration();
+      };
+      img.addEventListener('load', done, { once: true });
+      img.addEventListener('error', done, { once: true });
+    });
+  }
+</script>
