@@ -64,7 +64,7 @@ const clients = [
 
 <style>
   .marquee {
-    --gap: 3.5rem;
+    --gap: 4.5rem;
     display: flex;
     gap: var(--gap);
     overflow: hidden;
@@ -81,7 +81,12 @@ const clients = [
     margin: 0;
     padding: 0;
     list-style: none;
-    animation: client-marquee 42s linear infinite;
+    /* Duration scales with the client list so per-logo scroll speed stays
+       constant as logos are added — was 42s for the original 9 logos;
+       now 23 logos, so 42s * (23/9) ≈ 108s. If you add more logos, bump
+       this proportionally (roughly 4.7s per logo) rather than leaving it
+       fixed, or the strip visibly speeds up. */
+    animation: client-marquee 108s linear infinite;
   }
   .marquee:hover .marquee-group,
   .marquee:focus-within .marquee-group {
