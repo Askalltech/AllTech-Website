@@ -73,9 +73,9 @@ alltech-site/
 │   │   │   └── [service].astro              # /services/<slug> (catch-all)
 │   │   ├── locations/
 │   │   │   └── [city].astro          # /locations/<city> (one per service area)
-│   │   ├── blog/
-│   │   │   ├── index.astro           # /blog
-│   │   │   └── [...slug].astro       # /blog/<post-slug>
+│   │   ├── insights/
+│   │   │   ├── index.astro           # /insights
+│   │   │   └── [...slug].astro       # /insights/<post-slug>
 │   │   └── api/                      # ⭐ EDGE BACKEND lives here
 │   │       └── contact.ts            # POST /api/contact → Pages Function
 │   │
