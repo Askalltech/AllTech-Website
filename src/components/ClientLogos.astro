@@ -64,7 +64,7 @@ const clients = [
 
 <style>
   .marquee {
-    --gap: 3.5rem;
+    --gap: 7rem;
     display: flex;
     gap: var(--gap);
     overflow: hidden;
@@ -147,11 +147,21 @@ const clients = [
   }
 
   const images = document.querySelectorAll<HTMLImageElement>('.marquee-group img');
+  // These are loading="lazy" for real users' network performance, but most
+  // of them sit far outside the initial viewport (the strip is laid out
+  // horizontally across ~4500px+ and clipped by overflow:hidden, not
+  // natively scrolled), so the browser never fetches — and never fires
+  // load/error on — most of them. Waiting on those events left `remaining`
+  // stuck above 0 forever, so the duration silently never updated and the
+  // CSS fallback default was the only value that ever applied, no matter
+  // what actually changed. Force them to load immediately for measurement.
+  images.forEach((img) => { img.loading = 'eager'; });
   const pending = [...images].filter((img) => !img.complete);
   if (pending.length === 0) {
     setMarqueeDuration();
   } else {
     let remaining = pending.length;
+    const finish = () => { if (remaining > 0) { remaining = 0; setMarqueeDuration(); } };
     pending.forEach((img) => {
       const done = () => {
         remaining -= 1;
@@ -160,5 +170,8 @@ const clients = [
       img.addEventListener('load', done, { once: true });
       img.addEventListener('error', done, { once: true });
     });
+    // Safety net: proceed with whatever width is available rather than
+    // risk staying on the static fallback if a request stalls.
+    setTimeout(finish, 2000);
   }
 </script>
