@@ -11,7 +11,7 @@ const gridPosts = posts.map((post) => ({
   title: post.data.title,
   summary: post.data.description,
   label: post.data.tags[0] ?? 'Insights',
-  href: `/blog/${post.slug}`,
+  href: `/insights/${post.slug}`,
   image: post.data.heroImage,
 }));
 ---

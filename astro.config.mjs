@@ -18,9 +18,13 @@ export default defineConfig({
   // The Tunnel & WARP page was renamed to match the SASE menu taxonomy — it is
   // the Zero Trust Access (ZTNA) story. Redirect the old route so shared links
   // and anything already indexed keep working.
+  // Blog routes were renamed to /insights to match the nav label — redirect
+  // the old URLs so bookmarks, shared links, and search results keep working.
   redirects: {
     '/cloudflare': '/services/cloudflare-zero-trust',
     '/services/tunnel-warp': '/services/zero-trust-access',
+    '/blog': '/insights',
+    '/blog/[...slug]': '/insights/[...slug]',
   },
 
   // Static by default; opt specific routes into SSR with `export const prerender = false`
