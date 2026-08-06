@@ -92,6 +92,7 @@ const clients = [
        self-correcting. 108s/125s here are just the pre-JS fallback for
        the split second before the script runs (avoids a jump/flash). */
     animation: client-marquee var(--marquee-duration, 125s) linear infinite;
+    animation-delay: var(--marquee-delay, 0s);
   }
   .marquee:hover .marquee-group,
   .marquee:focus-within .marquee-group {
@@ -143,7 +144,15 @@ const clients = [
     const width = groups[0].getBoundingClientRect().width;
     if (!width) return;
     const duration = Math.round((width / SPEED_PX_PER_SEC) * 10) / 10;
-    groups.forEach((g) => g.style.setProperty('--marquee-duration', `${duration}s`));
+    // Negative delay jumps the animation forward by that many seconds before
+    // it even starts, so a random one lands the strip at a random point in
+    // the loop on each page load instead of always opening on the first logo.
+    // Same random fraction for both groups keeps them in sync with each other.
+    const delay = -(Math.random() * duration).toFixed(1);
+    groups.forEach((g) => {
+      g.style.setProperty('--marquee-duration', `${duration}s`);
+      g.style.setProperty('--marquee-delay', `${delay}s`);
+    });
   }
 
   const images = document.querySelectorAll<HTMLImageElement>('.marquee-group img');
