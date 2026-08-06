@@ -48,6 +48,15 @@ interface Member {
 // the photography does.
 const team: Member[] = [
   {
+    name: 'Jordan Knutson',
+    role: 'Vice President of Client Services',
+    bio: [
+      'Jordan Knutson joined AllTech in January 2026 after his previous role on the senior management team of a mid-sized food manufacturer. He holds an MHR degree from the Huntsman School of Business at Utah State University and brings more than a decade of people management experience to AllTech.',
+      'He focuses on service delivery, operational strategy, and ensuring every client receives an outstanding experience. Jordan believes that great IT isn’t just about the technology—it’s about building trust, communicating well, and making life easier for the people on the other end of the support ticket.',
+      'Outside the office, Jordan is an unapologetic Tolkien enthusiast who can happily discuss the deep lore of Middle-earth far longer than most people would consider reasonable or even interesting. He loves cooking, weight training, and home projects that involve power tools. Jordan loves to bring energy and a competitive spirit to team initiatives... as long as he gets his caffeine first and doesn’t have to wake up TOO early for it.',
+    ],
+  },
+  {
     name: 'Rick Sherwood',
     role: 'Network Engineer',
     tagline: 'The Network Nomad',
@@ -146,15 +155,6 @@ const team: Member[] = [
       'Placeholder second paragraph. This only appears once Show more is pressed, which is where the longer background, career history, and personal detail belong.',
     ],
   },
-  {
-    name: 'Jordan Knutson',
-    role: 'Vice President of Client Services',
-    bio: [
-      'Jordan Knutson joined AllTech in January 2026 after his previous role on the senior management team of a mid-sized food manufacturer. He holds an MHR degree from the Huntsman School of Business at Utah State University and brings more than a decade of people management experience to AllTech.',
-      'He focuses on service delivery, operational strategy, and ensuring every client receives an outstanding experience. Jordan believes that great IT isn’t just about the technology—it’s about building trust, communicating well, and making life easier for the people on the other end of the support ticket.',
-      'Outside the office, Jordan is an unapologetic Tolkien enthusiast who can happily discuss the deep lore of Middle-earth far longer than most people would consider reasonable or even interesting. He loves cooking, weight training, and home projects that involve power tools. Jordan loves to bring energy and a competitive spirit to team initiatives... as long as he gets his caffeine first and doesn’t have to wake up TOO early for it.',
-    ],
-  },
 ];
 
 const slugify = (name: string) =>
@@ -177,11 +177,11 @@ const initials = (name: string) =>
     <div class="relative container-wide py-16 lg:py-20">
       <div class="eyebrow mb-4">Our Team</div>
       <h1 class="font-display text-5xl lg:text-6xl font-bold leading-tight max-w-3xl">
-        The people who <span style="color: var(--color-amber-400);">build and run</span> your infrastructure.
+        The people who <span style="color: var(--color-amber-400);">build and care about</span> your infrastructure.
       </h1>
       <p class="mt-6 text-xl max-w-2xl leading-relaxed text-muted">
         Real engineers, local since 2009. When you call AllTech, you reach the
-        same people who designed your network — not a faceless queue.
+        same people who designed your network.
       </p>
     </div>
   </section>

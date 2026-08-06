@@ -73,12 +73,12 @@ const TeamMemberCard = memo(
               src={member.image}
               alt=""
               loading="lazy"
-              className="aspect-square w-full max-w-40 rounded border object-cover md:max-w-none"
+              className="aspect-[4/3] w-full rounded border object-cover"
             />
           ) : (
             <span
               aria-hidden="true"
-              className="flex aspect-square w-full max-w-40 shrink-0 items-center justify-center rounded border font-display text-3xl font-bold md:max-w-none md:text-4xl"
+              className="flex aspect-[4/3] w-full shrink-0 items-center justify-center rounded border font-display text-3xl font-bold md:text-4xl"
               style={{
                 background: "var(--color-bg-tint)",
                 color: "var(--color-amber-600)",
@@ -108,12 +108,6 @@ const TeamMemberCard = memo(
               }}
             />
             <p className="line-clamp-2 text-xs">{member.description}</p>
-            <span
-              className="text-xs font-medium"
-              style={{ color: "var(--color-amber-600)" }}
-            >
-              Read full bio &darr;
-            </span>
           </>
         )}
       </div>
