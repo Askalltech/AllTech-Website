@@ -64,7 +64,7 @@ const clients = [
 
 <style>
   .marquee {
-    --gap: 4.5rem;
+    --gap: 3.5rem;
     display: flex;
     gap: var(--gap);
     overflow: hidden;
@@ -95,7 +95,14 @@ const clients = [
   .client-logo {
     height: 3.5rem;              /* 56px mobile */
     width: auto;
-    max-width: 190px;
+    /* 190px was clipping the height of any wide-aspect logo (ratio > ~2.64)
+       down below the target height — e.g. Beazer (aspect 2.99) rendered at
+       only ~59px tall instead of the intended 72px on desktop, next to
+       square/tall logos at full height, reading as noticeably smaller.
+       220px covers most of the set's aspect ratios without letting the most
+       extreme banner-shaped wordmarks (Sierra Homes, Spartan) balloon out
+       of proportion — those still get capped, which is the right tradeoff. */
+    max-width: 220px;
     object-fit: contain;
     transition: opacity 0.2s var(--ease-out-soft);
   }
