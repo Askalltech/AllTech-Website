@@ -64,7 +64,7 @@ const TeamMemberCard = memo(
       >
         <div
           className={cn(
-            "flex flex-col gap-2 pt-4 md:flex-row md:items-center",
+            "flex flex-col gap-3 pt-4",
             !highlighted && "border-b pb-4 md:border-b-2",
           )}
         >
@@ -73,12 +73,12 @@ const TeamMemberCard = memo(
               src={member.image}
               alt=""
               loading="lazy"
-              className="size-full rounded border object-cover md:size-12"
+              className="aspect-square w-full max-w-40 rounded border object-cover md:max-w-none"
             />
           ) : (
             <span
               aria-hidden="true"
-              className="flex size-12 shrink-0 items-center justify-center rounded border font-display text-sm font-bold"
+              className="flex aspect-square w-full max-w-40 shrink-0 items-center justify-center rounded border font-display text-3xl font-bold md:max-w-none md:text-4xl"
               style={{
                 background: "var(--color-bg-tint)",
                 color: "var(--color-amber-600)",
