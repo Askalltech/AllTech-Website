@@ -1,7 +1,11 @@
-name = "alltech-site"
+name = "demo-alltech"
 compatibility_date = "2025-09-01"
 compatibility_flags = ["nodejs_compat"]
-pages_build_output_dir = "./dist"
+main = "./dist/_worker.js/index.js"
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
 
 # Environment variables set in the Cloudflare Pages dashboard, not committed:
 #   CONTACT_FORWARD_TO    - email address contact form submissions are forwarded to
