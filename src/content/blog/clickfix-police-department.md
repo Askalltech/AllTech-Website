@@ -1,66 +1,78 @@
 ---
 title: "What a ClickFix Attack Looks Like From the Inside"
-description: "A small-town Utah police department almost lost control of an officer's workstation to a technique that doesn't require a working exploit — just someone trusting a fake error message."
+description: "A high-severity alert at a small-town Utah police department began with something deceptively ordinary: a user ran a command. Here's how it was detected, investigated, and closed in about 15 minutes."
 pubDate: 2026-08-07
 author: "AllTech"
 tags: ["incident response", "cybersecurity", "case study", "managed soc"]
 ---
 
-Here's what happened, what we saw, and why the boring stuff — logging, monitoring, having someone actually watching — is what stopped it.
+*Field notes from the engineering team*
 
-## The setup: no malware required
+A recent high-severity alert at a small-town Utah police department began with something deceptively ordinary: a user ran a command.
 
-Most people picture a cyberattack as some kind of software break-in. A hacker finds a hole, writes code that slips through it, done.
+There was no software vulnerability being exploited and no conventional malicious attachment. The attack depended on a person being persuaded to copy, paste, and run a command presented as though it were part of a routine verification or repair step. That technique is commonly called **ClickFix**.
 
-ClickFix attacks skip all of that. Instead of breaking in, they convince someone to open the door themselves.
+In this case, the activity was detected, investigated, and closed in approximately 15 minutes. The attacker did not establish lasting persistence, deploy ransomware, remove data, or interrupt the department's operations. The short outcome is encouraging. The longer story is useful because it shows how a modern social-engineering attack can combine ordinary Windows tools into a chain that is difficult to recognize one action at a time.
 
-The pattern usually looks like this: a fake CAPTCHA, a fake "your download failed, click to fix" popup, or a fake troubleshooting page tells the user to open the Windows Run dialog, paste in a command, and hit enter. The instructions look routine — the kind of thing a legitimate site might actually ask you to do. There's no attachment to scan, no obvious virus. It's just a person, doing exactly what they were told, one copy-paste at a time.
+## The premise: make the user run it
 
-That's what happened here. An officer's account executed a command through `cmd.exe` — Windows' built-in command interpreter — that had been deliberately disguised to slide past basic detection.
+ClickFix attacks are built around a simple idea: rather than trying to force malware onto a computer through an exploit, convince the person at the keyboard to run the first command for the attacker.
 
-## What the command was actually doing
+The prompt may resemble a CAPTCHA, browser error, document warning, or "fix this problem" instruction. It asks the user to open a Windows utility, paste text, and press Enter. To the user, this can look like a harmless troubleshooting step. To an attacker, it is a way to get code running under that user's own account.
 
-The command itself was obfuscated using something called **caret obfuscation** — inserting the `^` character between letters (so `curl` becomes `c^u^r^l`) to break up recognizable patterns that security tools scan for. It's a simple trick, but an effective one against anything that's just pattern-matching known bad strings.
+That distinction matters. Security tools and users are often trained to look for suspicious downloaded attachments or unfamiliar applications. A command run through the Windows Command Line Interpreter (`cmd.exe`) can appear less alarming on its own—especially when Windows utilities are being used as intended at a technical level, but for an illegitimate purpose.
 
-Once decoded, the command was doing three things in sequence:
+## What the command set in motion
 
-1. **Downloading a file** from an external domain to the user's local AppData folder
-2. **Renaming and disguising it** so it wouldn't look like what it actually was
-3. **Executing it through `mshta`** — a legitimate Windows tool for running HTML applications, commonly abused because it's trusted by default and rarely blocked outright
+The command executed on this workstation did not present its intent plainly. It used **caret obfuscation**, inserting `^` characters between letters. For example, a command such as `curl` can be written as `c^u^r^l`. Windows interprets it as the original command, but simple text matching may not.
 
-This is a technique security teams call **"living off the land"** — instead of dropping obvious malware, the attacker uses tools that are already built into Windows and already trusted by the operating system. To a basic antivirus scanner, none of these individual steps look unusual. `cmd.exe` running. `mshta` launching. A file appearing in AppData. Each one, on its own, happens on computers constantly.
+That was the first signal that this was not routine activity. The obfuscated command then downloaded a file from an external domain into the user's local AppData folder.
 
-It's the *sequence* that gives it away.
+The downloaded file was executed through `mshta`, the Microsoft HTML Application host. `mshta` is a legitimate Windows binary, which is why it can be useful in an attack chain: it is already present on many systems and is not inherently malicious. When attackers use legitimate, trusted tools in this way, it is often described as "living off the land." The tool is real; the purpose and surrounding behavior are not.
 
-## The tell: what a real detection engine actually caught
+From there, the process attempted to make itself survive a reboot. It tried to establish persistence through both a scheduled task and an autorun registry key. It also used a file whose actual name did not match its claimed or displayed name, adding another layer of disguise.
 
-This is where visibility matters more than any single tool. The platform monitoring this device — SentinelOne, provided at no cost to Utah public-sector entities through the **Utah Department of Cybersecurity** — didn't just see one suspicious event. It correlated *all* of them, in real time, and mapped the behavior against the MITRE ATT&CK framework, the industry-standard catalog of known attacker techniques:
+Individually, some of these actions can occur in normal administrative work. Taken together, they describe a recognizable pattern:
 
-- **DLL hijacking** and **dynamic-link library injection** — hijacking a legitimate process to run attacker code inside it
-- **Stealth execution** — renaming a system tool and chaining interpreters together to mask what was actually running
-- **Persistence attempts** — registering the malicious process via a scheduled task and an autorun registry key, so it would survive a reboot
-- **Privilege escalation techniques** — attempting to gain higher-level system access than the logged-in user should have
+- A user executes a copied command in the Windows shell.
+- The command is intentionally obscured.
+- It retrieves a file from outside the organization.
+- A trusted Windows binary launches that file.
+- The process attempts to run again later through scheduled-task and registry-based persistence.
+- The file identity is disguised.
 
-None of these on their own would necessarily trigger alarm bells. Together, in the same fifteen-minute window, on the same process tree, they told a very clear story: this wasn't a fluke. This was an attempt to gain a lasting foothold on a law enforcement system.
+That is the difference between reviewing isolated events and understanding an attack chain.
 
-## What happened next
+## Why the sequence mattered
 
-The alert fired as high severity within minutes of the initial command executing. Our team was notified and looped in directly to assist with operations and remediation — working alongside the state's cybersecurity resources, since the underlying monitoring tooling is part of Utah's statewide public-sector protection program.
+The activity mapped to multiple MITRE ATT&CK techniques, including Command and Scripting Interpreter and Windows Command Shell (`T1059` and `T1059.003`), User Execution (`T1204`), and Malicious Copy and Paste (`T1204.004`). The last of those is especially relevant to the ClickFix pattern: the user's action is the initial foothold.
 
-The process was isolated. The persistence mechanisms were reviewed and removed. The incident was closed as resolved before the attacker gained the foothold they were building toward.
+The alert also identified Obfuscated Files or Information (`T1027`), System Binary Proxy Execution (`T1218`), Scheduled Task/Job (`T1053`), and Registry Run Keys / Startup Folder (`T1547.001`). These are not labels added for effect. They describe the practical stages visible in the activity: concealment, execution through a trusted Windows component, and attempts to remain present after the initial command.
 
-No ransomware. No data loss. No downtime for the department. Just a fifteen-minute window between "an officer clicked something" and "the threat was contained" — instead of a fifteen-day window between "an officer clicked something" and "we found out the hard way."
+Additional observed behaviors included techniques associated with disguise, indirect command execution, Windows Management Instrumentation, software discovery, automated collection, DLL hijacking, DLL injection, and search-order hijacking. Not every technique needs to be understood by a nontechnical reader to understand the central concern: the process was not simply trying to run once. It was attempting to hide, learn about its environment, and remain available to the attacker.
 
-## Why this matters for small departments specifically
+A small department does not need to be a high-profile target for this to matter. A single workstation can be an entry point into systems that support public safety and day-to-day operations. The risk is not limited to the initial file. It is what can happen if that activity is allowed to continue unnoticed.
 
-Here's the uncomfortable truth: most small-town police departments and city offices don't have the staff to watch for this. There's no in-house security analyst reviewing process trees at 2 PM on a Tuesday. There's often no IT person on-site at all.
+## Detection is more than one alert
 
-That's not a knock on anyone — it's just the reality of running a five-person department with a five-person budget. But it means the gap between "an attack happens" and "someone notices" can be measured in days or weeks instead of minutes, in a place where the network holds evidence, records, and case files that can't afford to be down, altered, or exposed.
+The endpoint detection and response platform detected and flagged the activity as high severity. That platform is provided at no cost to Utah public-sector entities by the Utah Department of Cybersecurity. AllTech manages and monitors the platform with administrative rights; we do not provide, sell, or own it.
 
-The tools that caught this weren't exotic. They're the same category of endpoint detection available to any organization. What made the difference was that someone — and something — was actually watching, correlating, and ready to act the moment the pattern showed itself.
+What made this event actionable was not one unusual process alone. A command shell, an AppData write, `mshta`, a scheduled task, or a registry change can each have legitimate explanations in the right context. The combined sequence—the obfuscation, external download, trusted-binary execution, disguised file, and persistence attempts—created a much clearer picture.
 
-That's the part that doesn't show up in a budget line item, but it's the part that actually matters when it counts.
+This is where correlation matters. Security monitoring is most useful when it can connect related events quickly enough for a person to evaluate the story they tell. In this incident, the platform surfaced the activity and AllTech's team was brought in directly to assist with operations and remediation, working alongside the state.
 
----
+## The response window
 
-*Some identifying details in this post have been withheld to protect the privacy of the department involved.*
+The alert was detected, handled, and closed in approximately 15 minutes. By the time the incident was resolved, the attacker had not established lasting persistence or exfiltrated data. There was no ransomware deployment, data loss, or downtime for the department.
+
+That outcome should not be read as proof that the attack was harmless. The command had already progressed beyond a misleading prompt: it had downloaded a file, used a legitimate Windows execution path, and attempted multiple persistence mechanisms. It was stopped before those efforts became durable.
+
+For a small department, that timing can be the practical difference between a contained security event and a prolonged recovery effort. The first visible action in a ClickFix attack may take only seconds. The important work is recognizing what follows and responding while the attack is still in motion.
+
+## The practical takeaway
+
+There was nothing exotic about the building blocks in this incident. The attacker relied on a familiar social-engineering prompt, a command interpreter, a download, and Windows components that already existed on the workstation. The sophistication was in how those pieces were combined to obscure intent and create a path toward persistence.
+
+Small departments should not have to identify that pattern by manually reviewing command lines, file paths, scheduled tasks, and registry changes after the fact. The meaningful protection in this case came from real-time visibility, correlation across the activity, and people ready to respond immediately.
+
+Technology produced the signal. A human team helped turn that signal into a resolved incident before it became lasting access.
