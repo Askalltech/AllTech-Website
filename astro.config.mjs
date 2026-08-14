@@ -25,6 +25,8 @@ export default defineConfig({
     '/services/tunnel-warp': '/services/zero-trust-access',
     '/blog': '/insights',
     '/blog/[...slug]': '/insights/[...slug]',
+    // The about page was retired — its "who we are" content is now covered by /team.
+    '/about': '/team',
   },
 
   // Static by default; opt specific routes into SSR with `export const prerender = false`
