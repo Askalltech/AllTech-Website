@@ -96,7 +96,6 @@ export const menuCategories: MenuCategory[] = [
  * Simple links shown alongside the mega-menu trigger in the top nav.
  */
 export const simpleNavLinks = [
-  { href: '/about',        label: 'About' },
   { href: '/team',         label: 'Our Team' },
   { href: '/case-studies', label: 'Case Studies' },
   { href: '/insights',     label: 'Insights' },
