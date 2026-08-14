@@ -1,177 +1,20 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
-import { TeamGrid } from '@/components/TeamGrid';
 
 /**
- * Our Team — roster in the shadcnblocks "team11" pattern.
+ * Our Team — one large group photo plus a short summary, instead of
+ * individual bios/headshots.
  *
- * A dense bordered grid of people (2 cols → 3 → 4). Each tile shows photo,
- * name, and role. On md+ screens, hovering (or keyboard-focusing) a tile
- * raises a highlighted overlay card with an amber accent line and reveals a
- * two-line preview of the bio. The overlay is absolutely positioned, so
- * neighbouring tiles never shift.
- *
- * Every tile is a link to that person's FULL bio, rendered in a section
- * below the grid. Real bios run several paragraphs — far too much to expand
- * inside a hover card without running off the viewport — so the tile is the
- * index and the section below is the content. That also means the full text
- * is always in the DOM for search engines and screen readers, and every
- * person has a shareable URL (#bio-their-name).
- *
- * Below md the grid degrades to a plain scannable list with the preview
- * always visible — no hover required on touch.
- *
- * TO ADD SOMEONE: drop an object into `team` below. `photo` is optional —
- * without one, a monogram tile of their initials is shown instead, so names
- * and bios can go live before headshots are ready. Photos live in
- * /public/team/ (e.g. "/team/jane-doe.jpg").
+ * TO ADD THE PHOTO: drop the file in /public/team/ (e.g.
+ * "/team/group-photo.jpg") and set `groupPhoto` below. Until then, the
+ * frame renders a placeholder so the layout is correct in the meantime.
  */
-interface Member {
-  name: string;
-  role: string;
-  /**
-   * Paragraphs. The FIRST one is the preview — it's clamped to two lines on
-   * the resting card, so write it so the opening sentence stands alone.
-   * Everything after it appears only once "Show more" is pressed.
-   *
-   * An entry prefixed with "## " renders as a subheading inside the bio rather
-   * than as body copy, for bios that are split into named parts.
-   */
-  bio: string[];
-  tagline?: string;    // short moniker shown under the role, e.g. "The Network Nomad"
-  photo?: string;      // optional; falls back to an initials monogram
-  funnyBlurb?: string; // a lighthearted one-liner closing out the expanded bio
-}
-
-// ROSTER. Rick, Brendan, Tad, Jordan, and Mason are real; the rest are placeholders — replace as bios and
-// headshots come in. `photo` is optional, so names and bios can go live before
-// the photography does.
-const team: Member[] = [
-  {
-    name: 'Jordan Knutson',
-    role: 'Vice President of Client Services',
-    bio: [
-      'Jordan Knutson joined AllTech in January 2026 after his previous role on the senior management team of a mid-sized food manufacturer. He holds an MHR degree from the Huntsman School of Business at Utah State University and brings more than a decade of people management experience to AllTech.',
-      'He focuses on service delivery, operational strategy, and ensuring every client receives an outstanding experience. Jordan believes that great IT isn’t just about the technology—it’s about building trust, communicating well, and making life easier for the people on the other end of the support ticket.',
-      'Outside the office, Jordan is an unapologetic Tolkien enthusiast who can happily discuss the deep lore of Middle-earth far longer than most people would consider reasonable or even interesting. He loves cooking, weight training, and home projects that involve power tools. Jordan loves to bring energy and a competitive spirit to team initiatives... as long as he gets his caffeine first and doesn’t have to wake up TOO early for it.',
-    ],
-  },
-  {
-    name: 'Rick Sherwood',
-    role: 'Network Engineer',
-    tagline: 'The Network Nomad',
-    bio: [
-      'Rick is a seasoned Network Engineer at AllTech who has officially traded the high seas for high-speed fiber optics. A veteran of the U.S. Navy — where he spent six years as an Electronics Technician across three different ships — Rick\u2019s career path has been anything but a straight line. After wrapping up his service in 2001, he headed to college in San Diego. Following his studies, he moved to Arizona, where he promptly fainted from the heat and woke up five years later just in time to pack his bags and move to Utah.',
-      'He survived a 12-year stint at an ISP before finally finding a professional home at AllTech, a place where he\u2019s happy to put down permanent roots for the long haul. When he isn\u2019t deep in firewall configurations or optimizing Linux servers, he\u2019s likely busy tending to his real-world passion: extreme hot sauce. A true heat-seeker, Rick brews his own artisanal batches, subjecting friends and colleagues alike to his latest fiery concoctions.',
-      'Outside of the kitchen, Rick maintains a strictly \u201Clook, don\u2019t touch\u201D policy regarding his other two loves: fast cars and motorcycles. It turns out that Rick is remarkably good at making things go fast, but the local police were even better at making him pay for it. Faced with the choice between a pristine driving record and a need for speed, he decided his wallet was much happier keeping both feet firmly on the ground.',
-    ],
-  },
-  {
-    name: 'Brendan Gilman',
-    role: 'Cybersecurity Specialist',
-    bio: [
-      'Brendan Gilman hails from eastern Oregon and is the newest member of our team, joining AllTech in October 2025. He has a BS in Information Systems and Cybersecurity from Utah State University and brings years of experience in internal IT support from two companies prior to this.',
-      'As one of our Cloudflare-trained specialists, Brendan plays a key role in delivering advanced network security and connectivity solutions to our clients.',
-      'His drive to challenge himself doesn’t stop at work. Outside the office, he’s an avid powerlifter who recently decided that picking up heavy things wasn’t difficult enough—so he signed up for a 5K! Brendan grows an excellent beard almost overnight, has a very nice shoe collection that he rocks with jeans, played sousaphone in the marching band, and loves country swing dancing.',
-    ],
-  },
-  {
-    // Supplied verbatim. The one-line opener is deliberate, not a truncation —
-    // it stays first because it is what the card preview clamps to.
-    name: 'Tad Spiekerman',
-    role: 'Systems Administrator',
-    bio: [
-      'This is Tad. You probably already know Tad. Everybody loves Tad.',
-      '## The Myth, The Method, The Tad',
-      'Tad did not choose the IT life; the IT life chose him and has regretted it ever since. Operating on the bleeding edge of digital chaos, he navigates Linux terminals like a man who knows exactly what the root directory is thinking. He remains the only admin to route a corporate intranet through a modified toaster, baffling cybersecurity teams for three fiscal quarters.',
-      'His routine is fueled by panic, Dr. Pepper, and a belief that Active Directory password policies should just allow “password123” to save everyone the headache. When he isn’t managing the camera systems to secure his office fort of expired server racks, Tad uses a single red button to auto-reply “Have you tried turning it off and on again?” to every frantic ticket.',
-    ],
-  },
-  {
-    name: 'Mason Hyatt',
-    role: 'Cybersecurity Engineer',
-    bio: [
-      'Mason Hyatt joined AllTech in September of 2025, coming from a System Administrator role at a small company. He holds a Bachelor’s degree in Cyber Security and Information Assurance, where he gained a deep appreciation for the field, and has picked up several professional credentials from CompTIA, ITIL, Unifi, Cloudflare and ISC2 along the way—at this point it’s basically a hobby.',
-      'Outside of work, Mason’s got a homelab running Proxmox and UniFi that he tinkers with in his spare time—basically more servers than most people would want to deal with after hours—ask him how many terabytes of stuff he’s ‘definitely going to need someday’ and watch him get defensive. He’s also into DIY automotive projects, spending far more weekends than he’d like to admit chasing electrical gremlins in his old Land Rover instead of relaxing. He’s got an Australian Kelpie named Gwen, who offers plenty of supervision and zero actual help.',
-    ],
-  },
-  {
-    name: 'Team Member 05',
-    role: 'Lead Network Engineer',
-    bio: [
-      'Placeholder bio. The first paragraph is the preview, clamped to two lines on the resting card, so it should stand on its own.',
-      'Placeholder second paragraph. This only appears once Show more is pressed, which is where the longer background, career history, and personal detail belong.',
-    ],
-    funnyBlurb: 'Placeholder one-liner goes here.',
-  },
-  {
-    name: 'Team Member 06',
-    role: 'SOC Analyst',
-    bio: [
-      'Placeholder bio. The first paragraph is the preview, clamped to two lines on the resting card, so it should stand on its own.',
-      'Placeholder second paragraph. This only appears once Show more is pressed, which is where the longer background, career history, and personal detail belong.',
-    ],
-    funnyBlurb: 'Placeholder one-liner goes here.',
-  },
-  {
-    name: 'Team Member 07',
-    role: 'Help Desk Technician',
-    bio: [
-      'Placeholder bio. The first paragraph is the preview, clamped to two lines on the resting card, so it should stand on its own.',
-      'Placeholder second paragraph. This only appears once Show more is pressed, which is where the longer background, career history, and personal detail belong.',
-    ],
-    funnyBlurb: 'Placeholder one-liner goes here.',
-  },
-  {
-    name: 'Team Member 08',
-    role: 'Cloud & Microsoft 365 Administrator',
-    bio: [
-      'Placeholder bio. The first paragraph is the preview, clamped to two lines on the resting card, so it should stand on its own.',
-      'Placeholder second paragraph. This only appears once Show more is pressed, which is where the longer background, career history, and personal detail belong.',
-    ],
-  },
-  {
-    name: 'Team Member 09',
-    role: 'Field Service Technician',
-    bio: [
-      'Placeholder bio. The first paragraph is the preview, clamped to two lines on the resting card, so it should stand on its own.',
-      'Placeholder second paragraph. This only appears once Show more is pressed, which is where the longer background, career history, and personal detail belong.',
-    ],
-  },
-  {
-    name: 'Team Member 10',
-    role: 'Backup & Recovery Engineer',
-    bio: [
-      'Placeholder bio. The first paragraph is the preview, clamped to two lines on the resting card, so it should stand on its own.',
-      'Placeholder second paragraph. This only appears once Show more is pressed, which is where the longer background, career history, and personal detail belong.',
-    ],
-    funnyBlurb: 'Placeholder one-liner goes here.',
-  },
-  {
-    name: 'Team Member 11',
-    role: 'Low-Voltage Installer',
-    bio: [
-      'Placeholder bio. The first paragraph is the preview, clamped to two lines on the resting card, so it should stand on its own.',
-      'Placeholder second paragraph. This only appears once Show more is pressed, which is where the longer background, career history, and personal detail belong.',
-    ],
-  },
-];
-
-const slugify = (name: string) =>
-  name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-
-const initials = (name: string) =>
-  name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase() ?? '')
-    .join('');
+const groupPhoto: string | undefined = undefined; // e.g. '/team/group-photo.jpg'
 ---
 
 <BaseLayout
   title="Our Team"
-  description="Meet the engineers behind AllTech — the team that designs, deploys, and runs IT, cybersecurity, and network infrastructure for businesses across Northern Utah."
+  description="Meet the team behind AllTech — the engineers and technicians who design, deploy, and run IT, cybersecurity, and network infrastructure for businesses across Northern Utah."
 >
   <section class="surface-dark relative overflow-hidden">
     <div class="relative container-wide py-16 lg:py-20">
@@ -186,171 +29,37 @@ const initials = (name: string) =>
     </div>
   </section>
 
-  {team.length === 0 ? (
-    <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
-      <div class="container-wide">
-        <div class="max-w-xl">
-          <h2 class="font-display text-2xl font-bold mb-3" style="color: var(--color-text-primary);">
-            Team profiles are coming soon.
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="grid gap-12 lg:grid-cols-2 lg:items-center">
+        <div
+          class="rounded-2xl overflow-hidden aspect-[4/3]"
+          style="border: 1px solid var(--color-line-soft); background: var(--color-bg-tint);"
+        >
+          {groupPhoto ? (
+            <img src={groupPhoto} alt="The AllTech team" class="w-full h-full object-cover" loading="lazy" />
+          ) : (
+            <div class="w-full h-full flex items-center justify-center text-sm text-subtle">
+              Team photo coming soon
+            </div>
+          )}
+        </div>
+
+        <div>
+          <div class="eyebrow mb-4">Meet the team</div>
+          <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight mb-6" style="color: var(--color-text-primary);">
+            A tight-knit crew of engineers, technicians, and support staff.
           </h2>
-          <p class="text-muted leading-relaxed">
-            We're putting together photos and bios for the people you'll work with.
-            In the meantime, reach out and we'll connect you with the right engineer.
+          <p class="text-lg leading-relaxed text-muted">
+            AllTech is a team of network engineers, cybersecurity specialists, and
+            support technicians based in Northern Utah. Everyone here designs,
+            deploys, and maintains the systems we support — when you call, you're
+            talking to someone who already knows your environment, not a call
+            center reading from a script.
           </p>
-          <a href="/contact" class="btn btn-primary mt-6">Get in touch</a>
+          <a href="/contact" class="btn btn-primary mt-8">Get in touch</a>
         </div>
       </div>
-    </section>
-  ) : (
-    <>
-      <!-- The roster grid — an index into the bios below. -->
-      <section id="top-of-team" class="surface-dark py-16 lg:py-20 scroll-mt-24" style="border-top: 1px solid var(--color-line-faint);">
-        <div class="container-wide">
-          <div class="max-w-2xl mb-10">
-            <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
-              Who you'll actually talk to
-            </h2>
-            <p class="mt-4 text-muted leading-relaxed">
-              Hover for a preview, or pick someone to jump to their full bio.
-            </p>
-          </div>
-
-          <TeamGrid
-            client:visible
-            members={team.map((m) => ({
-              name: m.name,
-              role: m.role,
-              description: m.bio[0],
-              href: `#bio-${slugify(m.name)}`,
-              image: m.photo,
-              tagline: m.tagline,
-            }))}
-          />
-        </div>
-      </section>
-
-      <!-- Full bios. One block per person, anchored so the tiles above can
-           link straight to them. -->
-      <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
-        <div class="container-wide">
-          <div class="max-w-2xl mb-12">
-            <div class="eyebrow mb-4">The long version</div>
-            <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
-              Full bios
-            </h2>
-          </div>
-
-          <div class="team-bios">
-            {team.map((m) => (
-              <article id={`bio-${slugify(m.name)}`} class="team-bio-block">
-                <div class="team-bio-aside">
-                  {m.photo ? (
-                    <img src={m.photo} alt={m.name} class="team-bio-photo" loading="lazy" />
-                  ) : (
-                    <span class="team-bio-monogram" aria-hidden="true">{initials(m.name)}</span>
-                  )}
-                </div>
-
-                <div class="team-bio-body">
-                  <h3 class="font-display text-2xl font-bold" style="color: var(--color-text-primary);">{m.name}</h3>
-                  <p class="text-sm font-medium mt-1" style="color: var(--color-amber-600);">{m.role}</p>
-                  {m.tagline && (
-                    <p class="text-sm italic" style="color: var(--color-text-subtle);">{m.tagline}</p>
-                  )}
-
-                  <div class="mt-5 space-y-4 leading-relaxed" style="color: var(--color-text-default);">
-                    {m.bio.map((para) =>
-                      para.startsWith('## ') ? (
-                        <h4 class="font-display text-lg font-bold pt-2" style="color: var(--color-text-primary);">
-                          {para.slice(3)}
-                        </h4>
-                      ) : (
-                        <p>{para}</p>
-                      ),
-                    )}
-                  </div>
-
-                  {m.funnyBlurb && (
-                    <p class="mt-4 italic" style="color: var(--color-amber-600);">“{m.funnyBlurb}”</p>
-                  )}
-
-                  <a href="#top-of-team" class="team-backlink">
-                    <span aria-hidden="true">↑</span> Back to the team
-                  </a>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-    </>
-  )}
+    </div>
+  </section>
 </BaseLayout>
-
-<style>
-  /* ---- Full bios ---- */
-  .team-bios {
-    display: grid;
-    gap: 0;
-  }
-  .team-bio-block {
-    display: grid;
-    gap: 1.5rem 2.5rem;
-    padding: 2.5rem 0;
-    border-top: 1px solid var(--color-border-subtle);
-    /* Clears the sticky header when a tile links here. */
-    scroll-margin-top: 6rem;
-  }
-  .team-bio-block:first-child { border-top: 0; padding-top: 0; }
-  @media (min-width: 768px) {
-    .team-bio-block { grid-template-columns: 10rem minmax(0, 1fr); }
-  }
-
-  .team-bio-photo,
-  .team-bio-monogram {
-    display: block;
-    width: 8rem;
-    height: 8rem;
-    border-radius: 14px;
-    object-fit: cover;
-  }
-  .team-bio-monogram {
-    display: grid;
-    place-items: center;
-    background: var(--color-bg-tint);
-    border: 1px solid var(--color-border-default);
-    color: var(--color-amber-600);
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 2.25rem;
-  }
-
-  .team-bio-body { max-width: 65ch; }
-
-  .team-backlink {
-    display: inline-block;
-    margin-top: 1.5rem;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    color: var(--color-amber-600);
-  }
-  .team-backlink:hover { text-decoration: underline; }
-
-  /* A tile linked to a bio flashes the accent briefly so it's obvious where
-     the jump landed. */
-  .team-bio-block:target .team-bio-body { position: relative; }
-  .team-bio-block:target .team-bio-body::before {
-    content: "";
-    position: absolute;
-    left: -1.25rem;
-    top: 0.25rem;
-    bottom: 0.25rem;
-    width: 3px;
-    border-radius: 2px;
-    background: var(--color-amber-400);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    html { scroll-behavior: auto; }
-  }
-</style>
