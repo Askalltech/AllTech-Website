@@ -20,6 +20,16 @@ import { buildBreadcrumbSchema } from '~/lib/schema';
 
 const capabilities: { id: string; title: string; href: string; points: string[] }[] = [
   {
+    id: 'remote-support',
+    title: 'Remote IT Support',
+    href: '/remote-it-support',
+    points: [
+      'Help desk, monitoring, cybersecurity, Microsoft 365, and backup — all deliverable without anyone on-site.',
+      'Company-managed devices supported the same way wherever your team works, secured through Zero Trust Access.',
+      'Distributed and multi-location teams held to one standard, including sites with no on-site IT staff.',
+    ],
+  },
+  {
     id: 'helpdesk',
     title: 'Help Desk',
     href: '/services/help-desk',
@@ -77,6 +87,16 @@ const capabilities: { id: string; title: string; href: string; points: string[] 
       'Immutable backup copies that ransomware can\'t reach or encrypt.',
       'Restores tested on a schedule — a backup nobody has restored is a hope, not a plan.',
       'Documented recovery objectives, so you know what "back up and running" actually means in hours.',
+    ],
+  },
+  {
+    id: 'data-recovery',
+    title: 'Utah Data Recovery',
+    href: '/services/utah-data-recovery',
+    points: [
+      'Recovery for failed hard drives, SSDs, RAID and NAS arrays, and phones.',
+      'Digital forensic analysis available for civil and criminal cases.',
+      'No data, no charge — you don\'t pay if we can\'t recover it.',
     ],
   },
 ];
@@ -146,7 +166,7 @@ const breadcrumbSchema = buildBreadcrumbSchema([
         <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
           What's included.
         </h2>
-        <p class="mt-4 text-muted leading-relaxed">Six functions that normally take an internal team. Each links to how we actually deliver it.</p>
+        <p class="mt-4 text-muted leading-relaxed">Eight functions that normally take an internal team. Each links to how we actually deliver it.</p>
       </div>
       <div class="grid md:grid-cols-2 gap-4">
         {capabilities.map(({ id, title, href, points }) => (
