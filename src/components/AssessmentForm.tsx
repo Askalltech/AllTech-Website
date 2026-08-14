@@ -62,11 +62,6 @@ export default function AssessmentForm({ turnstileSiteKey }: Props) {
     });
   }
 
-  function currentDomainAnswered() {
-    if (onResults) return true;
-    return domains[step].questions.every((q) => answers[q.id]);
-  }
-
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setErrorMsg('');
@@ -305,15 +300,6 @@ export default function AssessmentForm({ turnstileSiteKey }: Props) {
           className="btn btn-ghost disabled:opacity-40 disabled:cursor-not-allowed"
         >
           ← Back
-        </button>
-        <button
-          type="button"
-          onClick={() => setStep((s) => s + 1)}
-          disabled={!currentDomainAnswered()}
-          className="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {step === domains.length - 1 ? 'See my score' : 'Next'}
-          <span aria-hidden="true">→</span>
         </button>
       </div>
     </div>
