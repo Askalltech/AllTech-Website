@@ -76,6 +76,12 @@ export const site = {
 // automatically.
 export const services = [
   {
+    slug: "alltech-top-10",
+    name: "AllTech Top 10",
+    short: "A pre-selected security stack for small and mid-sized business — the ten controls we deploy first, mapped to leading frameworks and continually refined as threats evolve.",
+    icon: "stack",
+  },
+  {
     slug: "cybersecurity",
     name: "Cybersecurity",
     short: "Endpoint security, email security, incident response, SOC monitoring, and pen testing.",
@@ -114,12 +120,6 @@ export const services = [
     icon: "cloud-sync",
     // Lives at the site root, not /services/<slug> — serviceLink() reads this.
     path: "/remote-it-support",
-  },
-  {
-    slug: "alltech-top-10",
-    name: "AllTech Top 10",
-    short: "A pre-selected security stack for small and mid-sized business — the ten controls we deploy first, mapped to leading frameworks and continually refined as threats evolve.",
-    icon: "stack",
   },
   {
     slug: "utah-data-recovery",
