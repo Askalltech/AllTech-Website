@@ -82,18 +82,18 @@ export const services = [
     icon: "stack",
   },
   {
-    slug: "cybersecurity",
-    name: "Cybersecurity",
-    short: "Endpoint security, email security, incident response, SOC monitoring, and pen testing.",
-    icon: "shield",
-  },
-  {
     slug: "cloudflare-zero-trust",
     name: "SASE Solutions",
     short:
       "As a Cloudflare Partner we design, deploy, and manage Zero Trust networks — tunnels, WARP, Gateway, Access — for multi-site organizations.",
     icon: "gateway",
     featured: true,
+  },
+  {
+    slug: "cybersecurity",
+    name: "Cybersecurity",
+    short: "Endpoint security, email security, incident response, SOC monitoring, and pen testing.",
+    icon: "shield",
   },
   {
     slug: "network-design",
