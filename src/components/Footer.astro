@@ -7,12 +7,16 @@ const year = new Date().getFullYear();
 const partners = ['Cloudflare', 'Ubiquiti UniFi', 'Microsoft 365', 'Datto', 'Entra ID'];
 ---
 
-<!-- Transparent so the single, page-wide matrix dot grid (GlobalBackground.astro,
-     fixed behind the whole page) shows through here too, instead of this
-     section painting its own separate, unmasked copy of the pattern —
-     that produced a visible seam where the footer looked noticeably
-     denser/darker than the rest of the page. -->
-<footer>
+<!-- The page-wide matrix dot grid (GlobalBackground.astro, fixed behind the
+     whole page) is at its densest right at the viewport bottom, which is
+     where the footer usually sits — dimming the global mask wasn't enough
+     to keep footer text readable against it. Rather than going fully
+     transparent (which let the dots compete with small/muted text) or
+     fully opaque (which reintroduces the hard seam this used to avoid),
+     the footer fades in its own solid backing from transparent at the top
+     edge to fully opaque by the time real content starts, so the dot grid
+     softly resolves away before it reaches any text. -->
+<footer style="background: linear-gradient(to bottom, transparent, var(--color-bg-page) 96px, var(--color-bg-page) 100%);">
   <div class="container-wide py-16">
     <div class="grid gap-12 md:grid-cols-4">
       <div class="md:col-span-2">

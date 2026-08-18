@@ -72,7 +72,7 @@ const PhotoCredit = ({ credit }: { credit: Services13PhotoCredit }) => (
     href={credit.url}
     target="_blank"
     rel="noopener noreferrer nofollow"
-    className="absolute bottom-2 left-2 z-20 rounded px-1.5 py-0.5 text-[10px] leading-none text-white/70 transition hover:text-white"
+    className="absolute top-2 left-2 z-20 rounded px-1.5 py-0.5 text-[10px] leading-none text-white/70 transition hover:text-white"
     style={{ background: "rgba(0,0,0,0.35)" }}
     onClick={(e) => e.stopPropagation()}
   >
