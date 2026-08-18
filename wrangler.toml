@@ -3,6 +3,10 @@ compatibility_date = "2025-09-01"
 compatibility_flags = ["nodejs_compat"]
 main = "./dist/_worker.js/index.js"
 
+routes = [
+  { pattern = "development-preview.askalltech.com", custom_domain = true }
+]
+
 [assets]
 directory = "./dist"
 binding = "ASSETS"

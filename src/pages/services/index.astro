@@ -1,7 +1,19 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
-import Icon from '~/components/Icon.astro';
 import { services, serviceLink } from '~/lib/site';
+import { Services13, type Services13Item } from '@/components/services13';
+
+const services13Items: Services13Item[] = services.map((service) => {
+  const { href, external } = serviceLink(service);
+  return {
+    title: service.name,
+    description: service.short,
+    href,
+    icon: service.icon as Services13Item['icon'],
+    featured: 'featured' in service ? service.featured : false,
+    external,
+  };
+});
 ---
 
 <BaseLayout
@@ -21,30 +33,13 @@ import { services, serviceLink } from '~/lib/site';
     </div>
   </section>
 
-  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
-    <div class="container-wide grid md:grid-cols-2 gap-5">
-      {services.map((service) => {
-        const { href, external } = serviceLink(service);
-        return (
-          <a
-            href={href}
-            class="card group block p-7"
-            {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-          >
-            <Icon name={service.icon} size={36} class="mb-4" />
-            {service.featured && (
-              <div class="eyebrow mb-2">Cloudflare Partner</div>
-            )}
-            <h2 class="font-display text-2xl font-semibold mb-3 transition-colors">
-              <span class="group-hover:text-[var(--color-amber-600)]" style="color: var(--color-text-primary);">{service.name}</span>
-            </h2>
-            <p class="leading-relaxed text-muted">{service.short}</p>
-            <span class="mt-5 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">
-              {external ? 'Visit site' : 'Read more'} <span aria-hidden="true">{external ? '↗' : '→'}</span>
-            </span>
-          </a>
-        );
-      })}
-    </div>
+  <section class="surface-dark" style="border-top: 1px solid var(--color-line-faint);">
+    <Services13
+      services={services13Items}
+      eyebrow="Services"
+      heading="Where to start"
+      description="Every service we run, in one place. Pick one to see how we deliver it, or send us a note describing what you're trying to fix."
+      client:visible
+    />
   </section>
 </BaseLayout>

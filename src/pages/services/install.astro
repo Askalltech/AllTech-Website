@@ -2,6 +2,7 @@
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { site } from '~/lib/site';
 import { buildBreadcrumbSchema } from '~/lib/schema';
+import { Services21, type Services21Item } from '@/components/services21';
 
 /**
  * PARENT LANDING PAGE for the Install menu column.
@@ -18,76 +19,69 @@ import { buildBreadcrumbSchema } from '~/lib/schema';
  * menu.ts and nothing here changes.
  */
 
-const capabilities: { id: string; title: string; href: string; points: string[] }[] = [
+const capabilities: Services21Item[] = [
   {
-    id: 'cameras',
+    id: '01',
+    anchorId: 'cameras',
     title: 'Security Cameras',
     href: '/services/security-cameras',
-    points: [
-      'UniFi Protect indoor and outdoor camera systems — designed around the shots you actually need, not a camera count.',
-      'On-premise recording with retention sized to your policy; remote viewing on phone or desktop without opening ports to the internet.',
-      'Placement planned with lighting, entry points, and usable identification distance in mind.',
-    ],
+    icon: 'Camera',
+    description:
+      'UniFi Protect indoor and outdoor camera systems, designed around the shots you actually need. On-premise recording with retention sized to your policy, remote viewing without opening ports, and placement planned with lighting and identification distance in mind.',
   },
   {
-    id: 'access',
+    id: '02',
+    anchorId: 'access',
     title: 'Door Access Control',
     href: '/services/door-access-control',
-    points: [
-      'UniFi Access readers with card, fob, and mobile unlock — no more re-keying after every departure.',
-      'Schedules and per-door permissions by role, plus an audit trail of who opened what and when.',
-      'Integrated with your identity system where it makes sense, so offboarding removes building access too.',
-    ],
+    icon: 'KeyRound',
+    description:
+      'UniFi Access readers with card, fob, and mobile unlock — no more re-keying after every departure. Schedules and per-door permissions by role, an audit trail of who opened what and when, and integration with your identity system so offboarding removes building access too.',
   },
   {
-    id: 'cabling',
+    id: '03',
+    anchorId: 'cabling',
     title: 'Structured Cabling',
     href: '/services/structured-cabling',
-    points: [
-      'Cat6/6A drops, terminations, and labeling done to standard — tested, certified, and documented.',
-      'Fiber runs between buildings and between floors where copper won\'t reach.',
-      'Clean pathways and dressing, because someone will have to work in there in five years.',
-    ],
+    icon: 'Cable',
+    description:
+      'Cat6/6A drops, terminations, and labeling done to standard — tested, certified, and documented. Fiber runs between buildings and floors where copper won\'t reach, with clean pathways and dressing because someone will have to work in there in five years.',
   },
   {
-    id: 'ptp',
+    id: '04',
+    anchorId: 'ptp',
     title: 'Point-to-Point Wireless',
     href: '/services/point-to-point-wireless',
-    points: [
-      'Licence-free point-to-point and point-to-multipoint links bridging buildings, yards, shops, and remote sites where trenching isn\'t worth it.',
-      'Path survey and link budget before install — line of sight confirmed, not assumed.',
-      'Monitored alongside the rest of the network so a degrading link gets caught before it drops.',
-    ],
+    icon: 'Radio',
+    description:
+      'Licence-free point-to-point and point-to-multipoint links bridging buildings, yards, shops, and remote sites where trenching isn\'t worth it. Path survey and link budget confirmed before install, monitored alongside the rest of the network so a degrading link gets caught before it drops.',
   },
   {
-    id: 'racks',
+    id: '05',
+    anchorId: 'racks',
     title: 'Rack & Server Rooms',
     href: '/services/rack-server-rooms',
-    points: [
-      'Rack and enclosure buildouts: mounting, power, cable management, and airflow.',
-      'Cleanup of inherited server rooms — re-terminated, re-labeled, and mapped.',
-      'UPS sizing and shutdown configuration so a power event doesn\'t corrupt what\'s running.',
-    ],
+    icon: 'Server',
+    description:
+      'Rack and enclosure buildouts: mounting, power, cable management, and airflow. Cleanup of inherited server rooms — re-terminated, re-labeled, and mapped — plus UPS sizing and shutdown configuration so a power event doesn\'t corrupt what\'s running.',
   },
   {
-    id: 'fiber',
+    id: '06',
+    anchorId: 'fiber',
     title: 'Fiber Optic',
     href: '/services/fiber-optic',
-    points: [
-      'Single-mode and multimode fiber installation for building-to-building and campus links.',
-      'Fusion splicing — clean, low-loss splices, not mechanical connectors as a shortcut.',
-      'Every run OTDR- and power-meter-tested, with results handed over as a file.',
-    ],
+    icon: 'Zap',
+    description:
+      'Single-mode and multimode fiber installation for building-to-building and campus links. Fusion splicing — clean, low-loss splices, not mechanical connectors as a shortcut — with every run OTDR- and power-meter-tested and results handed over as a file.',
   },
   {
-    id: 'cleaning',
+    id: '07',
+    anchorId: 'cleaning',
     title: 'Network & IoT Cleaning',
     href: '/services/network-iot-cleaning',
-    points: [
-      'Physical cleaning and inspection for switches, access points, cameras, and door readers.',
-      'Housings, vents, and lenses cleaned so airflow and image quality stay where they should be.',
-      'Catches dust and debris before it turns into a service call — separate from remote monitoring, which only watches the software side.',
-    ],
+    icon: 'Sparkles',
+    description:
+      'Physical cleaning and inspection for switches, access points, cameras, and door readers. Housings, vents, and lenses cleaned so airflow and image quality stay where they should be — catching dust and debris before it turns into a service call.',
   },
 ];
 
@@ -156,29 +150,10 @@ const breadcrumbSchema = buildBreadcrumbSchema([
         <h2 class="font-display text-3xl lg:text-4xl font-bold leading-tight" style="color: var(--color-text-primary);">
           What we install.
         </h2>
-        <p class="mt-4 text-muted leading-relaxed">Five on-site disciplines. Each one lands on the network we designed, so there's no finger-pointing between the cabling guy and the IT guy.</p>
-      </div>
-      <div class="grid md:grid-cols-2 gap-4">
-        {capabilities.map(({ id, title, href, points }) => (
-          <div id={id} class="card scroll-mt-24">
-            <h3 class="font-display text-xl font-bold mb-3" style="color: var(--color-text-primary);">{title}</h3>
-            <ul class="space-y-2.5 list-none p-0 m-0">
-              {points.map((pt) => (
-                <li class="flex items-start gap-2.5">
-                  <svg class="w-4 h-4 mt-1 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                    <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                  <span class="text-sm leading-snug" style="color: var(--color-text-default);">{pt}</span>
-                </li>
-              ))}
-            </ul>
-            <a href={href} class="mt-4 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">
-              Learn more <span aria-hidden="true">&rarr;</span>
-            </a>
-          </div>
-        ))}
+        <p class="mt-4 text-muted leading-relaxed">Seven on-site disciplines. Each one lands on the network we designed, so there's no finger-pointing between the cabling guy and the IT guy.</p>
       </div>
     </div>
+    <Services21 services={capabilities} client:visible />
   </section>
 
   <!-- Our Approach — supplied verbatim by the install team manager. -->
