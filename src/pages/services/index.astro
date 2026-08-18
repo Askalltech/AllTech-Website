@@ -1,22 +1,49 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { services, serviceLink } from '~/lib/site';
-import { Services13, type Services13Item } from '@/components/services13';
+import { Services13, type Services13Item, type Services13PhotoCredit } from '@/components/services13';
 
-// Photo credits (Unsplash License — attribution not required, credited here
-// for the record):
-//   /services/top10-hero.webp     — Umanoide (unsplash.com/photos/vA2B6bneZug)
-//   /services/sase-hero.webp      — Joel Filipe (unsplash.com/photos/RFDP7_80v5A)
-//   /services/cybersecurity-card.webp — Maksim Samuilionak (unsplash.com/photos/tFvtQ2jzD5I)
-const cardImages: Partial<Record<string, string>> = {
-  'alltech-top-10': '/services/top10-hero.webp',
-  'cloudflare-zero-trust': '/services/sase-hero.webp',
-  cybersecurity: '/services/cybersecurity-card.webp',
+// Card photos — Unsplash License (attribution not legally required, but
+// credited visibly on each card anyway, and here for the record).
+const cardPhotos: Partial<Record<string, { image: string; credit: Services13PhotoCredit }>> = {
+  'alltech-top-10': {
+    image: '/services/top10-hero.webp',
+    credit: { name: 'Umanoide', url: 'https://unsplash.com/photos/vA2B6bneZug' },
+  },
+  'cloudflare-zero-trust': {
+    image: '/services/sase-hero.webp',
+    credit: { name: 'Joel Filipe', url: 'https://unsplash.com/photos/RFDP7_80v5A' },
+  },
+  cybersecurity: {
+    image: '/services/cybersecurity-card.webp',
+    credit: { name: 'Maksim Samuilionak', url: 'https://unsplash.com/photos/tFvtQ2jzD5I' },
+  },
+  'network-design': {
+    image: '/services/network-card.webp',
+    credit: { name: 'Declan Sun', url: 'https://unsplash.com/photos/vNpQqHUzz58' },
+  },
+  install: {
+    image: '/services/install-card.webp',
+    credit: { name: 'Mathias Reding', url: 'https://unsplash.com/photos/5h2x_mHmsLc' },
+  },
+  'it-cloud': {
+    image: '/services/it-cloud-card.webp',
+    credit: { name: 'Brecht Corbeel', url: 'https://unsplash.com/photos/qtx68-0Qlbs' },
+  },
+  'remote-it-support': {
+    image: '/services/remote-it-card.webp',
+    credit: { name: 'Tai Bui', url: 'https://unsplash.com/photos/ws2Wtk34hnA' },
+  },
+  'utah-data-recovery': {
+    image: '/services/data-recovery-card.webp',
+    credit: { name: 'Patrick Lindenberg', url: 'https://unsplash.com/photos/1iVKwElWrPA' },
+  },
 };
 
 const services13Items: Services13Item[] = services.map((service) => {
   const { href, external } = serviceLink(service);
   const featured = 'featured' in service ? service.featured : false;
+  const photo = cardPhotos[service.slug];
   return {
     title: service.name,
     description: service.short,
@@ -25,7 +52,8 @@ const services13Items: Services13Item[] = services.map((service) => {
     featured,
     hero: service.slug === 'alltech-top-10',
     external,
-    image: cardImages[service.slug],
+    image: photo?.image,
+    photoCredit: photo?.credit,
   };
 });
 ---
