@@ -34,6 +34,12 @@ const iconMap = {
 
 export type Services13IconName = keyof typeof iconMap;
 
+export interface Services13PhotoCredit {
+  name: string;
+  /** Link to the photo's Unsplash page. */
+  url: string;
+}
+
 export interface Services13Item {
   title: string;
   description: string;
@@ -44,8 +50,10 @@ export interface Services13Item {
   /** Picks which item is the large hero card. Falls back to `featured`, then the first item. */
   hero?: boolean;
   external?: boolean;
-  /** Optional photo for the hero card; falls back to the tinted icon tile without one. */
+  /** Optional photo for the card; falls back to the tinted icon tile without one. */
   image?: string;
+  /** Visible credit link shown on the photo, bottom-left, when `image` is set. */
+  photoCredit?: Services13PhotoCredit;
 }
 
 interface Services13Props {
@@ -55,6 +63,22 @@ interface Services13Props {
   description?: string;
   className?: string;
 }
+
+/** Small credit link rendered over a card's photo. A real, independently
+ * clickable <a> stacked above the card's full-bleed link overlay — not
+ * nested inside it, since nested anchors aren't valid HTML. */
+const PhotoCredit = ({ credit }: { credit: Services13PhotoCredit }) => (
+  <a
+    href={credit.url}
+    target="_blank"
+    rel="noopener noreferrer nofollow"
+    className="absolute bottom-2 left-2 z-20 rounded px-1.5 py-0.5 text-[10px] leading-none text-white/70 transition hover:text-white"
+    style={{ background: "rgba(0,0,0,0.35)" }}
+    onClick={(e) => e.stopPropagation()}
+  >
+    Photo: {credit.name}
+  </a>
+);
 
 const Services13 = ({
   services,
@@ -98,13 +122,17 @@ const Services13 = ({
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:col-span-2">
           {/* Featured service — hero card */}
-          <motion.a
-            href={hero.href}
-            target={hero.external ? "_blank" : undefined}
-            rel={hero.external ? "noopener noreferrer" : undefined}
+          <motion.div
             whileHover={{ opacity: 0.85, scale: 1.01 }}
-            className="group col-span-1 block overflow-hidden rounded-xl sm:col-span-2"
+            className="group relative col-span-1 block overflow-hidden rounded-xl sm:col-span-2"
           >
+            <a
+              href={hero.href}
+              target={hero.external ? "_blank" : undefined}
+              rel={hero.external ? "noopener noreferrer" : undefined}
+              className="absolute inset-0 z-10"
+              aria-label={hero.title}
+            />
             <Card
               className="relative aspect-[21/9] overflow-hidden border p-0"
               style={{ background: "var(--color-bg-tint)", borderColor: "var(--color-border-default)" }}
@@ -158,19 +186,24 @@ const Services13 = ({
                 style={{ color: hero.image ? "#fff" : "var(--color-amber-600)" }}
               />
             </Card>
-          </motion.a>
+            {hero.image && hero.photoCredit && <PhotoCredit credit={hero.photoCredit} />}
+          </motion.div>
 
           {rest.map((service) => {
             const Icon = iconMap[service.icon];
             return (
-              <motion.a
+              <motion.div
                 key={service.href}
-                href={service.href}
-                target={service.external ? "_blank" : undefined}
-                rel={service.external ? "noopener noreferrer" : undefined}
                 whileHover={{ opacity: 0.85, scale: 1.02 }}
-                className="group block overflow-hidden rounded-xl"
+                className="group relative block overflow-hidden rounded-xl"
               >
+                <a
+                  href={service.href}
+                  target={service.external ? "_blank" : undefined}
+                  rel={service.external ? "noopener noreferrer" : undefined}
+                  className="absolute inset-0 z-10"
+                  aria-label={service.title}
+                />
                 <Card
                   className="relative aspect-[4/5] overflow-hidden border p-0"
                   style={{ background: "var(--color-bg-tint)", borderColor: "var(--color-border-default)" }}
@@ -222,7 +255,8 @@ const Services13 = ({
                     style={{ color: service.image ? "#fff" : "var(--color-amber-600)" }}
                   />
                 </Card>
-              </motion.a>
+                {service.image && service.photoCredit && <PhotoCredit credit={service.photoCredit} />}
+              </motion.div>
             );
           })}
         </div>
