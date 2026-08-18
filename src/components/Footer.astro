@@ -1,5 +1,6 @@
 ---
 import { site, services, serviceLink } from '~/lib/site';
+import { SystemTelemetry } from '@/components/SystemTelemetry';
 const year = new Date().getFullYear();
 
 // Technology we deploy & support (replaces the old service-area list).
@@ -67,7 +68,10 @@ const partners = ['Cloudflare', 'Ubiquiti UniFi', 'Microsoft 365', 'Datto', 'Ent
     </div>
 
     <div class="mt-12 pt-8 border-t flex flex-col sm:flex-row justify-between gap-4 text-xs" style="border-color: var(--color-border-subtle); color: var(--color-text-subtle)">
-      <div>© {year} AllTech. All rights reserved.</div>
+      <div class="space-y-2">
+        <div>© {year} AllTech. All rights reserved.</div>
+        <SystemTelemetry client:visible />
+      </div>
       <div class="flex gap-5">
         <a href="/privacy" class="hover:text-[var(--color-text-primary)] transition">Privacy</a>
         <a href="/terms" class="hover:text-[var(--color-text-primary)] transition">Terms</a>
