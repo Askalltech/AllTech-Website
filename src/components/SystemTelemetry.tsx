@@ -22,10 +22,6 @@ import {
   type TelemetryState,
 } from "@/lib/telemetry";
 
-/** Triple-click must land within this window to count as the trigger. */
-const CLICK_WINDOW_MS = 1800;
-/** How long a press/hold has to last to open the panel. */
-const LONG_PRESS_MS = 800;
 /** Delay between each diagnostics line revealing, when motion isn't reduced. */
 const STEP_DELAY_MS = 220;
 
@@ -92,8 +88,6 @@ const SystemTelemetry = () => {
   const [diagnosticsDone, setDiagnosticsDone] = useState(false);
   const [rebootMessage, setRebootMessage] = useState<string | null>(null);
 
-  const clickTimestamps = useRef<number[]>([]);
-  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const diagnosticsTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const lastRebootIndex = useRef<number | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -108,7 +102,6 @@ const SystemTelemetry = () => {
   useEffect(() => {
     return () => {
       diagnosticsTimers.current.forEach(clearTimeout);
-      if (longPressTimer.current) clearTimeout(longPressTimer.current);
     };
   }, []);
 
@@ -126,33 +119,6 @@ const SystemTelemetry = () => {
     // through ESCALATION_MESSAGES, cycling back after the sixth.
     setTriggerLabel(ESCALATION_MESSAGES[(next - 1) % ESCALATION_MESSAGES.length]);
     setOpen(true);
-  };
-
-  // --- Trigger: 3 clicks within CLICK_WINDOW_MS ---
-  const handleTriggerClick = () => {
-    const now = Date.now();
-    clickTimestamps.current = [...clickTimestamps.current, now].filter(
-      (t) => now - t <= CLICK_WINDOW_MS,
-    );
-    if (clickTimestamps.current.length >= 3) {
-      clickTimestamps.current = [];
-      openPanel();
-    }
-  };
-
-  // --- Trigger: long-press / touch-hold ~800ms ---
-  const startLongPress = () => {
-    longPressTimer.current = setTimeout(() => {
-      longPressTimer.current = null;
-      clickTimestamps.current = [];
-      openPanel();
-    }, LONG_PRESS_MS);
-  };
-  const cancelLongPress = () => {
-    if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current);
-      longPressTimer.current = null;
-    }
   };
 
   const resetOutput = () => {
@@ -225,11 +191,7 @@ const SystemTelemetry = () => {
       <button
         ref={triggerRef}
         type="button"
-        onClick={handleTriggerClick}
-        onPointerDown={startLongPress}
-        onPointerUp={cancelLongPress}
-        onPointerLeave={cancelLongPress}
-        onPointerCancel={cancelLongPress}
+        onClick={openPanel}
         className="inline-flex items-center gap-1.5 text-left transition hover:text-[var(--color-text-primary)]"
         aria-haspopup="dialog"
         aria-label="Site status"
