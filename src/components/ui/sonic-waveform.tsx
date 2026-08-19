@@ -66,7 +66,7 @@ const SonicWaveformCanvas = () => {
         ctx.stroke();
       }
 
-      time += 0.02;
+      time += 0.008;
       animationFrameId = requestAnimationFrame(draw);
     };
 
