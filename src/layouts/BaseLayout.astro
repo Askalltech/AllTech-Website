@@ -77,7 +77,18 @@ const { title, description, image, noindex, canonical } = Astro.props;
          consistently. -->
     <GlobalBackground />
     <Header />
-    <main id="main-content" tabindex="-1" class="flex-1 relative overflow-hidden">
+    <!-- No overflow-hidden here (deliberately): ANY non-"visible" overflow
+         value on this element — even overflow-x alone, since the CSS spec
+         forces the other axis from "visible" to "auto" the moment one axis
+         isn't "visible" — turns <main> into a scroll container. <main>
+         itself never actually scrolls (the document does), so doing that
+         hijacks position:sticky's containing-block lookup for every sticky
+         descendant on the page and silently breaks all of them (confirmed:
+         this is why the services21 sticky panel never stuck). Sections that
+         need to clip their own decorative bleed (glow-amber, hero
+         backgrounds) already apply overflow-hidden locally to themselves —
+         see e.g. any `surface-dark relative overflow-hidden` hero section. -->
+    <main id="main-content" tabindex="-1" class="flex-1 relative">
       <slot />
     </main>
     <ClientLogos />
