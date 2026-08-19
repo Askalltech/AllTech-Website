@@ -3,6 +3,7 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
 import { site } from '~/lib/site';
 import { buildBreadcrumbSchema } from '~/lib/schema';
 import { Services21, type Services21Item } from '@/components/services21';
+import { SonicWaveformHero } from '@/components/ui/sonic-waveform';
 
 const capabilities: Services21Item[] = [
   {
@@ -126,23 +127,18 @@ const breadcrumbSchema = buildBreadcrumbSchema([
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
   <!-- Hero -->
   <section class="surface-dark relative overflow-hidden">
-    <div class="relative container-wide py-16 lg:py-20">
-      <div class="max-w-3xl">
-        <div class="eyebrow mb-4">Cybersecurity · Managed Security Services</div>
-        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
-          Security run by engineers who <span style="color: var(--color-amber-400);">know your environment</span>.
-        </h1>
-        <p class="mt-6 text-xl leading-relaxed text-muted">
-          EDR, email filtering, AI-driven network detection, 24/7 SOC monitoring, penetration testing, and
-          incident response — operated by the same team that handles your day-to-day IT.
-          No handoffs to a generic security vendor. No context lost.
-        </p>
-        <div class="mt-9 flex flex-wrap gap-3">
-          <a href="/contact?service=cybersecurity" class="btn btn-primary">Scope an engagement</a>
-          <a href="#what-we-deploy" class="btn btn-ghost">What's included</a>
-        </div>
-      </div>
-    </div>
+    <SonicWaveformHero
+      client:visible
+      eyebrow="Cybersecurity · Managed Security Services"
+      title="Security run by engineers who"
+      highlightedTitle="know your environment."
+      description="EDR, email filtering, AI-driven network detection, 24/7 SOC monitoring, penetration testing, and incident response — operated by the same team that handles your day-to-day IT. No handoffs to a generic security vendor. No context lost."
+      primaryCtaLabel="Scope an engagement"
+      primaryCtaHref="/contact?service=cybersecurity"
+      secondaryCtaLabel="What's included"
+      secondaryCtaHref="#what-we-deploy"
+      className="min-h-[560px] py-16 lg:py-20"
+    />
   </section>
 
   <!-- What we deploy — capability grid with anchor IDs -->
