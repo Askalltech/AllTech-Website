@@ -2,6 +2,7 @@
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { site } from '~/lib/site';
 import { buildBreadcrumbSchema } from '~/lib/schema';
+import { Services21, type Services21Item } from '@/components/services21';
 
 /**
  * PARENT LANDING PAGE for the IT & Cloud menu column.
@@ -18,82 +19,98 @@ import { buildBreadcrumbSchema } from '~/lib/schema';
  * menu.ts and nothing here changes.
  */
 
-const capabilities: { id: string; title: string; href: string; points: string[] }[] = [
+const capabilities: Services21Item[] = [
   {
-    id: 'remote-support',
+    id: '01',
+    anchorId: 'remote-support',
     title: 'Remote IT Support',
     href: '/remote-it-support',
-    points: [
+    icon: 'Headset',
+    description: [
       'Help desk, monitoring, cybersecurity, Microsoft 365, and backup — all deliverable without anyone on-site.',
       'Company-managed devices supported the same way wherever your team works, secured through Zero Trust Access.',
       'Distributed and multi-location teams held to one standard, including sites with no on-site IT staff.',
     ],
   },
   {
-    id: 'helpdesk',
+    id: '02',
+    anchorId: 'helpdesk',
     title: 'Help Desk',
     href: '/services/help-desk',
-    points: [
+    icon: 'LifeBuoy',
+    description: [
       'Local engineers answering the phone in Hyde Park — not a ticket queue routed overseas.',
       'Remote resolution for most issues, on-site when hardware needs hands.',
       'Onboarding and offboarding handled end to end: laptop, logins, M365, access, and the reverse on the way out.',
     ],
   },
   {
-    id: 'rmm',
+    id: '03',
+    anchorId: 'rmm',
     title: 'Remote Monitoring & Patching',
     href: '/services/remote-monitoring',
-    points: [
+    icon: 'Activity',
+    description: [
       'Datto RMM across workstations and servers — patching, scripting, and automation running before problems surface.',
       'Health alerting on disks, backups, and services, so a silent failure doesn\'t become a Monday morning.',
       'Standardized configuration applied to every machine, so the fleet stays consistent as it grows.',
     ],
   },
   {
-    id: 'vendors',
+    id: '04',
+    anchorId: 'vendors',
     title: 'Vendor Management',
     href: '/services/vendor-management',
-    points: [
+    icon: 'Handshake',
+    description: [
       'One number for the ISP, the phone system, the line-of-business software, and the copier.',
       'We sit on the hold call and translate, so your staff doesn\'t have to.',
       'Renewal and contract dates tracked, so nothing auto-renews by surprise.',
     ],
   },
   {
-    id: 'm365',
+    id: '05',
+    anchorId: 'm365',
     title: 'Microsoft 365',
     href: '/services/cloud-microsoft-365',
-    points: [
+    icon: 'Cloud',
+    description: [
       'Tenant design, licensing right-sizing, and migration from on-prem Exchange, Google Workspace, or another tenant.',
       'SharePoint and Teams structure that matches how your teams actually share files.',
       'Ongoing administration and security baseline maintenance.',
     ],
   },
   {
-    id: 'intune',
+    id: '06',
+    anchorId: 'intune',
     title: 'Entra ID & Intune',
     href: '/services/entra-id-intune',
-    points: [
+    icon: 'Fingerprint',
+    description: [
       'Identity as the control plane: MFA, conditional access, and least-privilege roles.',
       'Intune device enrollment, compliance policy, and app deployment across Windows and mobile.',
       'Access that follows the person, so a departure closes every door at once.',
     ],
   },
   {
-    id: 'bdr',
+    id: '07',
+    anchorId: 'bdr',
     title: 'Backup & Disaster Recovery',
     href: '/services/backup-disaster-recovery',
-    points: [
+    icon: 'HardDriveDownload',
+    description: [
       'Immutable backup copies that ransomware can\'t reach or encrypt.',
       'Restores tested on a schedule — a backup nobody has restored is a hope, not a plan.',
       'Documented recovery objectives, so you know what "back up and running" actually means in hours.',
     ],
   },
   {
-    id: 'data-recovery',
+    id: '08',
+    anchorId: 'data-recovery',
     title: 'Utah Data Recovery',
     href: '/services/utah-data-recovery',
-    points: [
+    icon: 'HardDrive',
+    description: [
       'Recovery for failed hard drives, SSDs, RAID and NAS arrays, and phones.',
       'Digital forensic analysis available for civil and criminal cases.',
       'No data, no charge — you don\'t pay if we can\'t recover it.',
@@ -168,27 +185,8 @@ const breadcrumbSchema = buildBreadcrumbSchema([
         </h2>
         <p class="mt-4 text-muted leading-relaxed">Eight functions that normally take an internal team. Each links to how we actually deliver it.</p>
       </div>
-      <div class="grid md:grid-cols-2 gap-4">
-        {capabilities.map(({ id, title, href, points }) => (
-          <div id={id} class="card scroll-mt-24">
-            <h3 class="font-display text-xl font-bold mb-3" style="color: var(--color-text-primary);">{title}</h3>
-            <ul class="space-y-2.5 list-none p-0 m-0">
-              {points.map((pt) => (
-                <li class="flex items-start gap-2.5">
-                  <svg class="w-4 h-4 mt-1 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                    <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                  <span class="text-sm leading-snug" style="color: var(--color-text-default);">{pt}</span>
-                </li>
-              ))}
-            </ul>
-            <a href={href} class="mt-4 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">
-              Learn more <span aria-hidden="true">&rarr;</span>
-            </a>
-          </div>
-        ))}
-      </div>
     </div>
+    <Services21 services={capabilities} client:visible />
   </section>
 
   <!-- Why -->

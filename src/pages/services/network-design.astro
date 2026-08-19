@@ -2,6 +2,7 @@
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { site } from '~/lib/site';
 import { buildBreadcrumbSchema } from '~/lib/schema';
+import { Services21, type Services21Item } from '@/components/services21';
 
 /**
  * PARENT LANDING PAGE for the Network menu column.
@@ -18,42 +19,50 @@ import { buildBreadcrumbSchema } from '~/lib/schema';
  * menu.ts and nothing here changes.
  */
 
-const capabilities: { id: string; title: string; href: string; points: string[] }[] = [
+const capabilities: Services21Item[] = [
   {
-    id: 'unifi',
+    id: '01',
+    anchorId: 'unifi',
     title: 'Switching & Gateways',
     href: '/services/switching-and-gateways',
-    points: [
+    icon: 'Network',
+    description: [
       'Business-grade UniFi switching and gateways sized for actual port count, PoE budget, and growth — not the cheapest box that fits today.',
       'VLAN segmentation separating staff, guest, VoIP, cameras, and OT so one compromised device can\'t reach everything.',
       'Single-pane UniFi management across every site, monitored alongside your other systems.',
     ],
   },
   {
-    id: 'wifi',
+    id: '02',
+    anchorId: 'wifi',
     title: 'Wi-Fi Design',
     href: '/services/wifi-design',
-    points: [
+    icon: 'Wifi',
+    description: [
       'On-site survey before the quote: coverage, capacity, interference, and construction materials measured, not estimated.',
       'AP placement and channel plan designed for density — a warehouse and a clinic waiting room are not the same problem.',
       'Post-install validation walk with results documented, plus tuning after you\'ve had real users on it.',
     ],
   },
   {
-    id: 'firewall',
+    id: '03',
+    anchorId: 'firewall',
     title: 'Firewall & Routing',
     href: '/services/firewall-routing',
-    points: [
+    icon: 'Flame',
+    description: [
       'Edge firewall policy built around your VLAN design — rules that reflect how the business actually works.',
       'Multi-WAN failover so a single carrier outage doesn\'t stop the day.',
       'Ongoing firmware and rule maintenance under your managed agreement, not a one-time config that drifts for four years.',
     ],
   },
   {
-    id: 'sdwan',
+    id: '04',
+    anchorId: 'sdwan',
     title: 'Site-to-Site & SD-WAN',
     href: '/services/site-to-site-sd-wan',
-    points: [
+    icon: 'GitBranch',
+    description: [
       'Encrypted site-to-site links between offices, warehouses, and remote facilities.',
       'SD-WAN routing that picks the healthy path automatically instead of waiting for someone to notice.',
       'Cloudflare Tunnel as an alternative where you need application access without exposing public IPs.',
@@ -128,27 +137,8 @@ const breadcrumbSchema = buildBreadcrumbSchema([
         </h2>
         <p class="mt-4 text-muted leading-relaxed">Four layers, one design. We size and document the whole path — internet handoff to access point — so nobody has to guess later.</p>
       </div>
-      <div class="grid md:grid-cols-2 gap-4">
-        {capabilities.map(({ id, title, href, points }) => (
-          <div id={id} class="card scroll-mt-24">
-            <h3 class="font-display text-xl font-bold mb-3" style="color: var(--color-text-primary);">{title}</h3>
-            <ul class="space-y-2.5 list-none p-0 m-0">
-              {points.map((pt) => (
-                <li class="flex items-start gap-2.5">
-                  <svg class="w-4 h-4 mt-1 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                    <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                  <span class="text-sm leading-snug" style="color: var(--color-text-default);">{pt}</span>
-                </li>
-              ))}
-            </ul>
-            <a href={href} class="mt-4 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">
-              Learn more <span aria-hidden="true">&rarr;</span>
-            </a>
-          </div>
-        ))}
-      </div>
     </div>
+    <Services21 services={capabilities} client:visible />
   </section>
 
   <!-- Why -->

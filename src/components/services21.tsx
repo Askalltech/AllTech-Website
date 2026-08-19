@@ -10,6 +10,31 @@ import {
   Server,
   Zap,
   Sparkles,
+  ListChecks,
+  ShieldCheck,
+  Mail,
+  Radar,
+  Eye,
+  Target,
+  Siren,
+  Route,
+  Smartphone,
+  Globe,
+  Lock,
+  ShieldAlert,
+  Code2,
+  Network,
+  Wifi,
+  Flame,
+  GitBranch,
+  Headset,
+  LifeBuoy,
+  Activity,
+  Handshake,
+  Cloud,
+  Fingerprint,
+  HardDriveDownload,
+  HardDrive,
   type LucideIcon,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -29,6 +54,31 @@ const iconMap = {
   Server,
   Zap,
   Sparkles,
+  ListChecks,
+  ShieldCheck,
+  Mail,
+  Radar,
+  Eye,
+  Target,
+  Siren,
+  Route,
+  Smartphone,
+  Globe,
+  Lock,
+  ShieldAlert,
+  Code2,
+  Network,
+  Wifi,
+  Flame,
+  GitBranch,
+  Headset,
+  LifeBuoy,
+  Activity,
+  Handshake,
+  Cloud,
+  Fingerprint,
+  HardDriveDownload,
+  HardDrive,
 } satisfies Record<string, LucideIcon>;
 
 export type Services21IconName = keyof typeof iconMap;
@@ -47,12 +97,19 @@ const usePrevious = <T,>(value: T): T | undefined => {
 };
 
 export interface Services21Item {
+  /** Decorative superscript shown next to the title, e.g. "01". NOT a slug. */
   id: string;
-  /** Optional html id for direct deep-linking, e.g. "#cameras". */
+  /** Primary html id for direct deep-linking, e.g. "cameras". */
   anchorId?: string;
+  /** Secondary empty-anchor id kept for legacy external links, e.g. "ddos". */
+  aliasId?: string;
   title: string;
-  href: string;
-  description: string;
+  /** Omit for items with no dedicated page — renders with no link/CTA. */
+  href?: string;
+  /** A single paragraph, or a bullet list when the source content is bulleted. */
+  description: string | string[];
+  /** Overrides the default "Learn more about {title}" CTA label. */
+  ctaLabel?: string;
   icon: Services21IconName;
 }
 
@@ -64,7 +121,8 @@ interface Services21Props {
 const Services21 = ({ services, className }: Services21Props) => {
   const [active, setActive] = useState<number>(0);
   const previousActive = usePrevious(active);
-  const ActiveIcon = iconMap[services[active].icon];
+  const activeService = services[active];
+  const ActiveIcon = iconMap[activeService.icon];
   const PreviousIcon =
     previousActive !== undefined ? iconMap[services[previousActive].icon] : undefined;
 
@@ -97,11 +155,20 @@ const Services21 = ({ services, className }: Services21Props) => {
               </motion.div>
             </div>
             <p className="font-semibold tracking-tight text-foreground/20 uppercase">
-              {services[active].title}
+              {activeService.title}
             </p>
-            <p className="text-base text-foreground/50">
-              {services[active].description}
-            </p>
+            {Array.isArray(activeService.description) ? (
+              <ul className="space-y-2 text-sm text-foreground/50">
+                {activeService.description.map((point) => (
+                  <li key={point} className="flex items-start gap-2">
+                    <span aria-hidden="true" className="mt-2 size-1 shrink-0 rounded-full bg-current" />
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-base text-foreground/50">{activeService.description}</p>
+            )}
           </div>
           <div className="relative w-full xl:pl-20">
             <ul>
@@ -114,10 +181,23 @@ const Services21 = ({ services, className }: Services21Props) => {
                     "scroll-mt-24 cursor-pointer border-b border-foreground/20 py-8 text-5xl font-semibold tracking-tight lg:text-7xl",
                   )}
                 >
-                  <a href={service.href} className="block">
-                    <div
-                      className={index === active ? "opacity-100" : "opacity-20"}
-                    >
+                  {service.aliasId && (
+                    <span id={service.aliasId} className="block scroll-mt-24" />
+                  )}
+                  {service.href ? (
+                    <a href={service.href} className="block">
+                      <div className={index === active ? "opacity-100" : "opacity-20"}>
+                        <span>{service.title}</span>
+                        <sup
+                          className="align-super text-sm lg:text-3xl"
+                          style={{ color: "var(--color-amber-500)" }}
+                        >
+                          {service.id}
+                        </sup>
+                      </div>
+                    </a>
+                  ) : (
+                    <div className={index === active ? "opacity-100" : "opacity-20"}>
                       <span>{service.title}</span>
                       <sup
                         className="align-super text-sm lg:text-3xl"
@@ -126,24 +206,26 @@ const Services21 = ({ services, className }: Services21Props) => {
                         {service.id}
                       </sup>
                     </div>
-                  </a>
+                  )}
                 </li>
               ))}
             </ul>
-            <BorderButton
-              asChild
-              className="group mt-10"
-              style={{
-                borderColor: "var(--color-amber-400)",
-                background: "color-mix(in oklch, var(--color-amber-400) 10%, transparent)",
-                color: "var(--color-amber-600)",
-              }}
-            >
-              <a href={services[active].href}>
-                Learn more about {services[active].title}{" "}
-                <ArrowUpRight className="size-4 transition-transform duration-300 group-hover:rotate-45" />
-              </a>
-            </BorderButton>
+            {activeService.href && (
+              <BorderButton
+                asChild
+                className="group mt-10"
+                style={{
+                  borderColor: "var(--color-amber-400)",
+                  background: "color-mix(in oklch, var(--color-amber-400) 10%, transparent)",
+                  color: "var(--color-amber-600)",
+                }}
+              >
+                <a href={activeService.href}>
+                  {activeService.ctaLabel ?? `Learn more about ${activeService.title}`}{" "}
+                  <ArrowUpRight className="size-4 transition-transform duration-300 group-hover:rotate-45" />
+                </a>
+              </BorderButton>
+            )}
           </div>
         </div>
       </div>

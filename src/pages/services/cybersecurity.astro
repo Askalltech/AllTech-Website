@@ -2,6 +2,103 @@
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { site } from '~/lib/site';
 import { buildBreadcrumbSchema } from '~/lib/schema';
+import { Services21, type Services21Item } from '@/components/services21';
+
+const capabilities: Services21Item[] = [
+  {
+    id: '01',
+    anchorId: 'top10',
+    title: 'AllTech Top 10',
+    href: '/services/alltech-top-10',
+    icon: 'ListChecks',
+    ctaLabel: 'AllTech Top 10',
+    description: [
+      'A pre-selected set of essential security controls for small and mid-sized businesses, mapped to CIS Controls and NIST CSF.',
+      'Continually refined as new threats emerge — not a static checklist from a compliance binder.',
+      'The starting baseline we recommend before scoping anything more specialized below.',
+    ],
+  },
+  {
+    id: '02',
+    anchorId: 'endpoint',
+    title: 'Endpoint Security',
+    href: '/services/endpoint-security',
+    icon: 'ShieldCheck',
+    ctaLabel: 'Endpoint Security & Managed EDR',
+    description: [
+      'EDR deployed and monitored across workstations and servers via Datto RMM — real-time threat detection, not signature-only antivirus.',
+      'Automated isolation of compromised endpoints during active incidents.',
+      'Patch management and vulnerability remediation on the same platform — security and maintenance aren\'t separate tools.',
+    ],
+  },
+  {
+    id: '03',
+    anchorId: 'email',
+    title: 'Email Security',
+    href: '/services/email-security',
+    icon: 'Mail',
+    ctaLabel: 'Email Security & Phishing Protection',
+    description: [
+      'Advanced filtering in front of Microsoft 365 and Google Workspace — catches phishing, BEC, and malware before delivery.',
+      'Mailbox security audits via Exchange Online PowerShell: risky forwarding rules, legacy auth, suspicious sign-ins.',
+      'Deliverable via Cloudflare Email Security as part of a Zero Trust deployment, or as a standalone layer.',
+    ],
+  },
+  {
+    id: '04',
+    anchorId: 'ndr',
+    title: 'Network Detection & Response',
+    href: '/services/network-detection',
+    icon: 'Radar',
+    ctaLabel: 'Network Detection & Response',
+    description: [
+      'AI-driven Network Detection & Response (NDR) — learns the normal pattern of life for your network and flags deviations, not just known signatures.',
+      'We actively tune detection policies across multiple client environments, cutting false positives while keeping real threats blocked.',
+      'Catches lateral movement and C2 traffic that signature-based tools miss entirely.',
+    ],
+  },
+  {
+    id: '05',
+    anchorId: 'soc',
+    title: 'Managed SOC',
+    href: '/services/managed-soc',
+    icon: 'Eye',
+    ctaLabel: 'Managed SOC & 24/7 Monitoring',
+    description: [
+      '24/7 monitoring across endpoint, network, and email signals.',
+      'Alerts triaged by engineers who know your environment — not a generic offshore SOC reading from a playbook.',
+      'Integrated with the same tools used for IR, so when something gets flagged, the same team that\'s been watching it can respond immediately.',
+    ],
+  },
+  {
+    id: '06',
+    anchorId: 'pentest',
+    title: 'Penetration Testing',
+    href: '/services/penetration-testing',
+    icon: 'Target',
+    ctaLabel: 'Penetration Testing',
+    description: [
+      'Conducted via vPenTest — external, internal, and web application testing.',
+      'Plain-English reports: findings grouped by severity (Critical / High / Medium / Low), each with a concrete remediation note.',
+      'Designed as a recurring program, not a one-time checkbox — year-over-year trend tracking shows whether the environment is actually getting more secure.',
+      'Recent engagements include multi-site businesses with office and OT network segments.',
+    ],
+  },
+  {
+    id: '07',
+    anchorId: 'ir',
+    title: 'Incident Response',
+    href: '/services/incident-response',
+    icon: 'Siren',
+    ctaLabel: 'Incident Response & Breach Containment',
+    description: [
+      'Active investigation and containment — not just "restore from backup and hope."',
+      'Malware analysis, PowerShell-based collection and eradication scripting deployed via RMM at scale, identification and removal of persistence mechanisms.',
+      'Experience eradicating multi-system C2 compromises while keeping the business running.',
+      'Every engagement includes a written summary: what happened, what we did, what changes prevent recurrence.',
+    ],
+  },
+];
 
 const serviceSchema = {
   '@context': 'https://schema.org',
@@ -59,97 +156,8 @@ const breadcrumbSchema = buildBreadcrumbSchema([
           contracted out, not monitored by a dashboard nobody watches.
         </p>
       </div>
-
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-
-        <section id="top10" class="card scroll-mt-24">
-          <h3 class="font-display text-lg font-semibold mb-3">AllTech Top 10</h3>
-          <ul class="text-sm text-muted leading-relaxed space-y-2">
-            <li>A pre-selected set of essential security controls for small and mid-sized businesses, mapped to CIS Controls and NIST CSF.</li>
-            <li>Continually refined as new threats emerge — not a static checklist from a compliance binder.</li>
-            <li>The starting baseline we recommend before scoping anything more specialized below.</li>
-          </ul>
-          <a href="/services/alltech-top-10" class="mt-4 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">
-            AllTech Top 10 <span aria-hidden="true">→</span>
-          </a>
-        </section>
-
-        <section id="endpoint" class="card scroll-mt-24">
-          <h3 class="font-display text-lg font-semibold mb-3">Endpoint Security</h3>
-          <ul class="text-sm text-muted leading-relaxed space-y-2">
-            <li>EDR deployed and monitored across workstations and servers via Datto RMM — real-time threat detection, not signature-only antivirus.</li>
-            <li>Automated isolation of compromised endpoints during active incidents.</li>
-            <li>Patch management and vulnerability remediation on the same platform — security and maintenance aren't separate tools.</li>
-          </ul>
-          <a href="/services/endpoint-security" class="mt-4 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">
-            Endpoint Security &amp; Managed EDR <span aria-hidden="true">→</span>
-          </a>
-        </section>
-
-        <section id="email" class="card scroll-mt-24">
-          <h3 class="font-display text-lg font-semibold mb-3">Email Security</h3>
-          <ul class="text-sm text-muted leading-relaxed space-y-2">
-            <li>Advanced filtering in front of Microsoft 365 and Google Workspace — catches phishing, BEC, and malware before delivery.</li>
-            <li>Mailbox security audits via Exchange Online PowerShell: risky forwarding rules, legacy auth, suspicious sign-ins.</li>
-            <li>Deliverable via Cloudflare Email Security as part of a Zero Trust deployment, or as a standalone layer.</li>
-          </ul>
-          <a href="/services/email-security" class="mt-4 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">
-            Email Security &amp; Phishing Protection <span aria-hidden="true">→</span>
-          </a>
-        </section>
-
-        <section id="ndr" class="card scroll-mt-24">
-          <h3 class="font-display text-lg font-semibold mb-3">Network Detection &amp; Response</h3>
-          <ul class="text-sm text-muted leading-relaxed space-y-2">
-            <li>AI-driven Network Detection &amp; Response (NDR) — learns the normal pattern of life for your network and flags deviations, not just known signatures.</li>
-            <li>We actively tune detection policies across multiple client environments, cutting false positives while keeping real threats blocked.</li>
-            <li>Catches lateral movement and C2 traffic that signature-based tools miss entirely.</li>
-          </ul>
-          <a href="/services/network-detection" class="mt-4 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">
-            Network Detection &amp; Response <span aria-hidden="true">→</span>
-          </a>
-        </section>
-
-        <section id="soc" class="card scroll-mt-24">
-          <h3 class="font-display text-lg font-semibold mb-3">Managed SOC</h3>
-          <ul class="text-sm text-muted leading-relaxed space-y-2">
-            <li>24/7 monitoring across endpoint, network, and email signals.</li>
-            <li>Alerts triaged by engineers who know your environment — not a generic offshore SOC reading from a playbook.</li>
-            <li>Integrated with the same tools used for IR, so when something gets flagged, the same team that's been watching it can respond immediately.</li>
-          </ul>
-          <a href="/services/managed-soc" class="mt-4 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">
-            Managed SOC &amp; 24/7 Monitoring <span aria-hidden="true">→</span>
-          </a>
-        </section>
-
-        <section id="pentest" class="card scroll-mt-24">
-          <h3 class="font-display text-lg font-semibold mb-3">Penetration Testing</h3>
-          <ul class="text-sm text-muted leading-relaxed space-y-2">
-            <li>Conducted via vPenTest — external, internal, and web application testing.</li>
-            <li>Plain-English reports: findings grouped by severity (Critical / High / Medium / Low), each with a concrete remediation note.</li>
-            <li>Designed as a recurring program, not a one-time checkbox — year-over-year trend tracking shows whether the environment is actually getting more secure.</li>
-            <li>Recent engagements include multi-site businesses with office and OT network segments.</li>
-          </ul>
-          <a href="/services/penetration-testing" class="mt-4 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">
-            Penetration Testing <span aria-hidden="true">→</span>
-          </a>
-        </section>
-
-        <section id="ir" class="card scroll-mt-24">
-          <h3 class="font-display text-lg font-semibold mb-3">Incident Response</h3>
-          <ul class="text-sm text-muted leading-relaxed space-y-2">
-            <li>Active investigation and containment — not just "restore from backup and hope."</li>
-            <li>Malware analysis, PowerShell-based collection and eradication scripting deployed via RMM at scale, identification and removal of persistence mechanisms.</li>
-            <li>Experience eradicating multi-system C2 compromises while keeping the business running.</li>
-            <li>Every engagement includes a written summary: what happened, what we did, what changes prevent recurrence.</li>
-          </ul>
-          <a href="/services/incident-response" class="mt-4 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600);">
-            Incident Response &amp; Breach Containment <span aria-hidden="true">→</span>
-          </a>
-        </section>
-
-      </div>
     </div>
+    <Services21 services={capabilities} client:visible />
   </section>
 
   <!-- Why us -->
