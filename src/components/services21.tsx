@@ -130,7 +130,7 @@ const Services21 = ({ services, className }: Services21Props) => {
     <section className={cn("py-32", className)}>
       <div className="container">
         <div className="flex w-full flex-col justify-between lg:flex-row lg:gap-20">
-          <div className="top-10 h-fit w-full space-y-7 py-8 lg:sticky lg:max-w-xs">
+          <div className="top-24 h-fit max-h-[calc(100vh-7rem)] w-full space-y-7 overflow-y-auto py-8 lg:sticky lg:max-w-xs">
             <div
               className="relative flex h-56 items-center justify-center overflow-hidden rounded-lg border"
               style={{ background: "var(--color-bg-tint)", borderColor: "var(--color-border-default)" }}

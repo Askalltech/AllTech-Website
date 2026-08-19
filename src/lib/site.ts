@@ -80,6 +80,7 @@ export const services = [
     name: "AllTech Top 10",
     short: "A pre-selected security stack for small and mid-sized business — the ten controls we deploy first, mapped to leading frameworks and continually refined as threats evolve.",
     icon: "stack",
+    featured: false,
   },
   {
     slug: "cloudflare-zero-trust",
@@ -94,30 +95,35 @@ export const services = [
     name: "Cybersecurity",
     short: "Endpoint security, email security, incident response, SOC monitoring, and pen testing.",
     icon: "shield",
+    featured: false,
   },
   {
     slug: "network-design",
     name: "Network & Infrastructure",
     short: "Business-grade Wi-Fi, switching, and firewalls — plus the full UniFi line: Network, Protect cameras, and Access door entry. Ubiquiti UniFi specialists.",
     icon: "node",
+    featured: false,
   },
   {
     slug: "install",
     name: "Install",
     short: "On-site low-voltage installation: UniFi Protect cameras, door access control, structured cabling, point-to-point wireless, fiber, and server-room buildouts.",
     icon: "camera",
+    featured: false,
   },
   {
     slug: "it-cloud",
     name: "IT & Cloud",
     short: "Outsourced IT: help desk, Datto RMM monitoring and patching, vendor management, Microsoft 365, Entra ID and Intune, and backup and disaster recovery.",
     icon: "endpoint",
+    featured: false,
   },
   {
     slug: "remote-it-support",
     name: "Remote IT Support",
     short: "Managed IT and cybersecurity delivered remotely — help desk, monitoring, cybersecurity, cloud, and backup and disaster recovery — wherever your team works.",
     icon: "cloud-sync",
+    featured: false,
     // Lives at the site root, not /services/<slug> — serviceLink() reads this.
     path: "/remote-it-support",
   },
@@ -126,6 +132,7 @@ export const services = [
     name: "Utah Data Recovery",
     short: "Professional recovery for failed drives, SSDs, RAID arrays, NAS systems, and phones — the only Class 100 cleanroom in Utah, plus digital forensic analysis for civil and criminal cases.",
     icon: "disk-recovery",
+    featured: false,
   },
 ] as const;
 
