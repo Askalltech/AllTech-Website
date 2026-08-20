@@ -19,11 +19,21 @@
  *
  * Fixed (not absolute) so it reads as one wallpaper behind the whole page
  * rather than a pattern that scrolls away after the first screen.
+ *
+ * No z-index (relies on being first in the DOM, so later siblings simply
+ * paint over it): a NEGATIVE z-index here — the original `-z-10` — breaks
+ * `backdrop-filter: blur()` for every descendant elsewhere on the page
+ * (the header's frosted-glass nav pill and mega-menu panel). Confirmed by
+ * isolated repro: a backdrop-filter element can't blur a sibling painted
+ * via negative z-index, but blurs the exact same sibling fine once it's
+ * just behind in normal (non-negative) stacking order. This element is
+ * already first in the DOM and everything else on the page paints after
+ * it, so dropping the negative z-index costs nothing and fixes the blur.
  */
 ---
 
 <div
-  class="fixed inset-0 -z-10 pointer-events-none bg-dot-grid-matrix"
+  class="fixed inset-0 pointer-events-none bg-dot-grid-matrix"
   style="mask-image: radial-gradient(ellipse 95% 54% at 50% 100%, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.2) 34%, transparent 74%); -webkit-mask-image: radial-gradient(ellipse 95% 54% at 50% 100%, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.2) 34%, transparent 74%);"
   aria-hidden="true"
 >
