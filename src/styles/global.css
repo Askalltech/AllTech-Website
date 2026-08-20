@@ -818,4 +818,19 @@
   --color-text-link:    var(--color-amber-200);
 
   --color-amber-glow: rgba(79, 179, 221, 0.18); /* brightened + upped opacity to read against a dark page */
+
+  /* ----- secondary/tertiary text + input surfaces, dark mode -----
+     These were added light-only ("previously undefined" — see the @theme
+     comment above) and never given a dark override, so every component
+     using them (AssessmentForm's inputs and Yes/No/Not-sure buttons, the
+     cybersecurity page's closing-CTA gradient box, ContactForm, etc.)
+     stayed hardcoded light regardless of theme. Mapped onto the same
+     ink-scale tokens used everywhere else in this block. */
+  --color-text-secondary: var(--color-text-default); /* ink-100 */
+  --color-text-tertiary:  var(--color-text-subtle);  /* ink-300 */
+  --color-surface-0: var(--color-bg-surface);  /* ink-800 */
+  --color-surface-1: var(--color-bg-surface);  /* ink-800 */
+  --color-surface-2: var(--color-bg-elevated); /* ink-700 */
+  --color-line-soft: var(--color-border-default); /* ink-700 */
+  --color-signal-error: #f87171; /* red-400 — the light #dc2626 fails contrast on a dark page */
 }
