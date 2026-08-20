@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
-  DEFAULT_TRIGGER_LABEL,
   DIAGNOSTICS_RECOMMENDATION,
   DIAGNOSTICS_RESULT,
   DIAGNOSTIC_STEPS,
@@ -24,6 +23,9 @@ import {
 
 /** Delay between each diagnostics line revealing, when motion isn't reduced. */
 const STEP_DELAY_MS = 220;
+
+/** How often the footer pill auto-advances to the next TELEMETRY_LINES entry. */
+const CYCLE_INTERVAL_MS = 10_000;
 
 const STATE_COLOR: Record<TelemetryState, string> = {
   ok: "var(--color-success)",
@@ -80,7 +82,10 @@ type OutputMode = "diagnostics" | "reboot" | null;
 const SystemTelemetry = () => {
   const [open, setOpen] = useState(false);
   const [openCount, setOpenCount] = useState(0);
-  const [triggerLabel, setTriggerLabel] = useState(DEFAULT_TRIGGER_LABEL);
+  // Non-null while an ESCALATION_MESSAGES click-escalation is showing;
+  // overrides the auto-cycled TELEMETRY_LINES text until the next tick.
+  const [triggerLabel, setTriggerLabel] = useState<string | null>(null);
+  const [cycleIndex, setCycleIndex] = useState(0);
 
   const [outputMode, setOutputMode] = useState<OutputMode>(null);
   const [revealedSteps, setRevealedSteps] = useState(0);
@@ -98,6 +103,22 @@ const SystemTelemetry = () => {
   useEffect(() => {
     setOpenCount(readOpenCount());
   }, []);
+
+  // Auto-cycle the footer pill through TELEMETRY_LINES at rest. Paused
+  // while the dialog is open (so text isn't silently changing behind it)
+  // and skipped entirely under prefers-reduced-motion, since this is a
+  // repeating, unprompted UI change — exactly what that preference exists
+  // to suppress.
+  useEffect(() => {
+    if (open || reducedMotion) return;
+    const id = setInterval(() => {
+      // A click's escalation message has had its moment; the next tick
+      // both advances the cycle and lets it take back over the pill.
+      setTriggerLabel(null);
+      setCycleIndex((i) => (i + 1) % TELEMETRY_LINES.length);
+    }, CYCLE_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [open, reducedMotion]);
 
   useEffect(() => {
     return () => {
@@ -200,9 +221,9 @@ const SystemTelemetry = () => {
         <span
           aria-hidden="true"
           className="inline-block size-1.5 rounded-full"
-          style={{ background: "var(--color-success)" }}
+          style={{ background: STATE_COLOR[TELEMETRY_LINES[cycleIndex].state] }}
         />
-        {triggerLabel}
+        {triggerLabel ?? TELEMETRY_LINES[cycleIndex].text}
       </button>
 
       <Dialog open={open} onOpenChange={handleOpenChange}>
