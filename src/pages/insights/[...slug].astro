@@ -35,6 +35,24 @@ const articleSchema = {
         <h1 class="font-display text-4xl lg:text-5xl font-semibold leading-tight">{post.data.title}</h1>
         <p class="mt-4 text-xl leading-relaxed text-muted">{post.data.description}</p>
       </header>
+
+      {post.data.heroImage && (
+        <div class="relative mb-10 rounded-xl overflow-hidden">
+          <img src={post.data.heroImage} alt="" class="w-full h-auto object-cover" />
+          {post.data.heroImageCredit && (
+            <a
+              href={post.data.heroImageCredit.url}
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+              class="absolute top-2 left-2 z-10 rounded px-1.5 py-0.5 text-[10px] leading-none text-white/70 transition hover:text-white"
+              style="background: rgba(0,0,0,0.35);"
+            >
+              Photo: {post.data.heroImageCredit.name}
+            </a>
+          )}
+        </div>
+      )}
+
       <div class="prose-alltech"><Content /></div>
     </div>
   </article>

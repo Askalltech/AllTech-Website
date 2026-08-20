@@ -3,6 +3,10 @@ title: "Retiring the corporate VPN: a phased rollout to Cloudflare Zero Trust"
 description: "Why most VPN sunsets fail mid-migration, and how we structure a rollout that doesn't break things."
 pubDate: 2026-02-10
 author: "AllTech"
+heroImage: "/insights/retiring-the-corporate-vpn.webp"
+heroImageCredit:
+  name: "Shubham Dhage"
+  url: "https://unsplash.com/photos/a-brain-displayed-with-glowing-blue-lines-2sz-3NrmZYU"
 tags: ["cloudflare", "zero trust", "vpn", "migration"]
 ---
 

@@ -3,6 +3,10 @@ title: "A Fileless PowerShell Attack That Hid Behind a Trusted Node.js Runtime"
 description: "A ClickFix-style attack on a Cache Valley business skipped the disk entirely — a memory-only PowerShell payload dropped a second-stage backdoor disguised as a legitimate, signed Node.js runtime."
 pubDate: 2026-08-18
 author: "AllTech"
+heroImage: "/insights/fileless-powershell-nodejs-backdoor.webp"
+heroImageCredit:
+  name: "Steve A Johnson"
+  url: "https://unsplash.com/photos/a-group-of-white-boxes-with-numbers-on-them-QaM0dr1xN4M"
 tags: ["incident response", "cybersecurity", "case study", "clickfix", "managed soc"]
 ---
 
