@@ -92,6 +92,17 @@ const faqSchema = {
   })),
 };
 
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Endpoint Security and Managed EDR',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Endpoint Security & Managed EDR',
+  description:
+    'Managed EDR deployed and monitored across workstations and servers, with automated isolation of compromised endpoints, patching, and vulnerability remediation.',
+};
+
 const breadcrumbSchema = buildBreadcrumbSchema([
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
@@ -105,6 +116,7 @@ const breadcrumbSchema = buildBreadcrumbSchema([
   description="Endpoint security for businesses across Northern Utah. AllTech runs managed EDR, antivirus, and DNS filtering on every workstation and server, with a 24/7 SOC reviewing the alerts."
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
 
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
   <!-- Hero -->

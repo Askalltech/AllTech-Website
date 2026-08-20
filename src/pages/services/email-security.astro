@@ -70,6 +70,17 @@ const related = [
 
 const contactHref = '/contact?service=Cybersecurity';
 
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Email Security',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Email Security & Phishing Protection',
+  description:
+    'Advanced email filtering in front of Microsoft 365 and Google Workspace, catching phishing, business email compromise, and malware before delivery.',
+};
+
 const breadcrumbSchema = buildBreadcrumbSchema([
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
@@ -82,6 +93,7 @@ const breadcrumbSchema = buildBreadcrumbSchema([
   title="Email Security & Phishing Protection"
   description="Email security for businesses across Northern Utah. AllTech filters phishing, business email compromise, and malware in front of Microsoft 365 and Google Workspace."
 >
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
 
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
   <!-- Hero -->

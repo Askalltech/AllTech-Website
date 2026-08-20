@@ -118,6 +118,17 @@ const faqSchema = {
   })),
 };
 
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Penetration Testing',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Penetration Testing',
+  description:
+    'External, internal, and web application penetration testing with plain-English reports, severity-ranked findings, and concrete remediation guidance.',
+};
+
 const breadcrumbSchema = buildBreadcrumbSchema([
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
@@ -131,6 +142,7 @@ const breadcrumbSchema = buildBreadcrumbSchema([
   description="Internal and external penetration testing that finds what scanners miss. AllTech tests your network the way an attacker would, then retests to prove it's fixed."
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
 
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
   <!-- Hero -->

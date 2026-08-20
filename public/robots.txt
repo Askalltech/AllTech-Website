@@ -1,4 +1,8 @@
 User-agent: *
 Allow: /
 
+# SSR form endpoints — nothing to index, and they are POST-only.
+# Mirrors the sitemap filter in astro.config.mjs.
+Disallow: /api/
+
 Sitemap: https://askalltech.com/sitemap-index.xml
