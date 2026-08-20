@@ -17,7 +17,16 @@
  * the binding configured never touches it and just logs instead.
  */
 
-import { createMimeMessage } from 'mimetext';
+import { createMimeMessage, Mailbox } from 'mimetext';
+
+/** Thrown when the binding exists but the send itself failed. Routes catch
+ * this and return a clean 502 rather than letting it escape as a 500. */
+export class EmailSendError extends Error {
+  constructor(readonly reason: unknown) {
+    super('Email delivery failed');
+    this.name = 'EmailSendError';
+  }
+}
 
 export interface SendEmailBinding {
   send(message: import('cloudflare:email').EmailMessage): Promise<void>;
@@ -46,9 +55,25 @@ export async function sendEmail({ binding, to, from, replyTo, subject, text }: S
   const msg = createMimeMessage();
   msg.setSender({ addr: from });
   msg.setRecipient(to);
-  if (replyTo) msg.setHeader('Reply-To', replyTo);
+  // Reply-To is a *known* header in mimetext, validated with
+  // validateMailboxSingle — passing a plain string throws
+  // 'The value for the header "Reply-To" is invalid.' and, because that
+  // happens on every submission with an email address (i.e. all of them),
+  // it silently dropped every inquiry. It must be a Mailbox instance.
+  if (replyTo) msg.setHeader('Reply-To', new Mailbox(replyTo));
   msg.setSubject(subject);
   msg.addMessage({ contentType: 'text/plain', data: text });
 
-  await binding.send(new EmailMessage(from, to, msg.asRaw()));
+  try {
+    await binding.send(new EmailMessage(from, to, msg.asRaw()));
+  } catch (err) {
+    // Log the full message before rethrowing: a delivery failure should still
+    // leave the lead recoverable from logs rather than vanishing.
+    console.error(
+      `[email] Delivery FAILED — the inquiry below was not sent.\n` +
+        `To: ${to}\nFrom: ${from}\nSubject: ${subject}\n\n${text}`,
+      err,
+    );
+    throw new EmailSendError(err);
+  }
 }
