@@ -215,7 +215,11 @@ const SystemTelemetry = () => {
         onClick={openPanel}
         className="inline-flex items-center gap-1.5 text-left transition hover:text-[var(--color-text-primary)]"
         aria-haspopup="dialog"
-        aria-label="Site status"
+        // The visible text IS the name — a static aria-label="Site status"
+        // overrode it, so voice-control users could not activate the control
+        // by saying what they saw (WCAG 2.5.3). Prefix keeps the purpose
+        // clear while still containing the visible string.
+        aria-label={`Site status: ${triggerLabel ?? TELEMETRY_LINES[cycleIndex].text}`}
         title="Site status"
       >
         <span

@@ -141,10 +141,16 @@ const CaseStudies10 = (props: Props) => {
             )}
           />
           <CarouselContent className="-ml-5">
-            {items.map((item) => (
+            {items.map((item, index) => (
               <CarouselItem
                 key={item.id}
                 className="basis-[85%] pl-5 md:basis-[45%]"
+                // Clipped by overflow-hidden rather than removed, so without
+                // this the off-screen slides stay tabbable and keyboard users
+                // land on links they cannot see. `inert` is a valid HTML
+                // attribute but isn't in React 18's JSX typings (added in 19),
+                // hence the spread.
+                {...({ inert: index !== currentSlide ? "" : undefined } as Record<string, unknown>)}
               >
                 <a href={item.href} className="group block rounded-xl">
                   <div className="group relative aspect-4/3 w-full max-w-full overflow-hidden rounded-xl">
@@ -162,9 +168,9 @@ const CaseStudies10 = (props: Props) => {
                           className="max-h-8 w-auto max-w-[160px] object-contain object-left"
                         />
                       </div>
-                      <div className="mb-2 line-clamp-1 text-xl font-semibold md:mb-3 md:text-2xl">
+                      <h2 className="mb-2 line-clamp-1 text-xl font-semibold md:mb-3 md:text-2xl">
                         {item.title}
-                      </div>
+                      </h2>
                       <div className="mb-8 line-clamp-2 text-sm text-pretty text-white/90 md:mb-10">
                         {item.description}
                       </div>
@@ -184,11 +190,14 @@ const CaseStudies10 = (props: Props) => {
             <button
               key={index}
               type="button"
-              className={`h-2 w-2 rounded-full transition-colors ${
-                currentSlide === index ? "bg-primary" : "bg-primary/20"
+              className={`rounded-full transition-all ${
+                currentSlide === index
+                  ? "bg-primary ring-primary/40 h-2.5 w-5 ring-2"
+                  : "bg-primary/20 h-2 w-2"
               }`}
               onClick={() => carouselApi?.scrollTo(index)}
               aria-label={`Go to slide ${index + 1}`}
+              aria-current={currentSlide === index}
             />
           ))}
         </div>

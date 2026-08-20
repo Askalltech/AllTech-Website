@@ -71,8 +71,11 @@ const aNormalWeek = [
        desaturated only in dark mode so it recedes into the dark palette
        the same way every other section's imagery already does. -->
   <section class="relative overflow-hidden">
+    <!-- `hero-video` is paused and hidden under prefers-reduced-motion (see
+         global.css); the still gradient below carries the section on its own,
+         so there is nothing to replace it with. WCAG 2.2.2. -->
     <video
-      class="absolute inset-0 h-full w-full object-cover brightness-100 saturate-100 dark:brightness-50 dark:saturate-75"
+      class="hero-video absolute inset-0 h-full w-full object-cover brightness-100 saturate-100 dark:brightness-50 dark:saturate-75"
       style="mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 78%, transparent 100%); -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 14%, black 78%, transparent 100%);"
       src="/hero-video.mp4"
       autoplay

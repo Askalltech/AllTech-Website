@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
  * data-driven grid:
  *
  * 1. `posts` comes from the real blog content collection (see
- *    src/pages/blog/index.astro) instead of hardcoded demo data.
+ *    src/pages/insights/index.astro) instead of hardcoded demo data.
  * 2. The category filter actually filters — client-side state over the
  *    distinct `label`s present in `posts`, not a decorative dropdown.
  * 3. `image` is optional. Only one real post exists right now and it has
@@ -57,7 +57,7 @@ const Blog1 = ({ posts, className }: Blog1Props) => {
         {categories.length > 1 && (
           <div className="mb-10 flex flex-wrap items-center gap-x-4 gap-y-3">
             <Select value={filter} onValueChange={setFilter}>
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="w-48" aria-label="Filter by category">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>
@@ -103,12 +103,12 @@ const Blog1 = ({ posts, className }: Blog1Props) => {
                   )}
                 </div>
               </div>
-              <div
+              <h2
                 className="mb-2 line-clamp-3 pt-4 text-lg font-medium break-words md:mb-3 md:text-2xl"
                 style={{ color: "var(--color-text-primary)" }}
               >
                 {post.title}
-              </div>
+              </h2>
               <div className="mb-8 line-clamp-2 text-sm md:mb-9" style={{ color: "var(--color-text-muted)" }}>
                 {post.summary}
               </div>

@@ -91,8 +91,14 @@ export function Globe({
       },
     })
 
-    setTimeout(() => (canvasRef.current!.style.opacity = "1"), 0)
+    // Captured and cleared below: an unmount inside this tick left the
+    // callback running against a null ref, turning the `!` assertion into a
+    // TypeError.
+    const fadeIn = window.setTimeout(() => {
+      if (canvasRef.current) canvasRef.current.style.opacity = "1"
+    }, 0)
     return () => {
+      window.clearTimeout(fadeIn)
       globe.destroy()
       window.removeEventListener("resize", onResize)
     }
@@ -110,6 +116,7 @@ export function Globe({
           "size-full opacity-0 transition-opacity duration-500 contain-[layout_paint_size]"
         )}
         ref={canvasRef}
+        aria-hidden="true"
         onPointerDown={(e) => {
           pointerInteracting.current = e.clientX
           updatePointerInteraction(e.clientX)
