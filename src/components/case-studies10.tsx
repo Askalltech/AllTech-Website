@@ -31,81 +31,29 @@ interface CaseStudiesCarouselProps {
 }
 
 interface CaseStudies10Props extends CaseStudiesCarouselProps {}
-type Props = Partial<CaseStudies10Props>;
+/** `items` is required — there is deliberately no fabricated fallback. */
+type Props = Partial<Omit<CaseStudies10Props, 'items'>> & Pick<CaseStudies10Props, 'items'>;
 
-const defaultProps: CaseStudies10Props = {
-  title: "Case studies",
-  description:
-    "A horizontal carousel of customer stories with full-bleed imagery, company logos, short summaries, and links to read the full write-up.",
-  items: [
-    {
-      id: "pipeline-analytics",
-      logo: "https://deifkwefumgah.cloudfront.net/shadcnblocks/image-set/modern/logos/fictional-company-logo-white-1.svg",
-      logoAlt: "Northwind Analytics",
-      title: "Unified pipeline analytics in a single view",
-      description:
-        "How a revenue team unified CRM data and product telemetry to shorten sales cycles and make forecasting review meetings less painful.",
-      href: "#",
-      image: "https://deifkwefumgah.cloudfront.net/shadcnblocks/image-set/modern/photos3/photo-1-3x4.jpg",
-    },
-    {
-      id: "launch-readiness",
-      logo: "https://deifkwefumgah.cloudfront.net/shadcnblocks/image-set/modern/logos/fictional-company-logo-white-2.svg",
-      logoAlt: "Stacklane",
-      title: "Coordinating a multi-team product launch",
-      description:
-        "Design, engineering, and go-to-market aligned on one timeline with shared blocks and checklists so launch week stayed predictable.",
-      href: "#",
-      image: "https://deifkwefumgah.cloudfront.net/shadcnblocks/image-set/modern/photos3/photo-2-3x4.jpg",
-    },
-    {
-      id: "customer-success",
-      logo: "https://deifkwefumgah.cloudfront.net/shadcnblocks/image-set/modern/logos/fictional-company-logo-white-3.svg",
-      logoAlt: "Railway Apps",
-      title: "Scaling onboarding without growing headcount",
-      description:
-        "Automated nudges and in-app guidance replaced one-off emails while support kept a clear view of who needed a human touch.",
-      href: "#",
-      image: "https://deifkwefumgah.cloudfront.net/shadcnblocks/image-set/modern/photos3/photo-3-3x4.jpg",
-    },
-    {
-      id: "security-review",
-      logo: "https://deifkwefumgah.cloudfront.net/shadcnblocks/image-set/modern/logos/fictional-company-logo-white-4.svg",
-      logoAlt: "CipherTrust",
-      title: "Passing enterprise security review faster",
-      description:
-        "The team turned a checklist-heavy review into a tracked workflow so legal and IT could sign off without thrashing the roadmap.",
-      href: "#",
-      image: "https://deifkwefumgah.cloudfront.net/shadcnblocks/image-set/modern/photos3/photo-4-3x4.jpg",
-    },
-    {
-      id: "design-system",
-      logo: "https://deifkwefumgah.cloudfront.net/shadcnblocks/image-set/modern/logos/fictional-company-logo-white-5.svg",
-      logoAlt: "Glyph Studio",
-      title: "One design system across marketing and product",
-      description:
-        "Shared tokens and documented sections cut duplicate UI work and made brand updates roll out consistently across surfaces.",
-      href: "#",
-      image: "https://deifkwefumgah.cloudfront.net/shadcnblocks/image-set/modern/photos3/photo-5-3x4.jpg",
-    },
-    {
-      id: "revenue-ops",
-      logo: "https://deifkwefumgah.cloudfront.net/shadcnblocks/image-set/modern/logos/fictional-company-logo-white-6.svg",
-      logoAlt: "Cedarline",
-      title: "Revenue ops that fits how teams actually work",
-      description:
-        "Forecasting and pipeline hygiene moved out of spreadsheets into one place so leadership could see risk early without extra ceremony.",
-      href: "#",
-      image: "https://deifkwefumgah.cloudfront.net/shadcnblocks/image-set/modern/photos3/photo-6-3x4.jpg",
-    },
-  ],
-};
+/**
+ * NOTE: this component intentionally ships NO default `items`.
+ *
+ * It previously carried six fabricated case studies (invented company names,
+ * `href: "#"` dead links, stock CDN photography) as defaultProps, and
+ * /case-studies rendered it with no items — so the fabrications are what the
+ * site actually published. Presenting invented client outcomes as real work is
+ * a trust problem, not just an SEO one, so the defaults are gone and callers
+ * must pass real data. The page renders an honest empty state until the
+ * caseStudies content collection has entries.
+ */
 
 const CaseStudies10 = (props: Props) => {
   const { title, description, items, className } = {
-    ...defaultProps,
+    title: 'Case studies',
+    description: '',
     ...props,
   };
+
+  if (!items?.length) return null;
 
   const [carouselApi, setCarouselApi] = useState<CarouselApi>();
   const [canScrollPrev, setCanScrollPrev] = useState(false);
