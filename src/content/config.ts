@@ -9,6 +9,9 @@ const blog = defineCollection({
     updatedDate: z.coerce.date().optional(),
     author: z.string().default('AllTech'),
     heroImage: z.string().optional(),
+    // Visible "Photo: Name" attribution link rendered over the hero image —
+    // same shape/pattern as Services13PhotoCredit (src/components/services13.tsx).
+    heroImageCredit: z.object({ name: z.string(), url: z.string() }).optional(),
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
   }),
