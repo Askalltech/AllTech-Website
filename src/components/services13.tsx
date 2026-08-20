@@ -138,19 +138,21 @@ const Services13 = ({
               style={{ background: "var(--color-bg-tint)", borderColor: "var(--color-border-default)" }}
             >
               {hero.image ? (
-                <>
-                  <img
-                    src={hero.image}
-                    alt=""
-                    className="absolute inset-0 h-full w-full object-cover"
-                  />
-                  {/* Darkens the photo's lower half so light text stays readable
-                      regardless of how bright the source image is. */}
-                  <div
-                    className="absolute inset-0"
-                    style={{ background: "linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0.15) 60%, transparent 100%)" }}
-                  />
-                </>
+                // The gradient (darkens the lower half so light text stays
+                // readable) is a second `background-image` layer on this
+                // SAME element, not a separate absolutely-positioned div
+                // over an <img> — two independently-composited layers here
+                // could show a faint seam where the GPU's raster tiles meet
+                // (most visible on a smooth sky/photo, masked on busy ones).
+                // One element, one paint, no seam.
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.75), rgba(0,0,0,0.15) 60%, transparent 100%), url(${hero.image})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                />
               ) : (
                 <HeroIcon
                   className="absolute -right-6 -bottom-6 size-40 opacity-15"
@@ -209,17 +211,17 @@ const Services13 = ({
                   style={{ background: "var(--color-bg-tint)", borderColor: "var(--color-border-default)" }}
                 >
                   {service.image ? (
-                    <>
-                      <img
-                        src={service.image}
-                        alt=""
-                        className="absolute inset-0 h-full w-full object-cover"
-                      />
-                      <div
-                        className="absolute inset-0"
-                        style={{ background: "linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.15) 55%, transparent 100%)" }}
-                      />
-                    </>
+                    // Single element, single paint — see the matching
+                    // comment on the hero card above for why this isn't a
+                    // separate <img> + overlay <div>.
+                    <div
+                      className="absolute inset-0"
+                      style={{
+                        backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.15) 55%, transparent 100%), url(${service.image})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                      }}
+                    />
                   ) : (
                     <Icon
                       className="absolute -right-4 -bottom-4 size-24 opacity-15"
