@@ -1,0 +1,55 @@
+# Security response headers, served by Cloudflare for every route.
+#
+# This file ships the same way public/_redirects already does: it is copied
+# into dist/ at build time and read by Cloudflare's static-asset layer.
+# public/.assetsignore excludes only _worker.js, so this is not filtered out.
+#
+# ---------------------------------------------------------------------------
+# READ THIS BEFORE TIGHTENING THE CSP
+#
+# script-src has to include 'unsafe-inline', and that is not an oversight:
+#
+#   * There are inline event handlers in the markup — onerror on the brand
+#     logo (Header.astro), onmouseenter/onmouseleave on the mega-menu tiles,
+#     onmouseover/onmouseout on the phone link. Inline handlers are blocked by
+#     ANY CSP that omits 'unsafe-inline'. Nonces and hashes do not rescue them;
+#     only 'unsafe-hashes' does, and support for that is uneven.
+#   * The theme FOUC guard in BaseLayout.astro is deliberately `is:inline` so
+#     it runs before first paint, so it is not hashed by Astro either.
+#
+# style-src needs it for the same practical reason: the codebase themes via
+# several hundred inline style="..." attributes carrying CSS custom properties.
+#
+# So be honest about what this buys: with 'unsafe-inline' present, the CSP is
+# DEFENCE IN DEPTH, NOT AN XSS BACKSTOP. The real protection here comes from
+# frame-ancestors, nosniff, Referrer-Policy, HSTS, base-uri, form-action and
+# object-src. That is an acceptable position today because the audit found no
+# XSS vector — every set:html on the site is build-time JSON-LD, and there is
+# no innerHTML or dangerouslySetInnerHTML anywhere in src/.
+#
+# To make script-src genuinely protective later: replace those ~10 inline
+# handlers with addEventListener in a bundled script, hash the FOUC guard,
+# then drop 'unsafe-inline'. Until that is done, do not claim this CSP stops
+# script injection.
+#
+# Every allowed origin below was taken from what the built site actually
+# loads, not from a template:
+#   fonts.googleapis.com          Google Fonts stylesheet   -> style-src
+#   fonts.gstatic.com             the font files            -> font-src
+#   maps.google.com               the /contact map iframe   -> frame-src
+#   challenges.cloudflare.com     Turnstile widget + iframe -> script/frame/connect
+#   static.cloudflareinsights.com analytics beacon          -> script/connect
+#     (currently commented out in BaseLayout, kept so enabling it doesn't
+#      silently break under CSP)
+# ---------------------------------------------------------------------------
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+  # 1 year. `preload` is intentionally NOT set — submitting to the preload
+  # list is effectively irreversible for the domain, so that should be a
+  # deliberate decision, not something inherited from a config file.
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://challenges.cloudflare.com https://maps.google.com https://www.google.com; connect-src 'self' https://challenges.cloudflare.com https://static.cloudflareinsights.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'
