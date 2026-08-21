@@ -12,7 +12,7 @@ const { study } = Astro.props;
 const { Content } = await study.render();
 ---
 
-<BaseLayout title={study.data.title} description={study.data.summary}>
+<BaseLayout title={study.data.title} description={study.data.summary} ogType="article">
   <article class="surface-dark py-16">
     <div class="container-prose">
       <a href="/case-studies" class="text-sm font-medium" style="color: var(--color-amber-300);">← Back to case studies</a>

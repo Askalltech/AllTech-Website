@@ -549,6 +549,15 @@
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+
+  /* The home hero's looping background video. autoplay+loop with no pause
+     control is WCAG 2.2.2, and aria-hidden does not exempt visual motion.
+     Hiding it leaves the gradient wash underneath, which already carries the
+     section on its own. `display: none` also stops playback in every engine,
+     which pausing via JS alone would not guarantee. */
+  .hero-video {
+    display: none !important;
+  }
 }
 
 /* ============================================================

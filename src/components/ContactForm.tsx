@@ -17,6 +17,29 @@ const services = [
   'Other',
 ];
 
+/**
+ * Inbound ?service= values that don't match an option above, mapped to the
+ * one they mean. Keys are normalized (lowercase, alphanumerics only).
+ * Anything not listed and not an exact option match simply prefills nothing.
+ */
+const SERVICE_ALIASES: Record<string, string> = {
+  cloudflarezerotrust: 'Cloudflare Zero Trust',
+  zerotrust: 'Cloudflare Zero Trust',
+  sase: 'Cloudflare Zero Trust',
+  fiberoptic: 'Network & Infrastructure',
+  networkdevicecleaning: 'Network & Infrastructure',
+  networkinfrastructure: 'Network & Infrastructure',
+  networkdesign: 'Network & Infrastructure',
+  itcloud: 'Managed IT',
+  managedit: 'Managed IT',
+  remoteitsupport: 'Managed IT',
+  microsoft365cloud: 'Microsoft 365 / Cloud',
+  cybersecurity: 'Cybersecurity',
+  backupdisasterrecovery: 'Backup & Disaster Recovery',
+  utahdatarecovery: 'Utah Data Recovery',
+  generalinquiry: 'Other',
+};
+
 interface Props {
   defaultService?: string;
   turnstileSiteKey?: string;
@@ -55,9 +78,20 @@ export default function ContactForm({ defaultService, turnstileSiteKey }: Props)
   useEffect(() => {
     const fromUrl = new URLSearchParams(window.location.search).get('service');
     if (!fromUrl) return;
-    // Only honor values that match a real option, so a stale or mistyped
+    // Only honor values that resolve to a real option, so a stale or mistyped
     // link can't leave the form in a state the user didn't choose.
-    const match = services.find((s) => s.toLowerCase() === fromUrl.toLowerCase());
+    //
+    // Matching on the exact option string alone was too strict: several pages
+    // link with a slug or a label that isn't in this list
+    // (?service=cloudflare-zero-trust, "Fiber Optic", "Network Device
+    // Cleaning", "General inquiry"), and every one of those silently prefilled
+    // nothing. Normalizing and consulting an alias map fixes those without
+    // loosening it into a fuzzy match.
+    const normalize = (v: string) => v.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const target = normalize(fromUrl);
+    const match =
+      services.find((s) => normalize(s) === target) ??
+      services.find((s) => normalize(s) === normalize(SERVICE_ALIASES[target] ?? ''));
     if (match) setCheckedServices((prev) => (prev.includes(match) ? prev : [...prev, match]));
   }, []);
 

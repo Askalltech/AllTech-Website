@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
-import { site, services } from '~/lib/site';
+import { site, services, serviceLink } from '~/lib/site';
 
 export function getStaticPaths() {
   return site.serviceArea.map((loc) => ({
@@ -49,14 +49,25 @@ const fullName = `${location.city}, ${location.region}`;
       </div>
 
       <div class="lg:col-span-7 grid sm:grid-cols-2 gap-4">
-        {services.map((service) => (
-          <a href={`/services/${service.slug}`} class="card group block">
-            <h3 class="font-display text-lg font-semibold mb-1.5 group-hover:text-amber-300 transition-colors">
-              {service.name}
-            </h3>
-            <p class="text-sm text-muted leading-relaxed">{service.short}</p>
-          </a>
-        ))}
+        {services.map((service) => {
+          // Must go through serviceLink(): not every service lives at
+          // /services/<slug>. Remote IT Support carries `path` because it sits
+          // at the site root, so building the URL by hand here produced a 404
+          // on all 11 location pages.
+          const { href, external } = serviceLink(service);
+          return (
+            <a
+              href={href}
+              class="card group block"
+              {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+            >
+              <h3 class="font-display text-lg font-semibold mb-1.5 group-hover:text-amber-300 transition-colors">
+                {service.name}
+              </h3>
+              <p class="text-sm text-muted leading-relaxed">{service.short}</p>
+            </a>
+          );
+        })}
       </div>
     </div>
   </section>

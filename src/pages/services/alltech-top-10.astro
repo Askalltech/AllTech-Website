@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { buildBreadcrumbSchema } from '~/lib/schema';
+import { site } from '~/lib/site';
 
 /**
  * AllTech Top 10 — a pre-selected security stack for SMB.
@@ -23,6 +24,17 @@ const controls = [
   ['Documented Incident Response', 'A tested plan to contain, eradicate, and recover — with near-real-time isolation.', 'CIS 17 · NIST RS.RP'],
 ];
 
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Essential Security Controls',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'AllTech Top 10',
+  description:
+    'A pre-selected set of essential security controls for small and mid-sized businesses, mapped to CIS Controls and NIST CSF and continually refined as threats evolve.',
+};
+
 const breadcrumbSchema = buildBreadcrumbSchema([
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
@@ -35,6 +47,7 @@ const breadcrumbSchema = buildBreadcrumbSchema([
   title="AllTech Top 10 — Security Stack for SMB"
   description="The AllTech Top 10: a pre-selected set of security controls for small and mid-sized business, mapped to CIS Controls and NIST CSF and continually refined as new threats emerge."
 >
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
   <section class="surface-dark relative overflow-hidden">
     <div class="relative container-wide py-16 lg:py-20">

@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import {
   domains,
   scoreAssessment,
@@ -32,6 +32,18 @@ const ANSWERS: { value: Answer; label: string }[] = [
   { value: 'unsure', label: 'Not sure' },
 ];
 
+/** How long the completed-domain highlight shows before auto-advancing. */
+const AUTO_ADVANCE_MS = 350;
+
+declare global {
+  interface Window {
+    turnstile?: {
+      render(el: HTMLElement, opts: { sitekey: string; theme?: string }): string;
+      remove(id: string): void;
+    };
+  }
+}
+
 export default function AssessmentForm({ turnstileSiteKey }: Props) {
   // step 0..domains.length-1 = one domain each; domains.length = results + contact.
   const [step, setStep] = useState(0);
@@ -42,24 +54,87 @@ export default function AssessmentForm({ turnstileSiteKey }: Props) {
   const onResults = step >= domains.length;
   const score = useMemo(() => scoreAssessment(answers), [answers]);
 
-  function setAnswer(id: string, value: Answer) {
-    setAnswers((prev) => {
-      const next = { ...prev, [id]: value };
+  // Pending auto-advance timer. Held in a ref so "← Back" (or unmounting)
+  // can cancel it — previously the id was discarded, so going back within
+  // the 350 ms window still fired and yanked the user forward again.
+  const advanceTimer = useRef<number | null>(null);
+  const clearAdvance = () => {
+    if (advanceTimer.current !== null) {
+      window.clearTimeout(advanceTimer.current);
+      advanceTimer.current = null;
+    }
+  };
+  useEffect(() => clearAdvance, []);
 
-      // Auto-advance the moment this answer completes the domain shown —
-      // but only on that transition, so re-picking an answer after going
-      // back doesn't yank the user forward again.
-      if (!onResults) {
-        const domain = domains[step];
-        const wasComplete = domain.questions.every((q) => prev[q.id]);
-        const isComplete = domain.questions.every((q) => next[q.id]);
-        if (!wasComplete && isComplete) {
-          window.setTimeout(() => setStep((s) => s + 1), 350);
-        }
+  // Turnstile is rendered EXPLICITLY, not via the usual `class="cf-turnstile"`
+  // auto-render.
+  //
+  // This page is prerendered (output: 'static'), so the HTML the Turnstile
+  // script scans on load is step 0 — the contact block, and with it the
+  // widget container, doesn't exist yet. That one-shot scan never sees it and
+  // never re-scans on DOM mutation, so the widget never mounted,
+  // cf-turnstile-response was never populated, and the API rejected every
+  // submission with "Captcha missing." The form was impossible to submit
+  // whenever Turnstile was configured.
+  //
+  // Rendering on demand when the results step mounts also keeps the widget out
+  // of the DOM entirely until it's actually needed.
+  const turnstileRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!onResults || !turnstileSiteKey) return;
+    const el = turnstileRef.current;
+    if (!el) return;
+
+    let widgetId: string | undefined;
+    let cancelled = false;
+
+    // The script is loaded `defer`, so it may not be ready the instant this
+    // step mounts; poll briefly rather than racing it.
+    const tryRender = () => {
+      if (cancelled || !turnstileRef.current) return;
+      if (window.turnstile) {
+        widgetId = window.turnstile.render(turnstileRef.current, {
+          sitekey: turnstileSiteKey,
+          theme: 'light',
+        });
+      } else {
+        pollTimer = window.setTimeout(tryRender, 100);
       }
+    };
+    let pollTimer = window.setTimeout(tryRender, 0);
 
-      return next;
-    });
+    return () => {
+      cancelled = true;
+      window.clearTimeout(pollTimer);
+      if (widgetId && window.turnstile) window.turnstile.remove(widgetId);
+    };
+  }, [onResults, turnstileSiteKey]);
+
+  function setAnswer(id: string, value: Answer) {
+    // Any pending auto-advance is stale the moment the user touches an answer.
+    clearAdvance();
+
+    const next = { ...answers, [id]: value };
+    setAnswers(next);
+
+    // Auto-advance the moment this answer completes the domain shown — but
+    // only on that transition, so re-picking an answer after going back
+    // doesn't yank the user forward again.
+    //
+    // This deliberately lives in the handler body, NOT inside the setAnswers
+    // updater: updaters must be pure, and React double-invokes them under
+    // StrictMode, which scheduled two timers and skipped a whole domain.
+    if (!onResults) {
+      const domain = domains[step];
+      const wasComplete = domain.questions.every((q) => answers[q.id]);
+      const isComplete = domain.questions.every((q) => next[q.id]);
+      if (!wasComplete && isComplete) {
+        advanceTimer.current = window.setTimeout(() => {
+          advanceTimer.current = null;
+          setStep((s) => s + 1);
+        }, AUTO_ADVANCE_MS);
+      }
+    }
   }
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
@@ -208,9 +283,7 @@ export default function AssessmentForm({ turnstileSiteKey }: Props) {
             <Field label="Phone" name="phone" type="tel" />
           </div>
 
-          {turnstileSiteKey && (
-            <div className="cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="light" />
-          )}
+          {turnstileSiteKey && <div ref={turnstileRef} />}
 
           {status === 'error' && (
             <div
@@ -241,7 +314,9 @@ export default function AssessmentForm({ turnstileSiteKey }: Props) {
 
   // ----- Domain question step -----
   const domain = domains[step];
-  const progress = Math.round(((step) / domains.length) * 100);
+  // step is 0-based, so this counts the step you're ON as progress made —
+  // otherwise step 1 of 12 reads "0% complete" and the bar never fills.
+  const progress = Math.round(((step + 1) / domains.length) * 100);
 
   return (
     <div>
@@ -295,11 +370,28 @@ export default function AssessmentForm({ turnstileSiteKey }: Props) {
       <div className="flex items-center justify-between mt-8">
         <button
           type="button"
-          onClick={() => setStep((s) => Math.max(0, s - 1))}
+          onClick={() => {
+            clearAdvance();
+            setStep((s) => Math.max(0, s - 1));
+          }}
           disabled={step === 0}
           className="btn btn-ghost disabled:opacity-40 disabled:cursor-not-allowed"
         >
           ← Back
+        </button>
+
+        {/* Explicit forward control. Auto-advance only fires when every
+            question in the domain is answered, so without this a user who
+            wants to skip one is stranded with no way to reach the results. */}
+        <button
+          type="button"
+          onClick={() => {
+            clearAdvance();
+            setStep((s) => s + 1);
+          }}
+          className="btn btn-ghost"
+        >
+          {step === domains.length - 1 ? 'See results' : 'Next'} →
         </button>
       </div>
     </div>

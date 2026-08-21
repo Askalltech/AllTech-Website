@@ -154,7 +154,7 @@ const Services21 = ({ services, className }: Services21Props) => {
                 <ActiveIcon className="size-16" style={{ color: "var(--color-amber-500)" }} strokeWidth={1.5} aria-hidden="true" />
               </motion.div>
             </div>
-            <p className="font-semibold tracking-tight text-foreground/20 uppercase">
+            <p className="font-semibold tracking-tight text-foreground/70 uppercase">
               {activeService.title}
             </p>
             {Array.isArray(activeService.description) ? (
@@ -185,8 +185,8 @@ const Services21 = ({ services, className }: Services21Props) => {
                     <span id={service.aliasId} className="block scroll-mt-24" />
                   )}
                   {service.href ? (
-                    <a href={service.href} className="block">
-                      <div className={index === active ? "opacity-100" : "opacity-20"}>
+                    <a href={service.href} className="block" onFocus={() => setActive(index)}>
+                      <div className={index === active ? "opacity-100" : "opacity-60"}>
                         <span>{service.title}</span>
                         <sup
                           className="align-super text-sm lg:text-3xl"
@@ -197,7 +197,7 @@ const Services21 = ({ services, className }: Services21Props) => {
                       </div>
                     </a>
                   ) : (
-                    <div className={index === active ? "opacity-100" : "opacity-20"}>
+                    <div className={index === active ? "opacity-100" : "opacity-60"}>
                       <span>{service.title}</span>
                       <sup
                         className="align-super text-sm lg:text-3xl"

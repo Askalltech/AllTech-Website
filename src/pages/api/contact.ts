@@ -1,5 +1,13 @@
 import type { APIRoute } from 'astro';
-import { sendEmail } from '~/lib/email';
+import { EmailSendError, sendEmail } from '~/lib/email';
+import {
+  FIELD_LIMITS,
+  cleanField,
+  cleanServices,
+  readJsonBody,
+  validateContactFields,
+} from '~/lib/formValidation';
+import { verifyTurnstile } from '~/lib/turnstile';
 
 /**
  * Opt out of prerendering — this needs to run server-side on Cloudflare.
@@ -19,12 +27,10 @@ interface ContactPayload {
 }
 
 export const POST: APIRoute = async ({ request, locals }) => {
-  let data: ContactPayload;
-  try {
-    data = await request.json();
-  } catch {
-    return json({ ok: false, message: 'Invalid JSON' }, 400);
-  }
+  // 0. Bounded read — see MAX_BODY_BYTES in ~/lib/formValidation.
+  const body = await readJsonBody<ContactPayload>(request);
+  if (!body.ok) return json({ ok: false, message: body.message }, body.status);
+  const data = body.data;
 
   // 1. Honeypot — silent reject so bots don't retry
   if (data.company_website) {
@@ -32,42 +38,35 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 
   // 2. Required fields — name, company, and email are always required.
-  if (!data.name?.trim() || !data.company?.trim() || !data.email?.trim()) {
-    return json({ ok: false, message: 'Name, company, and email are required.' }, 400);
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-    return json({ ok: false, message: 'Please enter a valid email address.' }, 400);
-  }
+  //    Values are trimmed and length-capped here, and these cleaned copies are
+  //    what reach the email body (the raw payload is not used again).
+  const contact = validateContactFields(data);
+  if (!contact.ok) return json({ ok: false, message: contact.message }, contact.status);
+  const { name, email, phone, company } = contact.fields;
 
-  // Normalize the service selection (new checkbox array, or legacy single value).
-  const selectedServices = (data.services ?? (data.service ? [data.service] : []))
-    .map((s) => s.trim())
-    .filter(Boolean);
+  // Normalize the service selection (new checkbox array, or legacy single
+  // value), allow-listed against the canonical option list.
+  const selectedServices = cleanServices(data.services, data.service);
+  const message = cleanField(data.message, FIELD_LIMITS.message);
 
   // At least ONE of "what do you need help with?" (services) OR "tell us more"
   // (message) must be provided — not both.
-  if (selectedServices.length === 0 && !data.message?.trim()) {
+  if (selectedServices.length === 0 && !message) {
     return json(
       { ok: false, message: 'Tell us what you need help with — select at least one option or add a message.' },
       400,
     );
   }
 
-  // 3. Turnstile verification (only if secret is configured)
+  // 3. Turnstile — fails CLOSED when the public site key is configured but the
+  //    secret isn't; see the policy note in ~/lib/turnstile.
   const env = locals.runtime?.env ?? {};
-  if (env.TURNSTILE_SECRET) {
-    const token = data['cf-turnstile-response'];
-    if (!token) return json({ ok: false, message: 'Captcha missing.' }, 400);
-    const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ secret: env.TURNSTILE_SECRET, response: token }),
-    });
-    const verify = (await verifyRes.json()) as { success: boolean };
-    if (!verify.success) {
-      return json({ ok: false, message: 'Captcha failed. Please try again.' }, 400);
-    }
-  }
+  const captcha = await verifyTurnstile({
+    token: data['cf-turnstile-response'],
+    secret: env.TURNSTILE_SECRET,
+    remoteIp: request.headers.get('CF-Connecting-IP'),
+  });
+  if (!captcha.ok) return json({ ok: false, message: captcha.message }, captcha.status);
 
   // 4. Forward via Cloudflare Email Routing's Send Email binding (see
   //    src/lib/email.ts and the `send_email` block in wrangler.toml).
@@ -76,26 +75,35 @@ export const POST: APIRoute = async ({ request, locals }) => {
   //    New/prospective inquiries from this form should go to the shared managers'
   //    inbox — set CONTACT_FORWARD_TO to that address (not help@).
   const servicesLabel = selectedServices.length ? selectedServices.join(', ') : 'General';
-  const subject = `[Web Inquiry] ${servicesLabel} — ${data.name}`;
-  const body = [
+  const subject = `[Web Inquiry] ${servicesLabel} — ${name}`;
+  const text = [
     `Services: ${selectedServices.length ? selectedServices.join(', ') : '—'}`,
-    `Name:     ${data.name}`,
-    `Email:    ${data.email}`,
-    `Phone:    ${data.phone || '—'}`,
-    `Company:  ${data.company || '—'}`,
+    `Name:     ${name}`,
+    `Email:    ${email}`,
+    `Phone:    ${phone || '—'}`,
+    `Company:  ${company || '—'}`,
     '',
     'Message:',
-    data.message || '—',
+    message || '—',
   ].join('\n');
 
-  await sendEmail({
-    binding: env.SEND_EMAIL,
-    to: env.CONTACT_FORWARD_TO,
-    from: env.CONTACT_FROM,
-    replyTo: data.email,
-    subject,
-    text: body,
-  });
+  try {
+    await sendEmail({
+      binding: env.SEND_EMAIL,
+      to: env.CONTACT_FORWARD_TO,
+      from: env.CONTACT_FROM,
+      replyTo: email,
+      subject,
+      text,
+    });
+  } catch (err) {
+    if (err instanceof EmailSendError) {
+      // Already logged with the full body in sendEmail — surface a clean error
+      // rather than an unhandled 500.
+      return json({ ok: false, message: 'Could not send your message. Please try again or call us.' }, 502);
+    }
+    throw err;
+  }
 
   return json({ ok: true });
 };

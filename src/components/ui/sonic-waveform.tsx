@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { motion, type Variants } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { ArrowRight, BarChart2, type LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 // Sonic Waveform Canvas Component — draws on a transparent canvas (no fill
 // behind it) so the page's own background shows through; older strokes are
 // faded via destination-out compositing instead of an opaque overlay rect.
-const SonicWaveformCanvas = () => {
+const SonicWaveformCanvas = ({ animate }: { animate: boolean }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -67,7 +67,9 @@ const SonicWaveformCanvas = () => {
       }
 
       time += 0.008;
-      animationFrameId = requestAnimationFrame(draw);
+      // Under prefers-reduced-motion, render a single static frame rather
+      // than driving an endless rAF loop.
+      if (animate) animationFrameId = requestAnimationFrame(draw);
     };
 
     const handleMouseMove = (event: MouseEvent) => {
@@ -88,9 +90,9 @@ const SonicWaveformCanvas = () => {
       resizeObserver.disconnect();
       window.removeEventListener("mousemove", handleMouseMove);
     };
-  }, []);
+  }, [animate]);
 
-  return <canvas ref={canvasRef} className="absolute inset-0 z-0 h-full w-full" />;
+  return <canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 z-0 h-full w-full" />;
 };
 
 export interface SonicWaveformHeroProps {
@@ -133,17 +135,34 @@ const SonicWaveformHero = ({
   secondaryCtaHref,
   className,
 }: SonicWaveformHeroProps) => {
+  const shouldReduceMotion = useReducedMotion();
+
+  // The entrance animation is applied ONLY after hydration.
+  //
+  // This component is prerendered, so `initial="hidden"` used to be baked
+  // into the static HTML as opacity:0 — meaning that if this island's JS
+  // never ran (blocked, failed, slow), the page's only <h1>, its description,
+  // and both CTAs were permanently invisible. Rendering without motion props
+  // until mounted means the served HTML is fully visible on its own, and the
+  // animation is a progressive enhancement on top.
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
+  const animated = hydrated && !shouldReduceMotion;
+
+  /** Motion props for the i-th element, or none when not animating. */
+  const anim = (i: number) =>
+    animated
+      ? { custom: i, variants: fadeUpVariants, initial: 'hidden' as const, animate: 'visible' as const }
+      : {};
+
   return (
     <div className={cn("relative flex w-full flex-col items-center justify-center overflow-hidden", className)}>
-      <SonicWaveformCanvas />
+      <SonicWaveformCanvas animate={animated} />
 
       {/* Overlay HTML Content */}
       <div className="relative z-20 p-6 text-center">
         <motion.div
-          custom={0}
-          variants={fadeUpVariants}
-          initial="hidden"
-          animate="visible"
+          {...anim(0)}
           className="mb-6 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 backdrop-blur-sm"
           style={{ borderColor: "var(--color-line-soft)", background: "var(--color-bg-tint)" }}
         >
@@ -154,10 +173,7 @@ const SonicWaveformHero = ({
         </motion.div>
 
         <motion.h1
-          custom={1}
-          variants={fadeUpVariants}
-          initial="hidden"
-          animate="visible"
+          {...anim(1)}
           className="font-display mb-6 text-5xl font-semibold leading-[0.95] tracking-tight md:text-6xl"
           style={{ color: "var(--color-text-primary)" }}
         >
@@ -166,10 +182,7 @@ const SonicWaveformHero = ({
         </motion.h1>
 
         <motion.p
-          custom={2}
-          variants={fadeUpVariants}
-          initial="hidden"
-          animate="visible"
+          {...anim(2)}
           className="mx-auto mb-10 max-w-2xl text-xl leading-relaxed"
           style={{ color: "var(--color-text-muted)" }}
         >
@@ -177,10 +190,7 @@ const SonicWaveformHero = ({
         </motion.p>
 
         <motion.div
-          custom={3}
-          variants={fadeUpVariants}
-          initial="hidden"
-          animate="visible"
+          {...anim(3)}
           className="flex flex-wrap items-center justify-center gap-3"
         >
           <a href={primaryCtaHref} className="btn btn-primary">

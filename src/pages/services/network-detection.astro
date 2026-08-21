@@ -129,6 +129,17 @@ const faqSchema = {
   })),
 };
 
+const serviceSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  serviceType: 'Network Detection and Response',
+  provider: { '@id': `${site.url}/#organization` },
+  areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
+  name: 'Network Detection & Response',
+  description:
+    'AI-driven network detection and response that learns the normal pattern of life for your network and flags deviations, catching lateral movement and C2 traffic that signature-based tools miss.',
+};
+
 const breadcrumbSchema = buildBreadcrumbSchema([
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
@@ -142,6 +153,7 @@ const breadcrumbSchema = buildBreadcrumbSchema([
   description="Network detection and response for Northern Utah businesses. AllTech watches internal and outbound traffic and catches command-and-control your firewall allows."
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
 
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
   <!-- Hero -->

@@ -8,17 +8,31 @@ interface Props {
   noindex?: boolean;
   /** Canonical URL override (defaults to current URL) */
   canonical?: string;
+  /** og:type — "article" for blog posts and case studies, else "website". */
+  ogType?: 'website' | 'article';
 }
 
 const {
   title,
   description = site.description,
-  image = '/og-default.png',
+  // /og-default.png was referenced here but never created, so every page's
+  // social preview and the LocalBusiness schema image pointed at a 404.
+  // Using the real logo until a purpose-made card exists: at 300x203 it
+  // clears the 200x200 floor platforms require, so previews render — just as
+  // a small thumbnail rather than a wide 1.91:1 banner. Dropping a
+  // 1200x630 og-default.png into /public and changing this one line back is
+  // the proper fix.
+  image = '/logo.webp',
   noindex = false,
   canonical,
+  ogType = 'website',
 } = Astro.props;
 
-const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).toString();
+// Strip the trailing slash so the canonical matches the sitemap and the
+// site's own trailingSlash: 'never' config (the root would otherwise emit
+// ".../" while the sitemap lists the bare origin).
+const rawCanonical = canonical ?? new URL(Astro.url.pathname, Astro.site).toString();
+const canonicalURL = rawCanonical.length > 1 ? rawCanonical.replace(/\/$/, '') : rawCanonical;
 const ogImageURL = new URL(image, Astro.site).toString();
 
 // Title pattern: "Page Title — AllTech" except the home page which uses the brand tagline.
@@ -33,7 +47,7 @@ const fullTitle = isHome ? `${site.name} — ${site.tagline}` : `${title} — ${
 {noindex && <meta name="robots" content="noindex, nofollow" />}
 
 <!-- Open Graph -->
-<meta property="og:type" content="website" />
+<meta property="og:type" content={ogType} />
 <meta property="og:site_name" content={site.name} />
 <meta property="og:title" content={fullTitle} />
 <meta property="og:description" content={description} />

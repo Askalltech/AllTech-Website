@@ -1,6 +1,8 @@
 import type { APIRoute } from 'astro';
 import { domains, allQuestions, scoreAssessment, type Answer } from '~/lib/assessment';
-import { sendEmail } from '~/lib/email';
+import { EmailSendError, sendEmail } from '~/lib/email';
+import { readJsonBody, validateContactFields } from '~/lib/formValidation';
+import { verifyTurnstile } from '~/lib/turnstile';
 
 /**
  * Opt out of prerendering — this needs to run server-side on Cloudflare.
@@ -19,12 +21,10 @@ interface AssessmentPayload {
 }
 
 export const POST: APIRoute = async ({ request, locals }) => {
-  let data: AssessmentPayload;
-  try {
-    data = await request.json();
-  } catch {
-    return json({ ok: false, message: 'Invalid JSON' }, 400);
-  }
+  // 0. Bounded read — see MAX_BODY_BYTES in ~/lib/formValidation.
+  const body = await readJsonBody<AssessmentPayload>(request);
+  if (!body.ok) return json({ ok: false, message: body.message }, body.status);
+  const data = body.data;
 
   // 1. Honeypot — silent reject so bots don't retry
   if (data.company_website) {
@@ -32,31 +32,37 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 
   // 2. Required fields — name, company, and email are always required.
-  if (!data.name?.trim() || !data.company?.trim() || !data.email?.trim()) {
-    return json({ ok: false, message: 'Name, company, and email are required.' }, 400);
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-    return json({ ok: false, message: 'Please enter a valid email address.' }, 400);
-  }
+  //    Trimmed and length-capped; these cleaned copies are what reach the email.
+  const contact = validateContactFields(data);
+  if (!contact.ok) return json({ ok: false, message: contact.message }, contact.status);
+  const { name, email, phone, company } = contact.fields;
 
-  // 3. Turnstile verification (only if secret is configured)
+  // 3. Turnstile — fails CLOSED when the public site key is configured but the
+  //    secret isn't; see the policy note in ~/lib/turnstile.
   const env = locals.runtime?.env ?? {};
-  if (env.TURNSTILE_SECRET) {
-    const token = data['cf-turnstile-response'];
-    if (!token) return json({ ok: false, message: 'Captcha missing.' }, 400);
-    const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ secret: env.TURNSTILE_SECRET, response: token }),
-    });
-    const verify = (await verifyRes.json()) as { success: boolean };
-    if (!verify.success) {
-      return json({ ok: false, message: 'Captcha failed. Please try again.' }, 400);
-    }
-  }
+  const captcha = await verifyTurnstile({
+    token: data['cf-turnstile-response'],
+    secret: env.TURNSTILE_SECRET,
+    remoteIp: request.headers.get('CF-Connecting-IP'),
+  });
+  if (!captcha.ok) return json({ ok: false, message: captcha.message }, captcha.status);
 
   // Re-score server-side from the submitted answers (don't trust client math).
-  const answers = (data.answers ?? {}) as Record<string, Answer>;
+  // Guard the shape too: only a plain object is usable, and only the known
+  // answer values are kept, so a malformed payload scores as "no answer"
+  // rather than reaching the email body as arbitrary text.
+  const validAnswers = new Set<Answer>(['yes', 'no', 'unsure']);
+  const rawAnswers =
+    data.answers && typeof data.answers === 'object' && !Array.isArray(data.answers)
+      ? (data.answers as Record<string, unknown>)
+      : {};
+  const answers: Record<string, Answer> = {};
+  for (const q of allQuestions) {
+    const value = rawAnswers[q.id];
+    if (typeof value === 'string' && validAnswers.has(value as Answer)) {
+      answers[q.id] = value as Answer;
+    }
+  }
   const score = scoreAssessment(answers);
 
   // 4. Forward to SALES — the prospect's contact info + their score + every answer.
@@ -78,15 +84,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
     })
     .join('\n\n');
 
-  const subject = `[Gap Assessment] ${score.overallPercent}% — ${data.company} (${data.name})`;
-  const body = [
+  const subject = `[Gap Assessment] ${score.overallPercent}% — ${company} (${name})`;
+  const text = [
     `Overall score: ${score.overallPercent}% (${score.idealCount}/${score.totalCount} controls at recommended posture)`,
     '',
     'Contact:',
-    `  Name:    ${data.name}`,
-    `  Email:   ${data.email}`,
-    `  Phone:   ${data.phone || '—'}`,
-    `  Company: ${data.company}`,
+    `  Name:    ${name}`,
+    `  Email:   ${email}`,
+    `  Phone:   ${phone || '—'}`,
+    `  Company: ${company}`,
     '',
     'Per-domain scores:',
     domainLines,
@@ -97,14 +103,21 @@ export const POST: APIRoute = async ({ request, locals }) => {
     answerLines,
   ].join('\n');
 
-  await sendEmail({
-    binding: env.SEND_EMAIL,
-    to: env.ASSESSMENT_FORWARD_TO || env.CONTACT_FORWARD_TO,
-    from: env.CONTACT_FROM,
-    replyTo: data.email,
-    subject,
-    text: body,
-  });
+  try {
+    await sendEmail({
+      binding: env.SEND_EMAIL,
+      to: env.ASSESSMENT_FORWARD_TO || env.CONTACT_FORWARD_TO,
+      from: env.CONTACT_FROM,
+      replyTo: email,
+      subject,
+      text,
+    });
+  } catch (err) {
+    if (err instanceof EmailSendError) {
+      return json({ ok: false, message: 'Could not send your results. Please try again or call us.' }, 502);
+    }
+    throw err;
+  }
 
   return json({ ok: true });
 };

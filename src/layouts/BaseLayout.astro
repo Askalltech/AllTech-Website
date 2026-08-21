@@ -13,9 +13,10 @@ interface Props {
   image?: string;
   noindex?: boolean;
   canonical?: string;
+  ogType?: 'website' | 'article';
 }
 
-const { title, description, image, noindex, canonical } = Astro.props;
+const { title, description, image, noindex, canonical, ogType } = Astro.props;
 ---
 
 <!doctype html>
@@ -54,6 +55,7 @@ const { title, description, image, noindex, canonical } = Astro.props;
       image={image}
       noindex={noindex}
       canonical={canonical}
+      ogType={ogType}
     >
       <LocalBusinessSchema />
       <slot name="head" />
