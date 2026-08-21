@@ -40,6 +40,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 
 import { BorderButton } from "@/components/shadcnblocks/border-button";
+import type { Services13PhotoCredit } from "@/components/services13";
 import { cn } from "@/lib/utils";
 
 // React components (like icons) can't cross Astro's client-hydration prop
@@ -111,7 +112,27 @@ export interface Services21Item {
   /** Overrides the default "Learn more about {title}" CTA label. */
   ctaLabel?: string;
   icon: Services21IconName;
+  /** Optional photo for the left tile; falls back to the tinted icon without one. */
+  image?: string;
+  /** Visible credit link shown on the photo, top-left, when `image` is set —
+   * same convention as Services13PhotoCredit. */
+  photoCredit?: Services13PhotoCredit;
 }
+
+/** Mirrors services13.tsx's PhotoCredit exactly: a real, independently
+ * clickable <a> stacked above the tile, not nested inside its parent link. */
+const PhotoCredit = ({ credit }: { credit: Services13PhotoCredit }) => (
+  <a
+    href={credit.url}
+    target="_blank"
+    rel="noopener noreferrer nofollow"
+    className="absolute top-2 left-2 z-20 rounded px-1.5 py-0.5 text-[10px] leading-none text-white/70 transition hover:text-white"
+    style={{ background: "rgba(0,0,0,0.35)" }}
+    onClick={(e) => e.stopPropagation()}
+  >
+    Photo: {credit.name}
+  </a>
+);
 
 interface Services21Props {
   services: Services21Item[];
@@ -137,7 +158,11 @@ const Services21 = ({ services, className }: Services21Props) => {
             >
               {PreviousIcon && (
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <PreviousIcon className="size-16" style={{ color: "var(--color-amber-500)" }} strokeWidth={1.5} aria-hidden="true" />
+                  {previousActive !== undefined && services[previousActive].image ? (
+                    <img src={services[previousActive].image} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                  ) : (
+                    <PreviousIcon className="size-16" style={{ color: "var(--color-amber-500)" }} strokeWidth={1.5} aria-hidden="true" />
+                  )}
                 </div>
               )}
               <motion.div
@@ -151,8 +176,15 @@ const Services21 = ({ services, className }: Services21Props) => {
                 }}
                 className="absolute inset-0 flex items-center justify-center"
               >
-                <ActiveIcon className="size-16" style={{ color: "var(--color-amber-500)" }} strokeWidth={1.5} aria-hidden="true" />
+                {activeService.image ? (
+                  <img src={activeService.image} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                ) : (
+                  <ActiveIcon className="size-16" style={{ color: "var(--color-amber-500)" }} strokeWidth={1.5} aria-hidden="true" />
+                )}
               </motion.div>
+              {activeService.image && activeService.photoCredit && (
+                <PhotoCredit credit={activeService.photoCredit} />
+              )}
             </div>
             <p className="font-semibold tracking-tight text-foreground/70 uppercase">
               {activeService.title}
