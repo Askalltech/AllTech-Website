@@ -50,20 +50,6 @@ const whyClientsChooseUs = [
   'Local since 2009, on-site when a problem needs hands on the hardware',
 ];
 
-// A normal week — the operational reality behind "managed IT and security,"
-// so the page reads like it's run by people who do this daily, not a vendor
-// describing a product.
-const aNormalWeek = [
-  'A suspicious login from a country nobody on staff has visited',
-  'An employee forwarding us a phishing email before clicking it',
-  'A backup job that failed silently overnight',
-  'A server old enough to be worth replacing before it fails',
-  'A new hire who needs a laptop, logins, and M365 access by Monday',
-  'A site-to-site connection between two offices that dropped again',
-  'A cyber-insurance renewal asking for proof of MFA and backups',
-  'A staff member locked out of email before a meeting they can\'t miss',
-];
-
 ---
 
 <BaseLayout
@@ -270,104 +256,90 @@ const aNormalWeek = [
         <a href="/contact" class="btn btn-primary">Start a conversation</a>
         <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
       </div>
-    </div>
-  </section>
 
-  <!-- ============ SECTION 3 · WHY ALLTECH (differentiation + P/P/P) ============ -->
-  <section class="py-24 lg:py-32 scroll-mt-20">
-    <div class="container-wide">
-      <SegmentHeader index="03" label="Why clients choose us" />
-      <div class="max-w-2xl mb-14">
-        <h2 class="text-4xl lg:text-5xl font-bold leading-tight">
-          Proactive. Preventative.<br />
-          <span style="color: var(--color-amber-400)">Professional.</span>
-        </h2>
-        <p class="mt-5 text-lg leading-relaxed" style="color: var(--color-text-default)">
-          A lot of small businesses run on one IT guy, or split IT and security
-          between two vendors who don't talk to each other. AllTech runs both
-          under one roof — a full team, so there's always someone who knows
-          your systems, and nothing gets lost between vendors.
-        </p>
-      </div>
+      <!-- Folded in from the former "Why AllTech" section: the P/P/P
+           illustration and differentiation checklist, kept; the separate
+           "a normal week" list was dropped to keep this merged section
+           tighter rather than growing it further. -->
+      <div class="mt-20 pt-16" style="border-top: 1px solid var(--color-border-subtle)">
+        <div class="max-w-2xl mb-14">
+          <h3 class="text-3xl lg:text-4xl font-bold leading-tight">
+            Proactive. Preventative.<br />
+            <span style="color: var(--color-amber-400)">Professional.</span>
+          </h3>
+          <p class="mt-5 text-lg leading-relaxed" style="color: var(--color-text-default)">
+            A lot of small businesses run on one IT guy, or split IT and security
+            between two vendors who don't talk to each other. AllTech runs both
+            under one roof — a full team, so there's always someone who knows
+            your systems, and nothing gets lost between vendors.
+          </p>
+        </div>
 
-      <!-- P / P / P as one connected illustration — this section's visual
-           centerpiece — instead of three small icon-cards repeating
-           Section 01's card pattern. The real descriptive copy lives in the
-           HTML caption row below the (aria-hidden) illustration. -->
-      <div class="mb-8 -mx-2 overflow-x-auto">
-        <svg viewBox="0 0 920 200" fill="none" aria-hidden="true" class="w-full min-w-[720px] h-auto">
-          <defs>
-            <filter id="ppp-shadow" x="-50%" y="-50%" width="220%" height="220%">
-              <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#0a0f1a" flood-opacity="0.08" />
-            </filter>
-          </defs>
+        <!-- P / P / P as one connected illustration instead of three small
+             icon-cards repeating Section 01's card pattern. The real
+             descriptive copy lives in the HTML caption row below the
+             (aria-hidden) illustration. -->
+        <div class="mb-8 -mx-2 overflow-x-auto">
+          <svg viewBox="0 0 920 200" fill="none" aria-hidden="true" class="w-full min-w-[720px] h-auto">
+            <defs>
+              <filter id="ppp-shadow" x="-50%" y="-50%" width="220%" height="220%">
+                <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#0a0f1a" flood-opacity="0.08" />
+              </filter>
+            </defs>
 
-          <rect x="0" y="15" width="260" height="170" rx="14" fill="var(--color-bg-surface)" stroke="var(--color-border-default)" stroke-width="1.5" filter="url(#ppp-shadow)" />
-          <rect x="20" y="35" width="36" height="5" rx="2.5" fill="var(--color-amber-400)" />
-          <g transform="translate(102,58)">
-            <rect x="0" y="0" width="56" height="56" rx="8" stroke="var(--color-amber-500)" stroke-width="2" stroke-dasharray="3 4" />
-            <rect x="14" y="14" width="28" height="28" rx="5" stroke="var(--color-amber-500)" stroke-width="2" />
-            <circle cx="28" cy="28" r="4" fill="var(--color-amber-500)" />
-          </g>
-          <text x="130" y="165" text-anchor="middle" font-family="var(--font-display)" font-weight="700" font-size="20" fill="var(--color-text-primary)">Proactive</text>
+            <rect x="0" y="15" width="260" height="170" rx="14" fill="var(--color-bg-surface)" stroke="var(--color-border-default)" stroke-width="1.5" filter="url(#ppp-shadow)" />
+            <rect x="20" y="35" width="36" height="5" rx="2.5" fill="var(--color-amber-400)" />
+            <g transform="translate(102,58)">
+              <rect x="0" y="0" width="56" height="56" rx="8" stroke="var(--color-amber-500)" stroke-width="2" stroke-dasharray="3 4" />
+              <rect x="14" y="14" width="28" height="28" rx="5" stroke="var(--color-amber-500)" stroke-width="2" />
+              <circle cx="28" cy="28" r="4" fill="var(--color-amber-500)" />
+            </g>
+            <text x="130" y="165" text-anchor="middle" font-family="var(--font-display)" font-weight="700" font-size="20" fill="var(--color-text-primary)">Proactive</text>
 
-          <line x1="270" y1="100" x2="312" y2="100" stroke="var(--color-slate-400)" stroke-width="2" />
-          <path d="M306 93l10 7l-10 7" stroke="var(--color-slate-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <line x1="270" y1="100" x2="312" y2="100" stroke="var(--color-slate-400)" stroke-width="2" />
+            <path d="M306 93l10 7l-10 7" stroke="var(--color-slate-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
 
-          <rect x="330" y="15" width="260" height="170" rx="14" fill="var(--color-bg-surface)" stroke="var(--color-border-default)" stroke-width="1.5" filter="url(#ppp-shadow)" />
-          <rect x="350" y="35" width="36" height="5" rx="2.5" fill="var(--color-amber-400)" />
-          <g transform="translate(432,58)">
-            <rect x="2" y="22" width="32" height="32" rx="5" stroke="var(--color-amber-500)" stroke-width="2" />
-            <rect x="22" y="2" width="32" height="32" rx="5" fill="var(--color-bg-surface)" stroke="var(--color-amber-500)" stroke-width="2" />
-          </g>
-          <text x="460" y="165" text-anchor="middle" font-family="var(--font-display)" font-weight="700" font-size="20" fill="var(--color-text-primary)">Preventative</text>
+            <rect x="330" y="15" width="260" height="170" rx="14" fill="var(--color-bg-surface)" stroke="var(--color-border-default)" stroke-width="1.5" filter="url(#ppp-shadow)" />
+            <rect x="350" y="35" width="36" height="5" rx="2.5" fill="var(--color-amber-400)" />
+            <g transform="translate(432,58)">
+              <rect x="2" y="22" width="32" height="32" rx="5" stroke="var(--color-amber-500)" stroke-width="2" />
+              <rect x="22" y="2" width="32" height="32" rx="5" fill="var(--color-bg-surface)" stroke="var(--color-amber-500)" stroke-width="2" />
+            </g>
+            <text x="460" y="165" text-anchor="middle" font-family="var(--font-display)" font-weight="700" font-size="20" fill="var(--color-text-primary)">Preventative</text>
 
-          <line x1="600" y1="100" x2="642" y2="100" stroke="var(--color-slate-400)" stroke-width="2" />
-          <path d="M636 93l10 7l-10 7" stroke="var(--color-slate-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <line x1="600" y1="100" x2="642" y2="100" stroke="var(--color-slate-400)" stroke-width="2" />
+            <path d="M636 93l10 7l-10 7" stroke="var(--color-slate-400)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
 
-          <rect x="660" y="15" width="260" height="170" rx="14" fill="var(--color-bg-surface)" stroke="var(--color-border-default)" stroke-width="1.5" filter="url(#ppp-shadow)" />
-          <rect x="680" y="35" width="36" height="5" rx="2.5" fill="var(--color-amber-400)" />
-          <g transform="translate(750.9,49.4) scale(2.444)">
-            <path d="M16 3.5L25.5 7.5V14.5C25.5 20.5 21.5 25.6 16 28C10.5 25.6 6.5 20.5 6.5 14.5V7.5Z" fill="var(--color-bg-tint)" stroke="var(--color-amber-500)" stroke-width="0.82" stroke-linejoin="round" />
-            <path d="M12 15.5l2.8 2.8l5.2-6" stroke="var(--color-amber-600)" stroke-width="1.02" stroke-linecap="round" stroke-linejoin="round" />
-          </g>
-          <text x="790" y="165" text-anchor="middle" font-family="var(--font-display)" font-weight="700" font-size="20" fill="var(--color-text-primary)">Professional</text>
-        </svg>
-      </div>
-      <!-- Grid columns mirror the SVG panels' exact proportions (260:70:260:70:260
-           units) via matching percentages + space-between, so captions stay
-           aligned under their panel at every viewport instead of drifting
-           against the illustration's independently-scaled coordinates. -->
-      <div
-        class="grid gap-5 sm:gap-0 mb-14 pb-14 sm:justify-between sm:[grid-template-columns:28.26%_28.26%_28.26%]"
-        style="border-bottom: 1px solid var(--color-border-subtle)"
-      >
-        <p class="text-sm leading-relaxed" style="color: var(--color-text-default)"><strong class="sm:hidden" style="color: var(--color-text-primary)">Proactive — </strong>We monitor, patch, and harden before problems start — not after the call comes in.</p>
-        <p class="text-sm leading-relaxed" style="color: var(--color-text-default)"><strong class="sm:hidden" style="color: var(--color-text-primary)">Preventative — </strong>Layered security mapped to real frameworks (CIS, NIST) — not just antivirus and a firewall.</p>
-        <p class="text-sm leading-relaxed" style="color: var(--color-text-default)"><strong class="sm:hidden" style="color: var(--color-text-primary)">Professional — </strong>Documented, accountable, and responsive — a team that shows up, communicates, and follows through.</p>
-      </div>
+            <rect x="660" y="15" width="260" height="170" rx="14" fill="var(--color-bg-surface)" stroke="var(--color-border-default)" stroke-width="1.5" filter="url(#ppp-shadow)" />
+            <rect x="680" y="35" width="36" height="5" rx="2.5" fill="var(--color-amber-400)" />
+            <g transform="translate(750.9,49.4) scale(2.444)">
+              <path d="M16 3.5L25.5 7.5V14.5C25.5 20.5 21.5 25.6 16 28C10.5 25.6 6.5 20.5 6.5 14.5V7.5Z" fill="var(--color-bg-tint)" stroke="var(--color-amber-500)" stroke-width="0.82" stroke-linejoin="round" />
+              <path d="M12 15.5l2.8 2.8l5.2-6" stroke="var(--color-amber-600)" stroke-width="1.02" stroke-linecap="round" stroke-linejoin="round" />
+            </g>
+            <text x="790" y="165" text-anchor="middle" font-family="var(--font-display)" font-weight="700" font-size="20" fill="var(--color-text-primary)">Professional</text>
+          </svg>
+        </div>
+        <!-- Grid columns mirror the SVG panels' exact proportions (260:70:260:70:260
+             units) via matching percentages + space-between, so captions stay
+             aligned under their panel at every viewport instead of drifting
+             against the illustration's independently-scaled coordinates. -->
+        <div
+          class="grid gap-5 sm:gap-0 mb-14 pb-14 sm:justify-between sm:[grid-template-columns:28.26%_28.26%_28.26%]"
+          style="border-bottom: 1px solid var(--color-border-subtle)"
+        >
+          <p class="text-sm leading-relaxed" style="color: var(--color-text-default)"><strong class="sm:hidden" style="color: var(--color-text-primary)">Proactive — </strong>We monitor, patch, and harden before problems start — not after the call comes in.</p>
+          <p class="text-sm leading-relaxed" style="color: var(--color-text-default)"><strong class="sm:hidden" style="color: var(--color-text-primary)">Preventative — </strong>Layered security mapped to real frameworks (CIS, NIST) — not just antivirus and a firewall.</p>
+          <p class="text-sm leading-relaxed" style="color: var(--color-text-default)"><strong class="sm:hidden" style="color: var(--color-text-primary)">Professional — </strong>Documented, accountable, and responsive — a team that shows up, communicates, and follows through.</p>
+        </div>
 
-      <!-- Why clients choose us — stated plainly. -->
-      <div class="grid sm:grid-cols-2 gap-x-10 gap-y-3 max-w-3xl">
-        {whyClientsChooseUs.map((point) => (
-          <div class="flex items-start gap-2.5">
-            <svg class="w-5 h-5 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-              <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-            <span class="leading-snug" style="color: var(--color-text-default)">{point}</span>
-          </div>
-        ))}
-      </div>
-
-      <!-- Operational reality — the actual day-to-day this business runs on,
-           so the page reads like practitioners wrote it, not a vendor. -->
-      <div class="mt-16 pt-14" style="border-top: 1px solid var(--color-border-subtle)">
-        <div class="eyebrow mb-5">A normal week looks like</div>
-        <div class="grid sm:grid-cols-2 gap-x-10 gap-y-2.5 max-w-3xl">
-          {aNormalWeek.map((item) => (
-            <div class="flex items-start gap-3">
-              <span class="mt-1.5 w-1.5 h-1.5 rounded-[2px] shrink-0" style="background: var(--color-amber-500)"></span>
-              <span class="leading-snug" style="color: var(--color-text-default)">{item}</span>
+        <!-- Why clients choose us — stated plainly. -->
+        <div class="grid sm:grid-cols-2 gap-x-10 gap-y-3 max-w-3xl">
+          {whyClientsChooseUs.map((point) => (
+            <div class="flex items-start gap-2.5">
+              <svg class="w-5 h-5 mt-0.5 shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M4 10.5l3.5 3.5L16 6" stroke="var(--color-amber-500)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <span class="leading-snug" style="color: var(--color-text-default)">{point}</span>
             </div>
           ))}
         </div>
@@ -375,10 +347,10 @@ const aNormalWeek = [
     </div>
   </section>
 
-  <!-- ============ SECTION 4 · FREE ASSESSMENT ============ -->
+  <!-- ============ SECTION 3 · FREE ASSESSMENT ============ -->
   <section class="py-24 lg:py-32 scroll-mt-20">
     <div class="container-wide">
-      <SegmentHeader index="04" label="Free assessment" />
+      <SegmentHeader index="03" label="Free assessment" />
       <div class="grid lg:grid-cols-12 gap-10 items-center">
         <div class="lg:col-span-7">
           <h2 class="text-4xl lg:text-5xl font-bold leading-tight">
