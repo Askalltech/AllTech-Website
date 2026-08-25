@@ -3,37 +3,13 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
 import SegmentHeader from '~/components/SegmentHeader.astro';
 import Icon from '~/components/Icon.astro';
 import { BorderBeamPanel } from '~/components/BorderBeamPanel';
-import { SqueezeCarousel, type SqueezeSlide } from '~/components/SqueezeCarousel';
 import { services, site, serviceLink } from '~/lib/site';
-import { industries } from '~/lib/industries';
 
 const featured = services.find((s) => s.featured);
 // Second section embeds the Services page (all non-featured services).
 const rest = services.filter((s) => !s.featured);
 
-// No client photography per industry yet — panels use on-brand gradients
-// (the site's own amber/teal tokens) instead of stock/generic imagery.
-const industryBackgrounds = [
-  'linear-gradient(135deg, var(--color-amber-400), var(--color-amber-600))',
-  'linear-gradient(135deg, var(--color-teal-400), var(--color-teal-600))',
-  'linear-gradient(135deg, var(--color-teal-600), var(--color-ink-700))',
-  'linear-gradient(135deg, var(--color-amber-500), var(--color-teal-600))',
-  'linear-gradient(135deg, var(--color-success), var(--color-teal-600))',
-  'linear-gradient(135deg, var(--color-teal-500), var(--color-amber-600))',
-];
-
-// Section 01 — who we actually work with, described by real operational
-// content (src/lib/industries.ts — shared with the nav's Industries dropdown).
-const whoWeSupportSlides: SqueezeSlide[] = industries.map(({ slug, title, body }, i) => ({
-  id: slug,
-  title,
-  description: body,
-  background: industryBackgrounds[i],
-  action: 'Scope your environment',
-  href: '/assessment',
-}));
-
-// Section 03 — why clients choose us, stated plainly instead of implied.
+// Why clients choose us — stated plainly instead of implied.
 const whyClientsChooseUs = [
   'One team for IT and security — no hand-off between "the network guys" and "the security guys"',
   'Local engineers who answer the phone, not a ticket queue routed overseas',
@@ -148,33 +124,10 @@ const whyClientsChooseUs = [
     </div>
   </section>
 
-  <!-- ============ SECTION 1 · WHO WE SUPPORT ============ -->
-  <section id="who-we-support" class="py-24 lg:py-32 scroll-mt-20">
-    <div class="container-wide">
-      <SegmentHeader index="01" label="Who we support" />
-      <div class="max-w-2xl mb-14">
-        <h2 class="text-4xl lg:text-5xl font-bold leading-tight">
-          Who we support.<br />
-          <span style="color: var(--color-amber-400)">Complex, modern operations.</span>
-        </h2>
-        <p class="mt-5 text-lg leading-relaxed" style="color: var(--color-text-default)">
-          From a five-person office to a multi-site manufacturer, the businesses we work
-          with have one thing in common: technology has to work, and someone has to
-          actually be responsible for it. Here's who we spend our days supporting.
-        </p>
-      </div>
-
-      <!-- client:load, not client:visible — the hash-driven initial slide
-           (see SqueezeCarousel.tsx) needs to hydrate and scroll itself into
-           view even when it starts off-screen below the hero. -->
-      <SqueezeCarousel slides={whoWeSupportSlides} label="Who we support" client:load />
-    </div>
-  </section>
-
-  <!-- ============ SECTION 2 · WHAT WE DO (value statement + services) ============ -->
+  <!-- ============ SECTION 1 · WHAT WE DO (value statement + services) ============ -->
   <section id="services" class="py-24 lg:py-32 scroll-mt-20">
     <div class="container-wide">
-      <SegmentHeader index="02" label="What we do" />
+      <SegmentHeader index="01" label="What we do" />
       <div class="max-w-2xl mb-14">
         <h2 class="text-4xl lg:text-5xl font-bold leading-tight">
           What we do.<br />
@@ -343,10 +296,10 @@ const whyClientsChooseUs = [
     </div>
   </section>
 
-  <!-- ============ SECTION 3 · FREE ASSESSMENT ============ -->
+  <!-- ============ SECTION 2 · FREE ASSESSMENT ============ -->
   <section class="py-24 lg:py-32 scroll-mt-20">
     <div class="container-wide">
-      <SegmentHeader index="03" label="Free assessment" />
+      <SegmentHeader index="02" label="Free assessment" />
       <div class="grid lg:grid-cols-12 gap-10 items-center">
         <div class="lg:col-span-7">
           <h2 class="text-4xl lg:text-5xl font-bold leading-tight">

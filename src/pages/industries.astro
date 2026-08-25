@@ -1,0 +1,64 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { buildBreadcrumbSchema } from '~/lib/schema';
+import { SqueezeCarousel, type SqueezeSlide } from '~/components/SqueezeCarousel';
+import { industries } from '~/lib/industries';
+
+// No client photography per industry yet — panels use on-brand gradients
+// (the site's own amber/teal tokens) instead of stock/generic imagery.
+const industryBackgrounds = [
+  'linear-gradient(135deg, var(--color-amber-400), var(--color-amber-600))',
+  'linear-gradient(135deg, var(--color-teal-400), var(--color-teal-600))',
+  'linear-gradient(135deg, var(--color-teal-600), var(--color-ink-700))',
+  'linear-gradient(135deg, var(--color-amber-500), var(--color-teal-600))',
+  'linear-gradient(135deg, var(--color-success), var(--color-teal-600))',
+  'linear-gradient(135deg, var(--color-teal-500), var(--color-amber-600))',
+];
+
+// Moved here from the homepage — this is now the Industries nav dropdown's
+// actual landing page (src/lib/industries.ts is shared between the two).
+const whoWeSupportSlides: SqueezeSlide[] = industries.map(({ slug, title, body }, i) => ({
+  id: slug,
+  title,
+  description: body,
+  background: industryBackgrounds[i],
+  action: 'Scope your environment',
+  href: '/assessment',
+}));
+
+const breadcrumbSchema = buildBreadcrumbSchema([
+  { name: 'Home', path: '/' },
+  { name: 'Industries', path: '/industries' },
+]);
+---
+
+<BaseLayout
+  title="Industries We Support"
+  description="AllTech runs the IT and cybersecurity for manufacturers, clinics, law firms, nonprofits, multi-location organizations, and growing businesses across Northern Utah."
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
+
+  <section class="surface-dark relative overflow-hidden">
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="eyebrow mb-4">Who we support</div>
+      <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-tight max-w-3xl">
+        Complex, modern<br/>
+        <span style="color: var(--color-amber-400);">operations.</span>
+      </h1>
+      <p class="mt-6 text-xl max-w-2xl leading-relaxed text-muted">
+        From a five-person office to a multi-site manufacturer, the businesses we work
+        with have one thing in common: technology has to work, and someone has to
+        actually be responsible for it. Here's who we spend our days supporting.
+      </p>
+    </div>
+  </section>
+
+  <section id="who-we-support" class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <!-- client:load, not client:visible — a hash-driven initial slide
+           (see SqueezeCarousel.tsx) needs to hydrate and scroll itself into
+           view even when it starts off-screen below the hero. -->
+      <SqueezeCarousel slides={whoWeSupportSlides} label="Who we support" client:load />
+    </div>
+  </section>
+</BaseLayout>

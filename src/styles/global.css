@@ -551,6 +551,19 @@
   width: min(260px, calc(100vw - 48px));
 }
 
+/* .mega-zone has no position:relative of its own (its "left-1/2" panel
+   centers on the nearest actual positioned ancestor, .nav-host, spanning
+   the WHOLE header) — invisible for the 1200px Services panel, which
+   fills most of the bar regardless, but it leaves a real gap for a narrow
+   panel: the trigger's hoverable box has zero width beyond its own link
+   (the absolutely-positioned panel contributes no size to the flex
+   layout), so the mouse exits the hover region crossing that gap and the
+   panel closes before it can be reached. mega-zone-self opts a zone out
+   of the shared nav-host centering so its panel centers on ITSELF. */
+.mega-zone.mega-zone-self {
+  position: relative;
+}
+
 /* Reduced-motion: respect user preference */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

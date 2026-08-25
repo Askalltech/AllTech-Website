@@ -1,6 +1,6 @@
 ---
 import { site } from '~/lib/site';
-import { menuCategories, simpleNavLinks } from '~/lib/menu';
+import { menuCategories, simpleNavLinks, companyLinks } from '~/lib/menu';
 import { industries } from '~/lib/industries';
 import ThemeToggle from './ThemeToggle.astro';
 
@@ -134,13 +134,17 @@ const isActive = (href: string) =>
            MEGA ZONE — "Industries" trigger + a narrow single-column panel.
            Own independent zone (not sharing the Services panel above), so it
            gets its own reveal state and its own (narrower) panel width via
-           .mega-panel-narrow. Each item links to /#<slug>; the homepage's
-           SqueezeCarousel (src/components/SqueezeCarousel.tsx) opens that
-           industry's slide and scrolls to it when the hash matches.
+           .mega-panel-narrow. Each item links to /industries#<slug>; that
+           page's SqueezeCarousel (src/components/SqueezeCarousel.tsx) opens
+           that industry's slide and scrolls to it when the hash matches.
+
+           mega-zone-self: centers the panel on THIS trigger, not the whole
+           nav-host, the way the shared Services panel does (see global.css
+           for why that default breaks a narrow panel's clickability).
            =================================================================== -->
-      <div class="mega-zone h-16">
+      <div class="mega-zone mega-zone-self h-16">
         <a
-          href="/#who-we-support"
+          href="/industries"
           class:list={[
             'mega-trigger flex items-center gap-1 whitespace-nowrap px-3.5 py-2 text-sm font-medium rounded-md transition',
             'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]',
@@ -161,7 +165,7 @@ const isActive = (href: string) =>
               {industries.map((industry) => (
                 <li>
                   <a
-                    href={`/#${industry.slug}`}
+                    href={`/industries#${industry.slug}`}
                     class="group block -mx-2 px-3.5 py-2.5 rounded-md transition"
                     onmouseenter="this.style.background='var(--color-bg-elevated)'"
                     onmouseleave="this.style.background='transparent'"
@@ -185,13 +189,64 @@ const isActive = (href: string) =>
                 Who we support
               </span>
               <a
-                href="/#who-we-support"
+                href="/industries"
                 class="inline-flex items-center gap-1.5 text-xs font-medium transition"
                 style="color: var(--color-amber-300)"
               >
                 See all <span aria-hidden="true">→</span>
               </a>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           MEGA ZONE — "Company" trigger + a narrow single-column panel.
+           Same pattern as Industries above: own zone, own (narrow) panel,
+           mega-zone-self so the panel centers on this trigger rather than
+           the whole nav-host. Groups the site's non-service pages plus the
+           service-area index — ntiva.com puts location pages under an
+           "About" column inside a "Company" menu rather than as their own
+           top-nav item; this is the same idea sized to what AllTech has.
+           =================================================================== -->
+      <div class="mega-zone mega-zone-self h-16">
+        <a
+          href="/team"
+          class:list={[
+            'mega-trigger flex items-center gap-1 whitespace-nowrap px-3.5 py-2 text-sm font-medium rounded-md transition',
+            'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]',
+          ]}
+        >
+          Company
+          <svg class="w-3.5 h-3.5 opacity-60" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </a>
+
+        <div class="mega-panel absolute left-1/2 top-full pt-3 z-50" role="group" aria-label="Company">
+          <div
+            class="mega-panel-narrow rounded-xl shadow-2xl overflow-hidden backdrop-blur-xl backdrop-saturate-150 bg-white/97 dark:bg-black/94"
+            style="border: 1px solid var(--color-border-subtle); box-shadow: 0 24px 64px -16px rgba(0,0,0,0.6);"
+          >
+            <ul class="p-3">
+              {companyLinks.map((link) => (
+                <li>
+                  <a
+                    href={link.href}
+                    class="group block -mx-2 px-3.5 py-2.5 rounded-md transition"
+                    onmouseenter="this.style.background='var(--color-bg-elevated)'"
+                    onmouseleave="this.style.background='transparent'"
+                  >
+                    <div
+                      class="font-medium text-[13px] leading-tight group-hover:text-[var(--color-amber-300)] transition"
+                      style="color: var(--color-text-primary);"
+                    >
+                      {link.label}
+                    </div>
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </div>
@@ -291,11 +346,33 @@ const isActive = (href: string) =>
         <div class="pl-3 pb-3 space-y-1">
           {industries.map((industry) => (
             <a
-              href={`/#${industry.slug}`}
+              href={`/industries#${industry.slug}`}
               class="block py-2 text-sm"
               style="color: var(--color-text-muted)"
             >
               {industry.title}
+            </a>
+          ))}
+        </div>
+      </details>
+      <details class="group">
+        <summary
+          class="flex items-center justify-between cursor-pointer py-3 font-medium"
+          style="color: var(--color-text-primary)"
+        >
+          <span>Company</span>
+          <svg class="w-4 h-4 transition group-open:rotate-180" viewBox="0 0 12 12" fill="none">
+            <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </summary>
+        <div class="pl-3 pb-3 space-y-1">
+          {companyLinks.map((link) => (
+            <a
+              href={link.href}
+              class="block py-2 text-sm"
+              style="color: var(--color-text-muted)"
+            >
+              {link.label}
             </a>
           ))}
         </div>

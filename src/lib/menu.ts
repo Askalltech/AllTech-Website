@@ -93,10 +93,21 @@ export const menuCategories: MenuCategory[] = [
 ];
 
 /**
- * Simple links shown alongside the mega-menu trigger in the top nav.
+ * Simple links shown alongside the mega-menu triggers in the top nav.
  */
 export const simpleNavLinks = [
+  { href: '/insights', label: 'Insights' },
+];
+
+/**
+ * "Company" dropdown — same pattern as the Industries menu (a narrow,
+ * single-column mega-panel), grouping the site's non-service pages plus
+ * the service-area index. ntiva.com puts its location pages under an
+ * "About" column inside a "Company" menu rather than as their own top-nav
+ * item; this is the same idea sized to what AllTech actually has.
+ */
+export const companyLinks = [
   { href: '/team',         label: 'Our Team' },
   { href: '/case-studies', label: 'Case Studies' },
-  { href: '/insights',     label: 'Insights' },
+  { href: '/locations',    label: 'Service Area' },
 ];
