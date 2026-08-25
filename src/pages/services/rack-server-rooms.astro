@@ -2,6 +2,7 @@
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { site } from '~/lib/site';
 import { buildBreadcrumbSchema } from '~/lib/schema';
+import { RackServerDepthScene } from '~/components/RackServerDepthScene';
 
 /**
  * NETWORK / INSTALL family — teal accent, matching the other Network pages.
@@ -135,27 +136,35 @@ const breadcrumbSchema = buildBreadcrumbSchema([
   <!-- Hero -->
   <section class="surface-dark relative overflow-hidden net-family">
     <div class="relative container-wide py-16 lg:py-20">
-      <div class="max-w-3xl">
-        <div class="eyebrow mb-4">Install · On-site &amp; low-voltage</div>
-        <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
-          Your server room<br />
-          <span style="color: var(--color-teal-400);">should be beautiful.</span>
-        </h1>
-        <p class="mt-6 text-xl leading-relaxed text-muted">
-          Racked, labeled, powered, cooled, and documented — so the room nobody thinks about stays
-          the room nobody has to think about. We build server rooms and network closets,
-          and we're the ones who still have to work in them
-          afterward.
-        </p>
-        <div class="mt-8 flex flex-wrap gap-3">
-          <a href={contactHref} class="btn btn-primary">Scope a server room project <span aria-hidden="true">→</span></a>
-          <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+      <div class="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+        <div class="max-w-3xl">
+          <div class="eyebrow mb-4">Install · On-site &amp; low-voltage</div>
+          <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-[0.95] tracking-tight">
+            Your server room<br />
+            <span style="color: var(--color-teal-400);">should be beautiful.</span>
+          </h1>
+          <p class="mt-6 text-xl leading-relaxed text-muted">
+            Racked, labeled, powered, cooled, and documented — so the room nobody thinks about stays
+            the room nobody has to think about. We build server rooms and network closets,
+            and we're the ones who still have to work in them
+            afterward.
+          </p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href={contactHref} class="btn btn-primary">Scope a server room project <span aria-hidden="true">→</span></a>
+            <a href={`tel:${site.phoneE164}`} class="btn btn-ghost font-mono">{site.phone}</a>
+          </div>
+          <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
+            <div>Local since 2009</div>
+            <div>In-house low-voltage crew</div>
+            <div>UniFi specialist</div>
+            <div>Documentation you keep</div>
+          </div>
         </div>
-        <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm" style="color: var(--color-text-muted)">
-          <div>Local since 2009</div>
-          <div>In-house low-voltage crew</div>
-          <div>UniFi specialist</div>
-          <div>Documentation you keep</div>
+
+        <!-- Trial: a real equipment photo given relief via depth-map
+             displacement (see RackServerDepthScene.tsx for how/why). -->
+        <div class="relative h-80 lg:h-[26rem]">
+          <RackServerDepthScene client:visible />
         </div>
       </div>
     </div>

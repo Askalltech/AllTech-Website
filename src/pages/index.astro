@@ -2,6 +2,7 @@
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import SegmentHeader from '~/components/SegmentHeader.astro';
 import Icon from '~/components/Icon.astro';
+import { BorderBeamPanel } from '~/components/BorderBeamPanel';
 import { services, site, serviceLink } from '~/lib/site';
 
 const featured = services.find((s) => s.featured);
@@ -106,10 +107,23 @@ const aNormalWeek = [
         </p>
 
         <div class="mt-9 flex flex-wrap items-center gap-3">
-          <a href="/assessment" class="btn btn-primary hero-cta">
-            Take the free security gap assessment
-            <span aria-hidden="true">→</span>
-          </a>
+          <!-- Trial: BorderBeamPanel (Motiq) wraps the primary CTA only —
+               see BorderBeamPanel.tsx for provenance. Single beam colored to
+               match --color-amber-400 so it reads as "this button, lit up"
+               rather than an unrelated brand accent. -->
+          <BorderBeamPanel
+            client:visible
+            beams={1}
+            colors={["var(--color-amber-400)"]}
+            thickness={2}
+            radius={10}
+            className="border-0 bg-transparent p-1 w-auto"
+          >
+            <a href="/assessment" class="btn btn-primary hero-cta">
+              Take the free security gap assessment
+              <span aria-hidden="true">→</span>
+            </a>
+          </BorderBeamPanel>
 
           <!-- Existing-client entry point: the client portal is a separate
                system on its own domain, so this opens in a new tab. -->
