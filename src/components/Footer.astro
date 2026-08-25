@@ -71,27 +71,6 @@ const partners = ['Cloudflare', 'Ubiquiti UniFi', 'Microsoft 365', 'Datto', 'Ent
       </div>
     </div>
 
-    <!-- Service-area links. The 11 /locations/* pages are generated and sit in
-         the sitemap, but nothing linked to them — local-SEO pages with zero
-         internal links get minimal crawl priority and no link equity, which
-         defeats the point of having them. -->
-    <div class="mt-12 pt-8 border-t" style="border-color: var(--color-border-subtle)">
-      <h3 class="font-display text-sm uppercase tracking-wider mb-4" style="color: var(--color-text-primary)">Service Area</h3>
-      <ul class="flex flex-wrap gap-x-5 gap-y-2 text-sm">
-        {site.serviceArea.map((loc) => (
-          <li>
-            <a
-              href={`/locations/${loc.slug}`}
-              class="hover:text-[var(--color-text-primary)] transition"
-              style="color: var(--color-text-muted)"
-            >
-              IT Services in {loc.city}, {loc.region}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </div>
-
     <div class="mt-12 pt-8 border-t flex flex-col sm:flex-row justify-between gap-4 text-xs" style="border-color: var(--color-border-subtle); color: var(--color-text-subtle)">
       <div class="space-y-2">
         <div>© {year} AllTech. All rights reserved.</div>
