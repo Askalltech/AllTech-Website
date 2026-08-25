@@ -543,6 +543,14 @@
   width: min(1200px, calc(100vw - 48px));
 }
 
+/* The Industries panel is a flat single column of 6 short items, not a
+   5-column grid — the shared 1200px width above would leave it looking
+   like an near-empty strip. Overrides the rule above (later in the
+   cascade, same specificity via the child combinator + a class). */
+.mega-panel > div.mega-panel-narrow {
+  width: min(260px, calc(100vw - 48px));
+}
+
 /* Reduced-motion: respect user preference */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
