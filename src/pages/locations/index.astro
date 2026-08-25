@@ -1,0 +1,72 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+import { buildBreadcrumbSchema } from '~/lib/schema';
+
+const breadcrumbSchema = buildBreadcrumbSchema([
+  { name: 'Home', path: '/' },
+  { name: 'Service Area', path: '/locations' },
+]);
+---
+
+<BaseLayout
+  title="Service Area — Northern Utah & Southern Idaho"
+  description="AllTech provides managed IT, cybersecurity, and Cloudflare Zero Trust to businesses across Logan, Hyde Park, Smithfield, Tremonton, Brigham City, Preston, and the surrounding area."
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
+
+  <section class="surface-dark relative overflow-hidden">
+    <div class="relative container-wide py-16 lg:py-20">
+      <div class="eyebrow mb-4">Service Area</div>
+      <h1 class="font-display text-5xl lg:text-6xl font-semibold leading-tight max-w-3xl">
+        One team, based in Hyde Park —<br/>
+        <span style="color: var(--color-amber-400);">covering the whole region.</span>
+      </h1>
+      <p class="mt-6 text-xl max-w-2xl leading-relaxed text-muted">
+        We're not a call center dispatching whoever's free. Same local engineers,
+        every site, whether you're five minutes from our office or up toward the
+        Idaho line.
+      </p>
+    </div>
+  </section>
+
+  <section class="surface-dark py-16 lg:py-20" style="border-top: 1px solid var(--color-line-faint);">
+    <div class="container-wide">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {site.serviceArea.map((loc) => (
+          <a href={`/locations/${loc.slug}`} class="card group block">
+            <h3 class="font-display text-lg font-semibold mb-1.5 group-hover:text-amber-300 transition-colors">
+              {loc.city}, {loc.region}
+            </h3>
+            <p class="text-sm text-muted leading-relaxed">
+              IT support and cybersecurity for {loc.city} businesses.
+            </p>
+            <span class="mt-4 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600)">
+              Learn more <span aria-hidden="true">→</span>
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="surface-light py-16">
+    <div class="container-wide">
+      <div class="rounded-xl p-8 lg:p-10" style="background: white; border: 1px solid #e5e7eb;">
+        <div class="grid lg:grid-cols-12 gap-6 items-center">
+          <div class="lg:col-span-8">
+            <h2 class="font-display text-2xl lg:text-3xl font-semibold">
+              Not on the list? Ask anyway.
+            </h2>
+            <p class="mt-2 text-muted">
+              This is where we work most, not a hard boundary — call and we'll tell you straight if it's a fit.
+            </p>
+          </div>
+          <div class="lg:col-span-4 lg:text-right">
+            <a href={`tel:${site.phoneE164}`} class="btn btn-primary font-mono">{site.phone}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
