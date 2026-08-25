@@ -115,6 +115,7 @@
   --container-narrow: 64rem;
   --container-prose:  72rem;
   --container-wide:   80rem;
+  --container-footer: 96rem;
 
   /* ----- Motion ----- */
   --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
@@ -219,6 +220,11 @@
   .container-wide   { @apply mx-auto px-6 lg:px-8; max-width: var(--container-wide); }
   .container-prose  { @apply mx-auto px-6 lg:px-8; max-width: var(--container-prose); }
   .container-narrow { @apply mx-auto px-6 lg:px-8; max-width: var(--container-narrow); }
+  /* Wider than the rest of the site's content (container-wide) on purpose —
+     the footer's own link columns read as cramped at 80rem, and a wider,
+     bordered band (see Footer.astro) gives it a distinct, more substantial
+     footing at the bottom of every page. */
+  .container-footer { @apply mx-auto px-6 lg:px-8; max-width: var(--container-footer); }
 }
 
 /* Tailwind v4's default `container` utility has NO horizontal padding out

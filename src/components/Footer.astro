@@ -19,7 +19,8 @@ const partners = ['Cloudflare', 'Ubiquiti UniFi', 'Microsoft 365', 'Datto', 'Ent
      edge to fully opaque by the time real content starts, so the dot grid
      softly resolves away before it reaches any text. -->
 <footer style="background: linear-gradient(to bottom, transparent, var(--color-bg-page) 96px, var(--color-bg-page) 100%);">
-  <div class="container-wide py-16">
+  <div class="container-footer" style="border-left: 1px solid var(--color-border-subtle); border-right: 1px solid var(--color-border-subtle);">
+    <div class="px-6 lg:px-8 py-16">
     <div class="grid gap-12 sm:grid-cols-2 lg:grid-cols-6">
       <div class="sm:col-span-2 lg:col-span-2">
         <div class="flex items-center gap-2.5 font-display font-semibold text-lg mb-4" style="color: var(--color-text-primary)">
@@ -115,8 +116,15 @@ const partners = ['Cloudflare', 'Ubiquiti UniFi', 'Microsoft 365', 'Datto', 'Ent
         </ul>
       </div>
     </div>
+    </div>
 
-    <div class="mt-12 pt-8 border-t flex flex-col sm:flex-row justify-between gap-4 text-xs" style="border-color: var(--color-border-subtle); color: var(--color-text-subtle)">
+    <!-- Faint diagonal-hatch band, bordered top — echoes shadcnblocks'
+         footer51 bottom bar, tinted with the site's own border token
+         instead of shadcn's --border so it stays on-brand in both themes. -->
+    <div
+      class="px-6 lg:px-8 py-8 flex flex-col sm:flex-row justify-between gap-4 text-xs [background-image:repeating-linear-gradient(-45deg,color-mix(in_oklch,var(--color-border-subtle)_45%,transparent)_0,color-mix(in_oklch,var(--color-border-subtle)_45%,transparent)_1px,transparent_1px,transparent_8px)]"
+      style="border-top: 1px solid var(--color-border-subtle); color: var(--color-text-subtle)"
+    >
       <div class="space-y-2">
         <div>© {year} AllTech. All rights reserved.</div>
         <SystemTelemetry client:visible />
