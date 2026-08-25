@@ -3,7 +3,7 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
 import SegmentHeader from '~/components/SegmentHeader.astro';
 import Icon from '~/components/Icon.astro';
 import { BorderBeamPanel } from '~/components/BorderBeamPanel';
-import { IndustrySupportGrid } from '~/components/IndustrySupportGrid';
+import { SqueezeCarousel, type SqueezeSlide } from '~/components/SqueezeCarousel';
 import { services, site, serviceLink } from '~/lib/site';
 
 const featured = services.find((s) => s.featured);
@@ -19,6 +19,26 @@ const whoWeSupport = [
   ['05', 'Nonprofits', "Real infrastructure and security on a budget that doesn't match a for-profit company's, without cutting corners on what protects your donor and client data."],
   ['06', 'Growing Businesses', 'The point where email, invoicing, and a shared drive stop being enough. We help you build the network and security foundation before you outgrow it twice.'],
 ];
+
+// No client photography per industry yet — panels use on-brand gradients
+// (the site's own amber/teal tokens) instead of stock/generic imagery.
+const industryBackgrounds = [
+  'linear-gradient(135deg, var(--color-amber-400), var(--color-amber-600))',
+  'linear-gradient(135deg, var(--color-teal-400), var(--color-teal-600))',
+  'linear-gradient(135deg, var(--color-teal-600), var(--color-ink-700))',
+  'linear-gradient(135deg, var(--color-amber-500), var(--color-teal-600))',
+  'linear-gradient(135deg, var(--color-success), var(--color-teal-600))',
+  'linear-gradient(135deg, var(--color-teal-500), var(--color-amber-600))',
+];
+
+const whoWeSupportSlides: SqueezeSlide[] = whoWeSupport.map(([n, title, body], i) => ({
+  id: n,
+  title,
+  description: body,
+  background: industryBackgrounds[i],
+  action: 'Scope your environment',
+  href: '/assessment',
+}));
 
 // Section 03 — why clients choose us, stated plainly instead of implied.
 const whyClientsChooseUs = [
@@ -165,19 +185,7 @@ const aNormalWeek = [
         </p>
       </div>
 
-      <IndustrySupportGrid client:visible />
-
-      <!-- Full descriptions kept for content/SEO — the grid above is a
-           quick interactive index, not a replacement for this copy. -->
-      <div class="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {whoWeSupport.map(([n, title, body]) => (
-          <div class="card">
-            <div class="font-display text-2xl font-bold mb-2" style="color: var(--color-amber-500)">{n}</div>
-            <h3 class="font-display text-lg font-bold mb-2" style="color: var(--color-text-primary)">{title}</h3>
-            <p class="text-sm leading-relaxed" style="color: var(--color-text-default)">{body}</p>
-          </div>
-        ))}
-      </div>
+      <SqueezeCarousel slides={whoWeSupportSlides} label="Who we support" client:visible />
     </div>
   </section>
 
