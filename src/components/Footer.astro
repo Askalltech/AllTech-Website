@@ -1,5 +1,7 @@
 ---
 import { site, services, serviceLink } from '~/lib/site';
+import { industries } from '~/lib/industries';
+import { companyLinks } from '~/lib/menu';
 import { SystemTelemetry } from '@/components/SystemTelemetry';
 const year = new Date().getFullYear();
 
@@ -18,8 +20,8 @@ const partners = ['Cloudflare', 'Ubiquiti UniFi', 'Microsoft 365', 'Datto', 'Ent
      softly resolves away before it reaches any text. -->
 <footer style="background: linear-gradient(to bottom, transparent, var(--color-bg-page) 96px, var(--color-bg-page) 100%);">
   <div class="container-wide py-16">
-    <div class="grid gap-12 md:grid-cols-4">
-      <div class="md:col-span-2">
+    <div class="grid gap-12 sm:grid-cols-2 lg:grid-cols-6">
+      <div class="sm:col-span-2 lg:col-span-2">
         <div class="flex items-center gap-2.5 font-display font-semibold text-lg mb-4" style="color: var(--color-text-primary)">
           <img src="/logo.webp" alt="" class="h-9 w-auto" width="36" height="36" onerror="this.style.display='none'" />
           AllTech
@@ -58,6 +60,49 @@ const partners = ['Cloudflare', 'Ubiquiti UniFi', 'Microsoft 365', 'Datto', 'Ent
               </li>
             );
           })}
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="font-display text-sm uppercase tracking-wider mb-4" style="color: var(--color-text-primary)">Industries</h3>
+        <ul class="space-y-2 text-sm">
+          {industries.map((industry) => (
+            <li>
+              <a
+                href={`/industries#${industry.slug}`}
+                class="transition hover:text-[var(--color-text-primary)]"
+                style="color: var(--color-text-muted)"
+              >
+                {industry.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="font-display text-sm uppercase tracking-wider mb-4" style="color: var(--color-text-primary)">Company</h3>
+        <ul class="space-y-2 text-sm">
+          {companyLinks.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class="transition hover:text-[var(--color-text-primary)]"
+                style="color: var(--color-text-muted)"
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+          <li>
+            <a
+              href="/insights"
+              class="transition hover:text-[var(--color-text-primary)]"
+              style="color: var(--color-text-muted)"
+            >
+              Insights
+            </a>
+          </li>
         </ul>
       </div>
 

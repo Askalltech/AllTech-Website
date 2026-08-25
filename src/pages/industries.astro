@@ -13,6 +13,12 @@ const industryBackgrounds = [
   'linear-gradient(135deg, var(--color-amber-500), var(--color-teal-600))',
   'linear-gradient(135deg, var(--color-success), var(--color-teal-600))',
   'linear-gradient(135deg, var(--color-teal-500), var(--color-amber-600))',
+  'linear-gradient(135deg, var(--color-amber-400), var(--color-ink-700))',
+  'linear-gradient(135deg, var(--color-teal-400), var(--color-amber-600))',
+  'linear-gradient(135deg, var(--color-success), var(--color-ink-700))',
+  'linear-gradient(135deg, var(--color-amber-600), var(--color-teal-400))',
+  'linear-gradient(135deg, var(--color-teal-600), var(--color-amber-500))',
+  'linear-gradient(135deg, var(--color-ink-700), var(--color-teal-500))',
 ];
 
 // Moved here from the homepage — this is now the Industries nav dropdown's
@@ -34,7 +40,7 @@ const breadcrumbSchema = buildBreadcrumbSchema([
 
 <BaseLayout
   title="Industries We Support"
-  description="AllTech runs the IT and cybersecurity for manufacturers, clinics, law firms, nonprofits, multi-location organizations, and growing businesses across Northern Utah."
+  description="AllTech runs the IT and cybersecurity for municipalities, government contractors, healthcare, legal, financial, manufacturing, dental, automotive, and growing organizations across Northern Utah."
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
 
