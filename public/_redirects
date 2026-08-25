@@ -1,0 +1,4 @@
+# Insights article slug changed as part of an SEO-driven rewrite — this
+# post was live at the old URL before the rename, so redirect rather than
+# let it 404.
+/insights/retiring-the-corporate-vpn  /insights/cloudflare-zero-trust-vpn-migration  301

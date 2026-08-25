@@ -1,6 +1,6 @@
 # AllTech website
 
-Marketing site for AllTech — Astro + Tailwind v4 + React islands, deployed to Cloudflare Pages.
+Marketing site for AllTech — Astro + Tailwind v4 + React islands, deployed to Cloudflare Workers (with static assets), not classic Cloudflare Pages — see "Deployment" below.
 
 ## Stack
 
@@ -8,8 +8,8 @@ Marketing site for AllTech — Astro + Tailwind v4 + React islands, deployed to 
 - **Tailwind v4** — via the Vite plugin (no `tailwind.config.js`)
 - **React 18** — hydrated islands where a component actually needs client interactivity (team grid, blog/case-study filtering and carousels, the interactive globe on the Cloudflare page); everything else stays static Astro/HTML
 - **shadcn / shadcnblocks** — the `ui/` primitives and several page sections are pulled from the shadcnblocks registry (see "Design system" below)
-- **MDX** — for blog posts and case studies
-- **Cloudflare Pages** — hosting + edge SSR for `/api/contact`
+- **Markdown content collections** — blog posts and case studies (plain `.md`, not MDX)
+- **Cloudflare Workers** — hosting (static assets + the Worker runtime), edge SSR for `/api/contact` and `/api/assessment`
 
 ## Local development
 
@@ -22,7 +22,7 @@ For local development of the contact form endpoint with the Cloudflare runtime:
 
 ```bash
 npm run build
-npm run preview      # runs `wrangler pages dev ./dist`
+npm run preview      # runs `wrangler dev` against the built ./dist output
 ```
 
 ## Design system
@@ -33,6 +33,8 @@ Colors, spacing, radii, and shadows are defined once in `src/styles/global.css` 
 - **Dark mode** — a real light/dark toggle (`ThemeToggle.astro`, top-right of the header), not just the per-section `.surface-dark`/`.surface-inverse` styling that already existed. Persisted to `localStorage`, defaults to the OS preference, and applied before first paint via an inline script in `BaseLayout.astro` (no flash of the wrong theme). Every AllTech token above has a `.dark` override in `global.css` — when adding a new token, add its dark-mode value alongside it.
 - **shadcn bridge** — a second token set (`--background`, `--primary`, `--muted`, etc.) lives in `global.css` so shadcn/shadcnblocks components resolve against this site's palette instead of shadcn's default slate. It's kept in sync with the shadcnblocks theme-registry export; see the comments directly above it in `global.css` before editing.
 - **`@utility container`** — Tailwind's default `container` class ships with no horizontal padding. It's overridden in `global.css` to match `.container-wide`'s gutters, since shadcnblocks components are written against the stock class.
+- **`.surface-light` stays light in dark mode, on purpose** — it's an intentional bright "interlude" band breaking up dark pages, not a themed section (see the `--color-bg-inverse` comment in `global.css`). A card placed inside one should use the same light-constant tokens `.surface-light .card` already does (`background: white; border-color: var(--color-ink-100)`), not the page-level `--color-bg-surface`/`--color-border-subtle` tokens — those are theme-relative and will render as a near-invisible dark box on the light band in dark mode. (This exact bug shipped once on the `/locations` pages and had to be fixed.)
+- **Mega-menu panel positioning** — `.mega-zone` has no `position: relative` of its own; a panel's `left-1/2` centers on the whole `.nav-host` bar by default (harmless for the wide Services panel, which fills most of the bar anyway). A **narrow** panel (Industries, Company) needs the `mega-zone-self` modifier class on its `.mega-zone` wrapper, or it renders visibly detached from its own trigger and — because the trigger's hoverable box has no width beyond the link itself — closes before the mouse can reach it, making the dropdown effectively unclickable.
 
 ### Pulling a new shadcnblocks component
 
@@ -54,20 +56,28 @@ This fetches into `src/components/`. Treat the fetched file as a starting point,
 ```
 src/
 ├── components/        Shared Astro + React components (see ui/ for shadcn primitives)
+│   ├── Header.astro   Nav — Services / Industries / Company mega-menus + mobile accordion
+│   ├── SqueezeCarousel.tsx  The industry-carousel widget (src/pages/industries.astro)
+│   └── BorderBeamPanel.tsx  Animated-border wrapper, currently only on the homepage hero CTA
 ├── content/           Content collections (blog, caseStudies)
-│   ├── blog/          Markdown / MDX blog posts
-│   ├── caseStudies/   Markdown / MDX case studies
+│   ├── blog/          Markdown blog posts (plain .md, not MDX)
+│   ├── caseStudies/   Markdown case studies
 │   └── config.ts      Typed frontmatter schemas
 ├── layouts/           BaseLayout.astro wraps all pages
 ├── lib/site.ts        Single source of truth: NAP, services, locations
+├── lib/menu.ts        Nav data: Services mega-menu categories, Company dropdown links
+├── lib/industries.ts  The 6 client industries — shared by the Industries nav dropdown
+│                      AND src/pages/industries.astro (same data, single source)
 ├── lib/schema.ts      Shared JSON-LD builders (Service, FAQPage, BreadcrumbList)
 ├── pages/             File-based routes
 │   ├── api/contact.ts SSR endpoint (only non-static route)
-│   ├── locations/     Auto-generates a page per service-area city
+│   ├── industries.astro  "Who we support" — moved off the homepage; nav links land here
+│   ├── locations/     index.astro (city directory) + [city].astro (auto-generated per city)
 │   ├── remote-it-support.astro  Location-agnostic "remote MSP" landing page
 │   └── services/      One page per service
 ├── styles/global.css  Design tokens, dark mode, Tailwind theme, component classes
 public/                Static assets (favicon, robots.txt, OG image, hero video)
+│   └── _redirects     301s for renamed routes (currently: one renamed insights slug)
 ```
 
 ## Adding content
@@ -93,21 +103,15 @@ Drop a markdown file in `src/content/caseStudies/`.
 
 ## Deployment
 
-Cloudflare Pages, connected to the GitHub repo. Build settings in the Pages dashboard:
+**This is a Cloudflare Worker (with a static-assets binding), not classic Cloudflare Pages** — `wrangler.toml` defines `name`, `main` (`./dist/_worker.js/index.js`), and an `[assets]` block pointing at `./dist`. Deploy is `astro build && wrangler deploy` (see the `deploy` script in `package.json`).
 
-| Setting | Value |
-|---|---|
-| Framework preset | Astro |
-| Build command | `npm run build` |
-| Build output | `dist` |
-| Root directory | (leave blank) |
-| Node version env | `NODE_VERSION=20` |
+The Worker is connected to this GitHub repo via **Cloudflare Workers Builds** (Workers & Pages → this Worker → the connected-repo build pipeline, not the legacy Pages product). Every push builds automatically — but **only commits on `main` get promoted to live traffic automatically**; builds from other branches (e.g. a feature branch merged later) show up under that Worker's "Versions" tab as a built-but-inactive version. If a merge to `main` doesn't show up live, check Workers & Pages → this Worker → Deployments: the latest version may need a manual "Deploy"/promote click, or the `wrangler.toml` `name` may be out of sync with what the CI expects (this happened once already — CI silently overrides a mismatched `name` and opens an auto-PR to fix it; check the build log for a `Failed to match Worker name` warning).
 
-Push to `main` → Pages builds and deploys automatically. No GitHub Actions.
+No GitHub Actions — the build/deploy pipeline is entirely Cloudflare's own Workers Builds, triggered by the git connection.
 
 ### Environment variables
 
-Set these in the Pages dashboard (Settings → Environment variables):
+Set these in the Worker's dashboard (Workers & Pages → this Worker → Settings → Variables and Secrets):
 
 | Variable | Purpose |
 |---|---|
@@ -117,17 +121,17 @@ Set these in the Pages dashboard (Settings → Environment variables):
 | `CONTACT_FORWARD_TO` | Where contact form submissions are delivered |
 | `ASSESSMENT_FORWARD_TO` | Where gap-assessment results are delivered (falls back to `CONTACT_FORWARD_TO`) |
 
-`SHADCNBLOCKS_API_KEY` is only needed locally when pulling new blocks (see "Design system" above) — it's not used at runtime, so it doesn't need to be set in Pages.
+`SHADCNBLOCKS_API_KEY` is only needed locally when pulling new blocks (see "Design system" above) — it's not used at runtime, so it doesn't need to be set on the Worker.
 
 ## Contact form & security gap assessment
 
-Both `/api/contact.ts` and `/api/assessment.ts` run as Cloudflare Pages Functions and:
+Both `/api/contact.ts` and `/api/assessment.ts` run as routes on the Worker itself (Astro's SSR endpoints, not Cloudflare Pages Functions) and:
 
 1. Honeypot check (`company_website` field)
 2. Required-field validation
 3. Optional Turnstile verification (active once `PUBLIC_TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET` are set)
-4. Send via **Cloudflare Email Routing's Send Email binding** — see `src/lib/email.ts`. No third-party transactional provider (Resend, Postmark, etc.) needed. This binding **cannot be declared in `wrangler.toml`** — Pages projects fail config validation on a `[[send_email]]` block (Workers-only syntax) and every deploy breaks. Set it up entirely from the dashboard instead:
-   - Add the binding: Workers & Pages → this project → Settings → Bindings → Add → Email → Send email → name it `SEND_EMAIL` (must match `src/env.d.ts`' `Env.SEND_EMAIL`).
+4. Send via **Cloudflare Email Routing's Send Email binding** — see `src/lib/email.ts`. No third-party transactional provider (Resend, Postmark, etc.) needed. This repo's `wrangler.toml` currently doesn't declare `[[send_email]]` and instructs adding the binding from the dashboard instead — written under the assumption this was a Pages project (see the note on this in "Open items" below; since it turned out to be a plain Worker, it's worth re-testing whether the binding can just be declared in `wrangler.toml` directly). Until that's re-verified, set it up from the dashboard:
+   - Add the binding: Workers & Pages → this Worker → Settings → Bindings → Add → Email → Send email → name it `SEND_EMAIL` (must match `src/env.d.ts`' `Env.SEND_EMAIL`).
    - Your domain must be added under Email Routing (dashboard → your zone → Email → Email Routing), with `CONTACT_FROM`'s domain verified there.
    - Every address you set `CONTACT_FORWARD_TO` / `ASSESSMENT_FORWARD_TO` to must also be added there **and** selected as an allowed destination on the binding itself — Cloudflare enforces that allow-list at the binding level, so it can't be driven purely by runtime env vars. Keep them in sync.
    - Without a working binding (e.g. running `astro dev` locally, or before the above is set up), submissions are still validated and scored — they just get logged instead of emailed.
@@ -137,8 +141,8 @@ Both `/api/contact.ts` and `/api/assessment.ts` run as Cloudflare Pages Function
 - [ ] Replace `https://askalltech.com` in `src/lib/site.ts` and `astro.config.mjs` if domain changes
 - [ ] Add the Cloudflare Web Analytics token in `BaseLayout.astro` (uncomment script tag)
 - [ ] Generate `/public/og-default.png` (1200×630 brand image)
-- [ ] Add the `SEND_EMAIL` binding via the Pages dashboard (NOT `wrangler.toml` — see "Contact form & security gap assessment" above), add your domain to Cloudflare Email Routing, verify `CONTACT_FROM`'s domain, and allow-list the real forward-to address(es) on the binding
-- [ ] Set environment variables in Pages dashboard
+- [ ] Add the `SEND_EMAIL` binding via the Worker's dashboard (NOT `wrangler.toml` — see "Contact form & security gap assessment" above), add your domain to Cloudflare Email Routing, verify `CONTACT_FROM`'s domain, and allow-list the real forward-to address(es) on the binding
+- [ ] Set environment variables in the Worker's dashboard
 - [ ] Verify Google Business Profile NAP exactly matches `site.ts`
 - [ ] Submit `sitemap-index.xml` to Google Search Console
 - [ ] Confirm the hero video (`public/hero-video.mp4`) is standard H.264 High Profile / yuv420p before replacing it — some export tools (including some Vecteezy/stock-footage downloads) default to a 4:2:2 profile that no browser can decode. `ffprobe -show_entries stream=profile,pix_fmt <file>` should report `High` and `yuv420p`.
@@ -158,10 +162,15 @@ implemented yet.
   `/api/contact.ts` and `/api/assessment.ts` send via Cloudflare Email
   Routing's Send Email binding (`src/lib/email.ts`), no third-party sender
   needed. What's left is account/dashboard setup, not code: add the
-  `SEND_EMAIL` binding itself (Pages dashboard → Settings → Bindings —
-  this can't go in `wrangler.toml` for a Pages project), add the domain to
-  Email Routing, verify `CONTACT_FROM`'s domain, and allow-list the real
-  forward-to address(es) — see "Contact form & security gap assessment" above.
+  `SEND_EMAIL` binding itself (Worker's dashboard → Settings → Bindings),
+  add the domain to Email Routing, verify `CONTACT_FROM`'s domain, and
+  allow-list the real forward-to address(es) — see "Contact form &
+  security gap assessment" above. Note: the original reasoning for why
+  `[[send_email]]` can't go in `wrangler.toml` assumed this was a Pages
+  project; it turned out to actually be a plain Cloudflare Worker (see
+  "Deployment"), where that binding type is normally declarable directly
+  in `wrangler.toml` — worth re-testing whether the dashboard-only
+  workaround is still necessary before assuming it is.
 - [ ] **Turnstile site key / secret.** Same category — `PUBLIC_TURNSTILE_SITE_KEY`
   and `TURNSTILE_SECRET` aren't set yet, so the captcha on the contact and
   assessment forms is currently inactive. The widget and server-side
@@ -174,15 +183,21 @@ implemented yet.
 - [ ] **AutoTask ticket integration** for assessment/contact submissions —
   external system integration, not started.
 - [ ] **Bios** — team page bios need updating (Speaker 2).
-- [ ] **Install photography** — real photos for the two new Install pages
-  (`fiber-optic.astro`, `network-iot-cleaning.astro`, both currently a
-  "Photos coming soon" placeholder block) and for existing Install pages
-  generally.
-- [ ] **Blog/Insights content** — Sean has content to contribute; a PAM
-  (Privileged Access Management) post was mentioned as a likely next topic.
-  Separately, Speaker 4 offered AI/SEO-oriented writing templates and advice
-  (optimizing for AI-driven search, not just traditional SEO) — worth
-  following up on before writing more posts.
+- [x] **Install page tile photography.** All 7 capability tiles on
+  `/services/install` and the 7 matching tiles on
+  `/services/cloudflare-zero-trust` now have real (Unsplash-sourced,
+  credited) photos via `Services21Item`'s `image`/`photoCredit` fields.
+- [ ] **Install photography — in-page galleries.** Separate from the tile
+  photos above: `fiber-optic.astro` and `network-iot-cleaning.astro` each
+  still have a "Photos coming soon" placeholder block further down the
+  page (a real project-photo gallery, not the capability tile).
+- [ ] **Blog/Insights content.** The VPN migration post
+  (`retiring-the-corporate-vpn.md`, now live at
+  `/insights/cloudflare-zero-trust-vpn-migration`) was rewritten with a
+  full case-study treatment. A PAM (Privileged Access Management) post was
+  separately mentioned as a likely next topic — not started. AI/SEO
+  writing templates were also offered for future posts — worth following
+  up before writing more.
 - [ ] **Off-site AI-visibility signals** — a first on-site pass (remote-MSP
   positioning, `Service`/`FAQPage`/`BreadcrumbList` schema, see
   `remote-it-support.astro` and `src/lib/schema.ts`) is done, but nothing
@@ -221,3 +236,18 @@ implemented yet.
   meeting, but this already overlaps with Network Detection (NDR, under
   Cybersecurity) and Firewall & Routing (under Network). Recommend against
   a redundant page unless there's a specific gap those two don't cover.
+- [ ] **`.text-muted` on `.surface-light` is borderline low-contrast in
+  dark mode** — found during a full dark-mode audit. It's a light
+  gray-blue on a white "interlude" card (see the `.surface-light` note
+  under "Design system"), likely under WCAG AA for body text. Pre-existing
+  across several service pages (e.g. `cybersecurity.astro`'s "Not a
+  reseller. Not a silo." section), not something introduced recently —
+  flagged but not changed, since fixing it site-wide is a design decision
+  (a new token, or a different class for muted text inside light bands)
+  rather than a one-line patch.
+- [ ] **`BorderBeamPanel.tsx` / `SqueezeCarousel.tsx` adoption.**
+  Community components adapted in as trials: `BorderBeamPanel` currently
+  wraps only the homepage hero's primary CTA (an animated conic-gradient
+  border ring); `SqueezeCarousel` powers `/industries`. Decide whether
+  either should be reused elsewhere or is a one-off trial worth reverting.
+  Both `.tsx` files carry provenance/adaptation notes at the top.
