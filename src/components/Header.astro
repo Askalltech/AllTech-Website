@@ -134,9 +134,9 @@ const isActive = (href: string) =>
            MEGA ZONE — "Industries" trigger + a narrow single-column panel.
            Own independent zone (not sharing the Services panel above), so it
            gets its own reveal state and its own (narrower) panel width via
-           .mega-panel-narrow. Each item links to /#<slug>; the homepage's
-           SqueezeCarousel (src/components/SqueezeCarousel.tsx) opens that
-           industry's slide and scrolls to it when the hash matches.
+           .mega-panel-narrow. Each item links to /industries#<slug>; that
+           page's SqueezeCarousel (src/components/SqueezeCarousel.tsx) opens
+           that industry's slide and scrolls to it when the hash matches.
 
            mega-zone-self: centers the panel on THIS trigger, not the whole
            nav-host, the way the shared Services panel does (see global.css
@@ -144,7 +144,7 @@ const isActive = (href: string) =>
            =================================================================== -->
       <div class="mega-zone mega-zone-self h-16">
         <a
-          href="/#who-we-support"
+          href="/industries"
           class:list={[
             'mega-trigger flex items-center gap-1 whitespace-nowrap px-3.5 py-2 text-sm font-medium rounded-md transition',
             'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]',
@@ -165,7 +165,7 @@ const isActive = (href: string) =>
               {industries.map((industry) => (
                 <li>
                   <a
-                    href={`/#${industry.slug}`}
+                    href={`/industries#${industry.slug}`}
                     class="group block -mx-2 px-3.5 py-2.5 rounded-md transition"
                     onmouseenter="this.style.background='var(--color-bg-elevated)'"
                     onmouseleave="this.style.background='transparent'"
@@ -189,7 +189,7 @@ const isActive = (href: string) =>
                 Who we support
               </span>
               <a
-                href="/#who-we-support"
+                href="/industries"
                 class="inline-flex items-center gap-1.5 text-xs font-medium transition"
                 style="color: var(--color-amber-300)"
               >
@@ -346,7 +346,7 @@ const isActive = (href: string) =>
         <div class="pl-3 pb-3 space-y-1">
           {industries.map((industry) => (
             <a
-              href={`/#${industry.slug}`}
+              href={`/industries#${industry.slug}`}
               class="block py-2 text-sm"
               style="color: var(--color-text-muted)"
             >
