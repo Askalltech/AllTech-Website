@@ -3,6 +3,7 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
 import SegmentHeader from '~/components/SegmentHeader.astro';
 import Icon from '~/components/Icon.astro';
 import { BorderBeamPanel } from '~/components/BorderBeamPanel';
+import { IndustrySupportGrid } from '~/components/IndustrySupportGrid';
 import { services, site, serviceLink } from '~/lib/site';
 
 const featured = services.find((s) => s.featured);
@@ -164,7 +165,11 @@ const aNormalWeek = [
         </p>
       </div>
 
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <IndustrySupportGrid client:visible />
+
+      <!-- Full descriptions kept for content/SEO — the grid above is a
+           quick interactive index, not a replacement for this copy. -->
+      <div class="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {whoWeSupport.map(([n, title, body]) => (
           <div class="card">
             <div class="font-display text-2xl font-bold mb-2" style="color: var(--color-amber-500)">{n}</div>
