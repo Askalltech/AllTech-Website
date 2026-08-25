@@ -35,15 +35,17 @@ const serviceSchema = {
     'A pre-selected set of essential security controls for small and mid-sized businesses, mapped to CIS Controls and NIST CSF and continually refined as threats evolve.',
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'Cybersecurity', path: '/services/cybersecurity' },
   { name: 'AllTech Top 10', path: '/services/alltech-top-10' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="AllTech Top 10 — Security Stack for SMB"
   description="The AllTech Top 10: a pre-selected set of security controls for small and mid-sized business, mapped to CIS Controls and NIST CSF and continually refined as new threats emerge."
 >

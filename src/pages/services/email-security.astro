@@ -81,15 +81,17 @@ const serviceSchema = {
     'Advanced email filtering in front of Microsoft 365 and Google Workspace, catching phishing, business email compromise, and malware before delivery.',
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'Cybersecurity', path: '/services/cybersecurity' },
   { name: 'Email Security', path: '/services/email-security' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Email Security & Phishing Protection"
   description="Email security for businesses across Northern Utah. AllTech filters phishing, business email compromise, and malware in front of Microsoft 365 and Google Workspace."
 >

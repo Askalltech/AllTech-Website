@@ -111,14 +111,16 @@ const serviceSchema = {
   description: 'AllTech provides managed cybersecurity for businesses in northern Utah — EDR, email security, AI-driven network detection (NDR), 24/7 SOC monitoring, penetration testing, and incident response.',
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'Cybersecurity', path: '/services/cybersecurity' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Cybersecurity Services"
   description="AllTech provides managed cybersecurity for businesses in northern Utah — EDR, email security, AI-driven network detection, 24/7 SOC monitoring, penetration testing, and incident response."
 >

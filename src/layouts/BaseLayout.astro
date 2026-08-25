@@ -6,6 +6,8 @@ import Header from '~/components/Header.astro';
 import Footer from '~/components/Footer.astro';
 import ClientLogos from '~/components/ClientLogos.astro';
 import GlobalBackground from '~/components/GlobalBackground.astro';
+import Breadcrumbs from '~/components/Breadcrumbs.astro';
+import type { BreadcrumbEntry } from '~/lib/schema';
 
 interface Props {
   title: string;
@@ -14,9 +16,10 @@ interface Props {
   noindex?: boolean;
   canonical?: string;
   ogType?: 'website' | 'article';
+  breadcrumbs?: BreadcrumbEntry[];
 }
 
-const { title, description, image, noindex, canonical, ogType } = Astro.props;
+const { title, description, image, noindex, canonical, ogType, breadcrumbs } = Astro.props;
 ---
 
 <!doctype html>
@@ -91,6 +94,11 @@ const { title, description, image, noindex, canonical, ogType } = Astro.props;
          backgrounds) already apply overflow-hidden locally to themselves —
          see e.g. any `surface-dark relative overflow-hidden` hero section. -->
     <main id="main-content" tabindex="-1" class="flex-1 relative">
+      {breadcrumbs && breadcrumbs.length > 0 && (
+        <div class="container-wide pt-6">
+          <Breadcrumbs crumbs={breadcrumbs} />
+        </div>
+      )}
       <slot />
     </main>
     <ClientLogos />

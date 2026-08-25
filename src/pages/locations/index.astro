@@ -3,13 +3,15 @@ import BaseLayout from '~/layouts/BaseLayout.astro';
 import { site } from '~/lib/site';
 import { buildBreadcrumbSchema } from '~/lib/schema';
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Service Area', path: '/locations' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Service Area — Northern Utah & Southern Idaho"
   description="AllTech provides managed IT, cybersecurity, and Cloudflare Zero Trust to businesses across Logan, Hyde Park, Smithfield, Tremonton, Brigham City, Preston, and the surrounding area."
 >

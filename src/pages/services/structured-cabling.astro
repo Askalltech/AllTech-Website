@@ -162,15 +162,17 @@ const faqSchema = {
   })),
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'Install', path: '/services/install' },
   { name: 'Structured Cabling', path: '/services/structured-cabling' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Structured Cabling in Logan & Northern Utah"
   description="Low-voltage structured cabling, Cat6/6A drops, fiber runs, racks, and server-room buildouts across Northern Utah. Certified, labeled, and documented — installed in-house, not subcontracted."
   canonical={`${site.url}/services/structured-cabling`}

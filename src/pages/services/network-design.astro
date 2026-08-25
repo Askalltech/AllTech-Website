@@ -94,14 +94,16 @@ const serviceSchema = {
   description: 'UniFi switching, business Wi-Fi design, firewall and multi-WAN routing, and site-to-site SD-WAN for businesses across northern Utah and southern Idaho.',
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'Network', path: '/services/network-design' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Business Network Design & Wi-Fi"
   description="UniFi switching, business Wi-Fi design, firewall and multi-WAN routing, and site-to-site SD-WAN for businesses across northern Utah and southern Idaho."
   canonical={`${site.url}/services/network-design`}

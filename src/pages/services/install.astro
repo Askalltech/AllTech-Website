@@ -123,14 +123,16 @@ const serviceSchema = {
   description: 'On-site low-voltage installation across northern Utah: UniFi Protect cameras, door access control, structured cabling, point-to-point wireless, and server-room buildouts.',
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'Install', path: '/services/install' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Low-Voltage Install — Cameras, Access Control & Cabling"
   description="On-site low-voltage installation across northern Utah: UniFi Protect cameras, door access control, structured cabling, point-to-point wireless, and server-room buildouts."
   canonical={`${site.url}/services/install`}

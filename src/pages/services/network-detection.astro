@@ -140,15 +140,17 @@ const serviceSchema = {
     'AI-driven network detection and response that learns the normal pattern of life for your network and flags deviations, catching lateral movement and C2 traffic that signature-based tools miss.',
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'Cybersecurity', path: '/services/cybersecurity' },
   { name: 'Network Detection (NDR)', path: '/services/network-detection' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Network Detection & Response (NDR)"
   description="Network detection and response for Northern Utah businesses. AllTech watches internal and outbound traffic and catches command-and-control your firewall allows."
 >

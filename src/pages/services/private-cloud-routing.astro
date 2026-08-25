@@ -162,15 +162,17 @@ const faqSchema = {
   })),
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'SASE Solutions', path: '/services/cloudflare-zero-trust' },
   { name: 'Private Cloud Routing', path: '/services/private-cloud-routing' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Private Cloud Routing — Cloudflare Tunnel & Private Networking"
   description="AllTech deploys Cloudflare Tunnel and private network routing — reach servers, RDP, SSH, and internal apps with no open inbound ports and no public IPs. Cloudflare Partner serving Northern Utah."
   canonical={`${site.url}/services/private-cloud-routing`}

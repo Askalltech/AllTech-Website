@@ -122,15 +122,17 @@ const serviceSchema = {
     '24/7 security monitoring across endpoint, network, and email signals, with alerts triaged by the same engineers who run your day-to-day IT.',
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'Cybersecurity', path: '/services/cybersecurity' },
   { name: 'Managed SOC', path: '/services/managed-soc' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Managed SOC — 24/7 Security Monitoring"
   description="A 24/7 security operations center for Northern Utah businesses. AllTech's SOC triages the alerts your security tools generate and calls you when one matters."
 >

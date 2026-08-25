@@ -129,15 +129,17 @@ const serviceSchema = {
     'External, internal, and web application penetration testing with plain-English reports, severity-ranked findings, and concrete remediation guidance.',
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'Cybersecurity', path: '/services/cybersecurity' },
   { name: 'Penetration Testing', path: '/services/penetration-testing' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Penetration Testing for Northern Utah Businesses"
   description="Internal and external penetration testing that finds what scanners miss. AllTech tests your network the way an attacker would, then retests to prove it's fixed."
 >

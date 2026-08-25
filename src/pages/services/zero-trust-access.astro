@@ -82,15 +82,17 @@ const faqSchema = {
   })),
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'SASE Solutions', path: '/services/cloudflare-zero-trust' },
   { name: 'Zero Trust Access (ZTNA)', path: '/services/zero-trust-access' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Zero Trust Access (ZTNA) — VPN Replacement"
   description="AllTech deploys Cloudflare Zero Trust Access with Tunnel and WARP to replace legacy VPNs — outbound-only connectivity, no open firewall ports, identity-aware access. Cloudflare Partner serving Northern Utah."
 >

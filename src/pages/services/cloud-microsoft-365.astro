@@ -131,15 +131,17 @@ const faqSchema = {
   })),
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'IT & Cloud', path: '/services/it-cloud' },
   { name: 'Microsoft 365', path: '/services/cloud-microsoft-365' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Microsoft 365 & Cloud"
   description="Microsoft 365 tenant design, email migration, Entra ID, Intune, and ongoing administration for Northern Utah businesses. Local engineers, hardened by default."
   canonical={`${site.url}/services/cloud-microsoft-365`}

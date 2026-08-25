@@ -108,15 +108,17 @@ const faqSchema = {
   })),
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'Network', path: '/services/network-design' },
   { name: 'Site-to-Site & SD-WAN', path: '/services/site-to-site-sd-wan' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Site-to-Site VPN & SD-WAN — Multi-Site Networking"
   description="AllTech designs and manages site-to-site VPN and SD-WAN for multi-location businesses in Northern Utah — IPsec and WireGuard tunnels, UniFi Site Magic, Cloudflare Magic WAN, multi-WAN failover, and one consistent network across every office."
   canonical={`${site.url}/services/site-to-site-sd-wan`}

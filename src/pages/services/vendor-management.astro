@@ -101,15 +101,17 @@ const faqSchema = {
   })),
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'IT & Cloud', path: '/services/it-cloud' },
   { name: 'Vendor Management', path: '/services/vendor-management' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Vendor Management for Business IT"
   description="AllTech handles your technology vendors — ISP, phones, line-of-business software, copiers, cameras — so your staff stops sitting on hold. One number, one team, Northern Utah."
   canonical={`${site.url}/services/vendor-management`}

@@ -1,0 +1,70 @@
+---
+/**
+ * Visible breadcrumb trail — the on-page counterpart to the BreadcrumbList
+ * JSON-LD every page already builds via buildBreadcrumbSchema (src/lib/schema.ts).
+ * Pass the exact same `crumbs` array to both.
+ *
+ * Adapted from shadcnblocks' breadcrumb-home-icon-1
+ * (`npx shadcn add @shadcnblocks/breadcrumb/breadcrumb-home-icon-1`), ported
+ * to plain Astro/HTML rather than kept as the fetched React primitives
+ * (src/components/ui/breadcrumb.tsx) — no state, no event handlers, so
+ * there's no reason to ship it as a client island. The ellipsis-for-long-
+ * trails behavior from the original demo was dropped: this site's deepest
+ * trail is 3 levels (Home / Services / a service page), never long enough
+ * to need collapsing.
+ */
+import type { BreadcrumbEntry } from '~/lib/schema';
+
+interface Props {
+  crumbs: BreadcrumbEntry[];
+}
+
+const { crumbs } = Astro.props;
+---
+
+<nav aria-label="Breadcrumb" class="text-sm">
+  <ol class="flex flex-wrap items-center gap-1.5 sm:gap-2.5">
+    {crumbs.map((crumb, i) => {
+      const isFirst = i === 0;
+      const isLast = i === crumbs.length - 1;
+      return (
+        <>
+          <li class="inline-flex items-center gap-1.5">
+            {isLast ? (
+              <span aria-current="page" class="font-medium" style="color: var(--color-text-primary)">
+                {isFirst && (
+                  <svg class="inline-block size-3.5 -mt-0.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
+                    <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                  </svg>
+                )}
+                {crumb.name}
+              </span>
+            ) : (
+              <a
+                href={crumb.path}
+                class="inline-flex items-center transition-colors hover:text-[var(--color-text-primary)]"
+                style="color: var(--color-text-muted)"
+              >
+                {isFirst && (
+                  <svg class="size-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
+                    <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                  </svg>
+                )}
+                {crumb.name}
+              </a>
+            )}
+          </li>
+          {!isLast && (
+            <li role="presentation" aria-hidden="true" class="flex items-center" style="color: var(--color-text-subtle)">
+              <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m9 18 6-6-6-6" />
+              </svg>
+            </li>
+          )}
+        </>
+      );
+    })}
+  </ol>
+</nav>

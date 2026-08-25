@@ -141,15 +141,17 @@ const faqSchema = {
   })),
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'SASE Solutions', path: '/services/cloudflare-zero-trust' },
   { name: 'Secure Web Gateway', path: '/services/secure-web-gateway' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Secure Web Gateway (SWG) — DNS & Web Filtering"
   description="AllTech deploys Cloudflare Gateway as a managed secure web gateway — DNS filtering, TLS inspection, malware and DLP scanning for every user, in the office or not. Cloudflare Partner serving Northern Utah."
 >

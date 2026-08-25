@@ -85,15 +85,17 @@ const serviceSchema = {
     'Business firewall configuration, VLAN segmentation, and multi-WAN failover. UniFi and Cloudflare-integrated edge security, deployed and managed by local engineers.',
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'Network', path: '/services/network-design' },
   { name: 'Firewall & Routing', path: '/services/firewall-routing' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Firewall & Routing — Edge Security & Multi-WAN Failover"
   description="Business firewall configuration, VLAN segmentation, and multi-WAN failover for Northern Utah businesses. UniFi and Cloudflare-integrated edge security, deployed and managed by local engineers."
   canonical={`${site.url}/services/firewall-routing`}

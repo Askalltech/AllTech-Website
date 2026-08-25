@@ -41,15 +41,17 @@ const serviceSchema = {
     'Data recovery for hard drives, SSDs, RAID arrays, NAS systems, and phones, plus digital forensic analysis for civil and criminal cases.',
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'IT & Cloud', path: '/services/it-cloud' },
   { name: 'Utah Data Recovery', path: '/services/utah-data-recovery' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Utah Data Recovery — Hard Drive, RAID, and Phone Recovery"
   description="Data recovery for hard drives, SSDs, RAID and NAS arrays, and phones, plus digital forensic analysis for civil and criminal cases."
   canonical={`${site.url}/services/utah-data-recovery`}
