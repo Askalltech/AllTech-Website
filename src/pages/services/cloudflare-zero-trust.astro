@@ -25,14 +25,16 @@ const serviceSchema = {
   description: 'Design, deployment, and ongoing management of Cloudflare Zero Trust networks including Tunnel, WARP, Gateway, Access, and Email Security.',
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'SASE Solutions', path: '/services/cloudflare-zero-trust' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Cloudflare Zero Trust Deployment"
   description="As a Cloudflare Partner, AllTech designs and deploys Zero Trust networks for multi-site businesses across northern Utah. Tunnels, WARP, Gateway, Access, Email Security."
 >

@@ -135,15 +135,17 @@ const faqSchema = {
   })),
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'Install', path: '/services/install' },
   { name: 'Security Cameras', path: '/services/security-cameras' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Security Cameras — Business Surveillance Install & Support"
   description="Business security camera systems for Northern Utah. Site-designed indoor and outdoor surveillance on UniFi Protect, installed on segmented networks by local engineers. Logan, Hyde Park, Brigham City, Tremonton, Preston."
   canonical={`${site.url}/services/security-cameras`}

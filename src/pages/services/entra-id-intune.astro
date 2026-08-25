@@ -102,15 +102,17 @@ const faqSchema = {
   })),
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'IT & Cloud', path: '/services/it-cloud' },
   { name: 'Entra ID & Intune', path: '/services/entra-id-intune' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Entra ID & Intune — Identity and Device Management"
   description="Entra ID and Intune management for Northern Utah businesses. Conditional access, MFA, device compliance, and managed enrollment — built and run by local engineers."
   canonical={`${site.url}/services/entra-id-intune`}

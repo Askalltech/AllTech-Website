@@ -142,14 +142,16 @@ const serviceSchema = {
   description: 'Outsourced IT for northern Utah businesses: local help desk, Datto RMM monitoring and patching, vendor management, Microsoft 365, Entra ID and Intune, and tested backup and disaster recovery.',
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'IT & Cloud', path: '/services/it-cloud' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Managed IT & Cloud Services"
   description="Outsourced IT for northern Utah businesses: local help desk, Datto RMM monitoring and patching, vendor management, Microsoft 365, Entra ID and Intune, and tested backup and disaster recovery."
   canonical={`${site.url}/services/it-cloud`}

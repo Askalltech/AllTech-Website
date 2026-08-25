@@ -83,15 +83,17 @@ const related = [
 // Must match a ContactForm checkbox value exactly or the deep link is inert.
 const contactHref = '/contact?service=Incident%20Response';
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'Cybersecurity', path: '/services/cybersecurity' },
   { name: 'Incident Response', path: '/services/incident-response' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Incident Response & Breach Containment"
   description="Incident response for Northern Utah businesses. AllTech contains active intrusions, removes attacker persistence, and tells you exactly what happened."
 >

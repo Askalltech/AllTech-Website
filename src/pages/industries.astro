@@ -32,13 +32,15 @@ const whoWeSupportSlides: SqueezeSlide[] = industries.map(({ slug, title, body }
   href: '/assessment',
 }));
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Industries', path: '/industries' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Industries We Support"
   description="AllTech runs the IT and cybersecurity for municipalities, government contractors, healthcare, legal, financial, manufacturing, dental, automotive, and growing organizations across Northern Utah."
 >

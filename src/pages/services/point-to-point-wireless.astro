@@ -141,15 +141,17 @@ const faqSchema = {
   })),
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'Install', path: '/services/install' },
   { name: 'Point-to-Point Wireless', path: '/services/point-to-point-wireless' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Point-to-Point Wireless — Building-to-Building Bridges"
   description="Point-to-point wireless bridges for Northern Utah businesses — path surveys, UniFi airMAX and Wave, and monitored links between buildings without trenching."
   canonical={`${site.url}/services/point-to-point-wireless`}

@@ -74,13 +74,15 @@ const serviceSchema = buildServiceSchema({
 
 const faqSchema = buildFaqSchema(faqs);
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Remote IT Support', path: '/remote-it-support' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Remote IT Support & Managed Services"
   description="Managed IT and cybersecurity delivered remotely: help desk, monitoring, cybersecurity, cloud, and backup and disaster recovery — with on-site visits available for hardware and installs."
   canonical={`${site.url}/remote-it-support`}

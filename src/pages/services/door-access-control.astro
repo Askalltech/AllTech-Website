@@ -110,15 +110,17 @@ const faqSchema = {
   })),
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'Install', path: '/services/install' },
   { name: 'Door Access Control', path: '/services/door-access-control' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Door Access Control Systems in Northern Utah"
   description="UniFi Access door entry for Northern Utah businesses. Card, fob, mobile, and keypad unlock, installed and managed by local engineers. Logan, Brigham City, Tremonton, Preston."
   canonical={`${site.url}/services/door-access-control`}

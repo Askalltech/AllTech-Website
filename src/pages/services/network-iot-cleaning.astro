@@ -53,15 +53,17 @@ const faqSchema = {
   })),
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'Install', path: '/services/install' },
   { name: 'Network & IoT Cleaning', path: '/services/network-iot-cleaning' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Network & IoT Device Cleaning"
   description="Physical cleaning and maintenance for network and IoT hardware — switches, access points, cameras, door readers, and rack interiors."
   canonical={`${site.url}/services/network-iot-cleaning`}

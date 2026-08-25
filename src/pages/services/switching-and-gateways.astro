@@ -178,15 +178,17 @@ const faqSchema = {
   })),
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'Network', path: '/services/network-design' },
   { name: 'Switching & Gateways', path: '/services/switching-and-gateways' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Business Switching & Gateways — UniFi Network Design"
   description="AllTech designs and installs business-grade switching and gateways — UniFi specialists, with PoE, VLAN segmentation, fiber uplinks, and multi-WAN failover. Northern Utah, on-site engineers."
   canonical={`${site.url}/services/switching-and-gateways`}

@@ -126,15 +126,17 @@ const faqSchema = {
   })),
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'IT & Cloud', path: '/services/it-cloud' },
   { name: 'Backup & Disaster Recovery', path: '/services/backup-disaster-recovery' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Backup & Disaster Recovery"
   description="Backup is only worth what it restores. AllTech builds and tests backup and disaster recovery for Northern Utah businesses. Book a restore test review."
   canonical={`${site.url}/services/backup-disaster-recovery`}

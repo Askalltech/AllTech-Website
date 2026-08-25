@@ -115,15 +115,17 @@ const faqSchema = {
   })),
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'Install', path: '/services/install' },
   { name: 'Rack & Server Rooms', path: '/services/rack-server-rooms' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Rack & Server Room Buildouts | Northern Utah"
   description="Server room and network rack buildouts in Northern Utah. Racking, power, cooling, cable management, and documentation done by the engineers who maintain it."
   canonical={`${site.url}/services/rack-server-rooms`}

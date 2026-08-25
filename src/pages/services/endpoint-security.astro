@@ -103,15 +103,17 @@ const serviceSchema = {
     'Managed EDR deployed and monitored across workstations and servers, with automated isolation of compromised endpoints, patching, and vulnerability remediation.',
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'Cybersecurity', path: '/services/cybersecurity' },
   { name: 'Endpoint Security', path: '/services/endpoint-security' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Endpoint Security & Managed EDR"
   description="Endpoint security for businesses across Northern Utah. AllTech runs managed EDR, antivirus, and DNS filtering on every workstation and server, with a 24/7 SOC reviewing the alerts."
 >

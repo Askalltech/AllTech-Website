@@ -51,15 +51,17 @@ const faqSchema = {
   })),
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'Install', path: '/services/install' },
   { name: 'Fiber Optic', path: '/services/fiber-optic' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="Fiber Optic Installation"
   description="Single-mode and multimode fiber installation, splicing, termination, and OTDR testing for building-to-building and campus links."
   canonical={`${site.url}/services/fiber-optic`}

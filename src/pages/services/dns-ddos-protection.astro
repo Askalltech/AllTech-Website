@@ -155,15 +155,17 @@ const faqSchema = {
   })),
 };
 
-const breadcrumbSchema = buildBreadcrumbSchema([
+const breadcrumbEntries = [
   { name: 'Home', path: '/' },
   { name: 'Services', path: '/services' },
   { name: 'SASE Solutions', path: '/services/cloudflare-zero-trust' },
   { name: 'DNS & DDoS Protection', path: '/services/dns-ddos-protection' },
-]);
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
+  breadcrumbs={breadcrumbEntries}
   title="DNS & DDoS Protection — Authoritative DNS & Attack Mitigation"
   description="AllTech runs Cloudflare authoritative DNS and DDoS mitigation as a managed service — anycast DNS, DNSSEC, always-on L3/4 and L7 attack absorption, WAF and rate limiting. Cloudflare Partner serving Northern Utah."
   canonical={`${site.url}/services/dns-ddos-protection`}
