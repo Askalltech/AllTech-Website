@@ -1,6 +1,7 @@
 ---
 import { site } from '~/lib/site';
 import { menuCategories, simpleNavLinks } from '~/lib/menu';
+import { industries } from '~/lib/industries';
 import ThemeToggle from './ThemeToggle.astro';
 
 const pathname = Astro.url.pathname;
@@ -129,6 +130,72 @@ const isActive = (href: string) =>
         </div>
       </div>
 
+      <!-- ===================================================================
+           MEGA ZONE — "Industries" trigger + a narrow single-column panel.
+           Own independent zone (not sharing the Services panel above), so it
+           gets its own reveal state and its own (narrower) panel width via
+           .mega-panel-narrow. Each item links to /#<slug>; the homepage's
+           SqueezeCarousel (src/components/SqueezeCarousel.tsx) opens that
+           industry's slide and scrolls to it when the hash matches.
+           =================================================================== -->
+      <div class="mega-zone h-16">
+        <a
+          href="/#who-we-support"
+          class:list={[
+            'mega-trigger flex items-center gap-1 whitespace-nowrap px-3.5 py-2 text-sm font-medium rounded-md transition',
+            'text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]',
+          ]}
+        >
+          Industries
+          <svg class="w-3.5 h-3.5 opacity-60" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+            <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </a>
+
+        <div class="mega-panel absolute left-1/2 top-full pt-3 z-50" role="group" aria-label="Industries">
+          <div
+            class="mega-panel-narrow rounded-xl shadow-2xl overflow-hidden backdrop-blur-xl backdrop-saturate-150 bg-white/97 dark:bg-black/94"
+            style="border: 1px solid var(--color-border-subtle); box-shadow: 0 24px 64px -16px rgba(0,0,0,0.6);"
+          >
+            <ul class="p-3">
+              {industries.map((industry) => (
+                <li>
+                  <a
+                    href={`/#${industry.slug}`}
+                    class="group block -mx-2 px-3.5 py-2.5 rounded-md transition"
+                    onmouseenter="this.style.background='var(--color-bg-elevated)'"
+                    onmouseleave="this.style.background='transparent'"
+                  >
+                    <div
+                      class="font-medium text-[13px] leading-tight group-hover:text-[var(--color-amber-300)] transition"
+                      style="color: var(--color-text-primary);"
+                    >
+                      {industry.title}
+                    </div>
+                  </a>
+                </li>
+              ))}
+            </ul>
+
+            <div
+              class="px-4 py-3 flex items-center justify-between border-t"
+              style="background: var(--color-bg-page); border-color: var(--color-border-subtle)"
+            >
+              <span class="text-[11px] font-mono uppercase tracking-[0.18em]" style="color: var(--color-text-subtle)">
+                Who we support
+              </span>
+              <a
+                href="/#who-we-support"
+                class="inline-flex items-center gap-1.5 text-xs font-medium transition"
+                style="color: var(--color-amber-300)"
+              >
+                See all <span aria-hidden="true">→</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Divider + simple links -->
       <div class="mx-3 h-5 w-px" style="background: var(--color-border-subtle)"></div>
       {simpleNavLinks.map((link) => (
@@ -211,6 +278,28 @@ const isActive = (href: string) =>
           </div>
         </details>
       ))}
+      <details class="group">
+        <summary
+          class="flex items-center justify-between cursor-pointer py-3 font-medium"
+          style="color: var(--color-text-primary)"
+        >
+          <span>Industries</span>
+          <svg class="w-4 h-4 transition group-open:rotate-180" viewBox="0 0 12 12" fill="none">
+            <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </summary>
+        <div class="pl-3 pb-3 space-y-1">
+          {industries.map((industry) => (
+            <a
+              href={`/#${industry.slug}`}
+              class="block py-2 text-sm"
+              style="color: var(--color-text-muted)"
+            >
+              {industry.title}
+            </a>
+          ))}
+        </div>
+      </details>
       <div class="hairline my-3"></div>
       {simpleNavLinks.map((link) => (
         <a href={link.href} class="block py-2.5 font-medium" style="color: var(--color-text-primary)">

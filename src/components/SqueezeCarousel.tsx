@@ -183,6 +183,7 @@ export function SqueezeCarousel({
     const ids = useId();
     const seed = useRef(0);
     const strip = useRef<HTMLDivElement>(null);
+    const root = useRef<HTMLDivElement>(null);
 
     /* --- the strip -------------------------------------------------------- */
 
@@ -285,6 +286,20 @@ export function SqueezeCarousel({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open]);
 
+    // Landing here with a slide's id in the URL hash (e.g. the nav's
+    // Industries dropdown linking to /#manufacturing) opens that slide and
+    // scrolls it into view, instead of always starting on `defaultIndex`.
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        const hash = window.location.hash.slice(1);
+        if (!hash) return;
+        const idx = slides.findIndex((s) => String(s.id) === hash);
+        if (idx <= 0) return;
+        step(idx);
+        root.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     /* --- autoplay --------------------------------------------------------- */
 
     const [paused, setPaused] = useState(false);
@@ -347,6 +362,7 @@ export function SqueezeCarousel({
 
     return (
         <div
+            ref={root}
             className={cn("flex w-full flex-col", className)}
             // The breakpoints and widths below read the width this carousel is
             // given, not the width of the window.

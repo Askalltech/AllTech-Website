@@ -5,20 +5,11 @@ import Icon from '~/components/Icon.astro';
 import { BorderBeamPanel } from '~/components/BorderBeamPanel';
 import { SqueezeCarousel, type SqueezeSlide } from '~/components/SqueezeCarousel';
 import { services, site, serviceLink } from '~/lib/site';
+import { industries } from '~/lib/industries';
 
 const featured = services.find((s) => s.featured);
 // Second section embeds the Services page (all non-featured services).
 const rest = services.filter((s) => !s.featured);
-
-// Section 01 — who we actually work with, described by real operational
-const whoWeSupport = [
-  ['01', 'Manufacturing', "Production lines that can't afford downtime, specialty software that's picky about updates, and machines on the floor that still need a network connection. We know better than to push a patch in the middle of a shift."],
-  ['02', 'Healthcare', "Patient records, scheduling systems, and compliance requirements that don't leave much room for error. We handle the technical side of keeping that data secure so your staff can focus on patients."],
-  ['03', 'Professional Services', 'Law firms, accounting practices, and title companies need email, file access, and video calls to just work — plus the confidentiality their clients expect.'],
-  ['04', 'Multi-Location Organizations', 'Consistent support and security across every site, even the ones without IT staff of their own. One standard, wherever you open next.'],
-  ['05', 'Nonprofits', "Real infrastructure and security on a budget that doesn't match a for-profit company's, without cutting corners on what protects your donor and client data."],
-  ['06', 'Growing Businesses', 'The point where email, invoicing, and a shared drive stop being enough. We help you build the network and security foundation before you outgrow it twice.'],
-];
 
 // No client photography per industry yet — panels use on-brand gradients
 // (the site's own amber/teal tokens) instead of stock/generic imagery.
@@ -31,8 +22,10 @@ const industryBackgrounds = [
   'linear-gradient(135deg, var(--color-teal-500), var(--color-amber-600))',
 ];
 
-const whoWeSupportSlides: SqueezeSlide[] = whoWeSupport.map(([n, title, body], i) => ({
-  id: n,
+// Section 01 — who we actually work with, described by real operational
+// content (src/lib/industries.ts — shared with the nav's Industries dropdown).
+const whoWeSupportSlides: SqueezeSlide[] = industries.map(({ slug, title, body }, i) => ({
+  id: slug,
   title,
   description: body,
   background: industryBackgrounds[i],
@@ -156,7 +149,7 @@ const whyClientsChooseUs = [
   </section>
 
   <!-- ============ SECTION 1 · WHO WE SUPPORT ============ -->
-  <section class="py-24 lg:py-32 scroll-mt-20">
+  <section id="who-we-support" class="py-24 lg:py-32 scroll-mt-20">
     <div class="container-wide">
       <SegmentHeader index="01" label="Who we support" />
       <div class="max-w-2xl mb-14">
@@ -171,7 +164,10 @@ const whyClientsChooseUs = [
         </p>
       </div>
 
-      <SqueezeCarousel slides={whoWeSupportSlides} label="Who we support" client:visible />
+      <!-- client:load, not client:visible — the hash-driven initial slide
+           (see SqueezeCarousel.tsx) needs to hydrate and scroll itself into
+           view even when it starts off-screen below the hero. -->
+      <SqueezeCarousel slides={whoWeSupportSlides} label="Who we support" client:load />
     </div>
   </section>
 
