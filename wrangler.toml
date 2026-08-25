@@ -1,4 +1,4 @@
-name = "demo-alltech"
+name = "alltech-website"
 compatibility_date = "2025-09-01"
 compatibility_flags = ["nodejs_compat"]
 main = "./dist/_worker.js/index.js"
