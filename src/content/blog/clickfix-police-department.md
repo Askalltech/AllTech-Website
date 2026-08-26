@@ -3,6 +3,10 @@ title: "What a ClickFix Attack Looks Like From the Inside"
 description: "A high-severity alert at a small-town Utah police department began with something deceptively ordinary: a user ran a command. Here's how it was detected, investigated, and closed in about 15 minutes."
 pubDate: 2026-08-07
 author: "AllTech"
+heroImage: "/insights/clickfix-police-department.webp"
+heroImageCredit:
+  name: "Shahadat Rahman"
+  url: "https://unsplash.com/photos/shallow-focus-photography-of-computer-codes-BfrQnKBulYQ"
 tags: ["incident response", "cybersecurity", "case study", "managed soc"]
 ---
 
