@@ -83,6 +83,8 @@ export const industries: Industry[] = [
     slug: 'automotive',
     title: 'Automotive Dealerships',
     body: "DMS integrations, FTC Safeguards Rule compliance, and a sales floor that can't afford a network hiccup during a deal. Multi-location support that keeps every store on the same standard.",
+    image: '/industries/automotive-tile.webp',
+    photoCredit: { name: 'Erik Mclean', url: 'https://unsplash.com/photos/white-concrete-building-during-night-time-v31xA0n0Mw0' },
   },
   {
     slug: 'architecture-engineering',
