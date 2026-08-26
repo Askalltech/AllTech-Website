@@ -42,7 +42,13 @@ const SonicWaveformCanvas = ({ animate }: { animate: boolean }) => {
         ctx.beginPath();
         const progress = i / lineCount;
         const colorIntensity = Math.sin(progress * Math.PI);
-        ctx.strokeStyle = `rgba(45, 212, 191, ${colorIntensity * 0.55})`;
+        // rgb(21, 160, 107) is --color-success (global.css) — the site's
+        // blue accent (--color-amber-400) is also the hero's highlighted-
+        // title color, so using it here made the waveform swallow that
+        // text wherever the two overlapped. Success green is on-brand
+        // (already paired with amber/teal in industries.astro's gradients)
+        // but a different enough hue to stay legible behind blue text.
+        ctx.strokeStyle = `rgba(21, 160, 107, ${colorIntensity * 0.55})`;
         ctx.lineWidth = 1.5;
 
         for (let j = 0; j < segmentCount + 1; j++) {
