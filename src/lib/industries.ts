@@ -62,13 +62,13 @@ export const industries: Industry[] = [
     slug: 'healthcare',
     title: 'Healthcare Organizations',
     body: "Patient records, scheduling systems, and compliance requirements that don't leave much room for error. We handle the technical side of keeping that data secure so your staff can focus on patients.",
-    image: '/industries/healthcare-tile.webp',
-    photoCredit: { name: 'Kari Bjorn Photography', url: 'https://unsplash.com/photos/a-hospital-room-with-medical-equipment-in-it-yJsMOVwazRU' },
   },
   {
     slug: 'dental',
     title: 'Dental Offices & Practices',
     body: "Practice management software, imaging systems, and patient data under the same HIPAA requirements as a hospital — sized and priced for a single-location practice, not an enterprise health system.",
+    image: '/industries/dental-tile.webp',
+    photoCredit: { name: 'Kari Bjorn Photography', url: 'https://unsplash.com/photos/a-hospital-room-with-medical-equipment-in-it-yJsMOVwazRU' },
   },
   {
     slug: 'manufacturing',
