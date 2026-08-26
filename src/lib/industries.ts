@@ -8,10 +8,18 @@
  * hash matches (see SqueezeCarousel.tsx's initial-hash handling).
  */
 
+export interface IndustryPhotoCredit {
+  name: string;
+  url: string;
+}
+
 export interface Industry {
   slug: string;
   title: string;
   body: string;
+  /** Path under /public. Panels without one fall back to a gradient (see industries.astro). */
+  image?: string;
+  photoCredit?: IndustryPhotoCredit;
 }
 
 export const industries: Industry[] = [
@@ -19,11 +27,15 @@ export const industries: Industry[] = [
     slug: 'municipalities',
     title: 'Municipalities & Special Districts',
     body: "Public records requests, budget cycles, and a small (or one-person) IT team covering everything from the water district to city hall. We work within public-sector procurement and reporting requirements instead of around them.",
+    image: '/industries/municipalities-tile.webp',
+    photoCredit: { name: 'Dennis Zhang', url: 'https://unsplash.com/photos/historic-building-with-mountains-in-the-background-DoQClej5odE' },
   },
   {
     slug: 'government-contractors',
     title: 'Government Contractors',
     body: "CMMC and NIST 800-171 aren't optional line items when your contracts depend on them. We scope and maintain the controls that keep controlled unclassified information where it belongs.",
+    image: '/industries/government-contractors-tile.webp',
+    photoCredit: { name: 'Vishnu Mohanan', url: 'https://unsplash.com/photos/close-up-of-dark-blue-circuit-board-pfR18JNEMv8' },
   },
   {
     slug: 'nonprofits',

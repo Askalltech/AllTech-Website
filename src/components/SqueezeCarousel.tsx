@@ -34,6 +34,12 @@ export type SqueezeSlide = {
     background?: string;
     /** Sits in the corner of the open panel: a wordmark, a logo, a caption. */
     overlay?: ReactNode;
+    /** Small attribution link over the photo's bottom-left corner, independently
+     * clickable. Plain data (not a ReactNode) — elements built outside this
+     * component can't survive the Astro-to-React hydration boundary (they
+     * arrive as inert serialized objects, not real elements) or the child
+     * would need to be a string/number. */
+    photoCredit?: { name: string; url: string };
     /** Text on the button. No text, no button. */
     action?: string;
     /** Where the button goes. */
@@ -453,6 +459,24 @@ export function SqueezeCarousel({
                                     >
                                         {slide.overlay}
                                     </span>
+                                )}
+
+                                {slide.photoCredit && (
+                                    <a
+                                        href={slide.photoCredit.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer nofollow"
+                                        className="absolute top-2 left-2 z-20 rounded px-1.5 py-0.5 text-[10px] leading-none text-white/70 transition hover:text-white"
+                                        style={{
+                                            background: "rgba(0,0,0,0.35)",
+                                            opacity: front ? 1 : 0,
+                                            pointerEvents: front ? "auto" : "none",
+                                            transition: `opacity var(--sq-ms) var(--sq-ease)`,
+                                        }}
+                                        onClick={(e) => e.stopPropagation()}
+                                    >
+                                        Photo: {slide.photoCredit.name}
+                                    </a>
                                 )}
                             </button>
                         );
