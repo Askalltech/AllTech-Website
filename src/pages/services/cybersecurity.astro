@@ -143,8 +143,14 @@ const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
   <!-- Hero -->
   <section class="surface-dark relative overflow-hidden">
+    <!-- client:load, not client:visible — this is the page's hero, always in
+         the initial viewport. client:visible defers hydration until an
+         IntersectionObserver fires, so the canvas waveform (blank until its
+         useEffect runs) and the framer-motion fade-in (SSR-rendered at
+         opacity 0) sat unrendered a beat too long, showing as a blank flash
+         when scrolling back up to the top. -->
     <SonicWaveformHero
-      client:visible
+      client:load
       eyebrow="Cybersecurity · Managed Security Services"
       title="Security run by engineers who"
       highlightedTitle="know your environment."
