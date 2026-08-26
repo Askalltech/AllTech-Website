@@ -97,6 +97,8 @@ export const industries: Industry[] = [
     slug: 'multi-location',
     title: 'Multi-Location Organizations',
     body: 'Consistent support and security across every site, even the ones without IT staff of their own. One standard, wherever you open next.',
+    image: '/industries/multi-location-tile.webp',
+    photoCredit: { name: 'Bernd Dittrich', url: 'https://unsplash.com/photos/an-office-with-a-lot-of-desks-and-chairs-pYlBAu3de0w' },
   },
   {
     slug: 'growing-businesses',
