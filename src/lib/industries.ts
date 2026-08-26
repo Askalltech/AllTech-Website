@@ -76,6 +76,8 @@ export const industries: Industry[] = [
     slug: 'manufacturing',
     title: 'Manufacturing & Industrial Organizations',
     body: "Production lines that can't afford downtime, specialty software that's picky about updates, and machines on the floor that still need a network connection. We know better than to push a patch in the middle of a shift.",
+    image: '/industries/manufacturing-tile.webp',
+    photoCredit: { name: 'AFINIS Group', url: 'https://unsplash.com/photos/a-computer-monitor-sitting-on-top-of-a-machine-l7N5LtXfPwU' },
   },
   {
     slug: 'automotive',
