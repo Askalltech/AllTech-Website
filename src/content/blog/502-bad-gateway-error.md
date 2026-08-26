@@ -4,6 +4,9 @@ description: "A 502 bad gateway error means a server in your request chain got a
 pubDate: 2026-08-14
 author: "AllTech"
 heroImage: "/insights/502-bad-gateway-error.webp"
+heroImageCredit:
+  name: "Dale Choi"
+  url: "https://unsplash.com/photos/white-and-black-concrete-building-under-white-sky-during-daytime-dAttgwmZaKM"
 tags: ["IT Support", "troubleshooting", "web hosting", "networking", "managed IT"]
 draft: false
 ---
