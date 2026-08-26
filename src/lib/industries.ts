@@ -90,6 +90,8 @@ export const industries: Industry[] = [
     slug: 'architecture-engineering',
     title: 'Architecture, Engineering & Professional Services',
     body: "Large CAD and BIM files, render farms, and client deliverables on a deadline. Accounting practices and title companies need the same thing in a different shape: email, file access, and the confidentiality clients expect.",
+    image: '/industries/architecture-engineering-tile.webp',
+    photoCredit: { name: 'EnCata PD', url: 'https://unsplash.com/photos/two-metal-mechanical-parts-on-engineering-blueprints-SRqJ3eli-4I' },
   },
   {
     slug: 'multi-location',
