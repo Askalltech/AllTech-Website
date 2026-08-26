@@ -62,6 +62,8 @@ export const industries: Industry[] = [
     slug: 'healthcare',
     title: 'Healthcare Organizations',
     body: "Patient records, scheduling systems, and compliance requirements that don't leave much room for error. We handle the technical side of keeping that data secure so your staff can focus on patients.",
+    image: '/industries/healthcare-tile.webp',
+    photoCredit: { name: 'National Cancer Institute', url: 'https://unsplash.com/photos/person-sitting-while-using-laptop-computer-and-green-stethoscope-near-NFvdKIhxYlU' },
   },
   {
     slug: 'dental',
