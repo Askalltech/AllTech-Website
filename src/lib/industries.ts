@@ -41,6 +41,8 @@ export const industries: Industry[] = [
     slug: 'nonprofits',
     title: 'Nonprofits & Associations',
     body: "Real infrastructure and security on a budget that doesn't match a for-profit company's, without cutting corners on what protects your donor and member data.",
+    image: '/industries/nonprofits-tile.webp',
+    photoCredit: { name: 'Compagnons', url: 'https://unsplash.com/photos/man-in-black-jacket-sitting-beside-black-flat-screen-computer-monitor-rWE7bTqgMJE' },
   },
   {
     slug: 'law-firms',
