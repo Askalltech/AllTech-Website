@@ -48,6 +48,8 @@ export const industries: Industry[] = [
     slug: 'law-firms',
     title: 'Law Firms & Legal Services',
     body: "Case management systems, e-discovery, and client confidentiality that can't be an afterthought. Email, file access, and video calls that just work — plus the privilege your clients assume is already protected.",
+    image: '/industries/law-firms-tile.webp',
+    photoCredit: { name: 'Tingey Injury Law Firm', url: 'https://unsplash.com/photos/woman-holding-sword-statue-during-daytime-DZpc4UY8ZtY' },
   },
   {
     slug: 'financial-services',
