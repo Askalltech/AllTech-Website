@@ -386,6 +386,34 @@
   padding-left: 1.25rem; margin: 1.5rem 0;
   font-style: italic; color: var(--color-text-muted);
 }
+/* Markdown tables render as a bare <table> with no styling of their own —
+   this was rendering as unbordered, uneven text with no visual separation
+   between the header row and data. display:block (rather than a wrapper
+   div) lets the table itself scroll horizontally on narrow viewports,
+   since prose-alltech's 65ch max-width is narrower than most real tables. */
+.prose-alltech table {
+  display: block;
+  overflow-x: auto;
+  width: 100%;
+  margin: 1.75rem 0;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+.prose-alltech th, .prose-alltech td {
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--color-border-subtle);
+  text-align: left;
+  vertical-align: top;
+}
+.prose-alltech thead th {
+  background: var(--color-bg-elevated);
+  color: var(--color-text-primary);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.prose-alltech tbody tr:nth-child(even) {
+  background: var(--color-bg-elevated);
+}
 
 /* ============================================================
    Compatibility aliases

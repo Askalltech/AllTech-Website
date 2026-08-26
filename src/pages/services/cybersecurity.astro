@@ -12,6 +12,8 @@ const capabilities: Services21Item[] = [
     title: 'AllTech Top 10',
     href: '/services/alltech-top-10',
     icon: 'ListChecks',
+    image: '/services/alltech-top-10-tile.webp',
+    photoCredit: { name: 'Spencer Plouzek', url: 'https://unsplash.com/photos/abstract-metallic-waves-with-light-reflections-3XedXWsdm4s' },
     ctaLabel: 'AllTech Top 10',
     description: [
       'A pre-selected set of essential security controls for small and mid-sized businesses, mapped to CIS Controls and NIST CSF.',
@@ -25,6 +27,8 @@ const capabilities: Services21Item[] = [
     title: 'Endpoint Security',
     href: '/services/endpoint-security',
     icon: 'ShieldCheck',
+    image: '/services/endpoint-security-tile.webp',
+    photoCredit: { name: 'Robin van der Wal', url: 'https://unsplash.com/photos/wavy-metallic-lines-create-an-abstract-silver-pattern-viYKN_om1YM' },
     ctaLabel: 'Endpoint Security & Managed EDR',
     description: [
       'EDR deployed and monitored across workstations and servers via Datto RMM — real-time threat detection, not signature-only antivirus.',
@@ -38,6 +42,8 @@ const capabilities: Services21Item[] = [
     title: 'Email Security',
     href: '/services/email-security',
     icon: 'Mail',
+    image: '/services/email-security-tile.webp',
+    photoCredit: { name: 'Arturo Castaneyra', url: 'https://unsplash.com/photos/spiral-gray-steel-tunnel-o-dkYSvidB4' },
     ctaLabel: 'Email Security & Phishing Protection',
     description: [
       'Advanced filtering in front of Microsoft 365 and Google Workspace — catches phishing, BEC, and malware before delivery.',
@@ -51,6 +57,8 @@ const capabilities: Services21Item[] = [
     title: 'Network Detection & Response',
     href: '/services/network-detection',
     icon: 'Radar',
+    image: '/services/network-detection-tile.webp',
+    photoCredit: { name: 'R Ra', url: 'https://unsplash.com/photos/a-close-up-of-a-wall-with-lines-on-it-O-8Fmpx7HqQ' },
     ctaLabel: 'Network Detection & Response',
     description: [
       'AI-driven Network Detection & Response (NDR) — learns the normal pattern of life for your network and flags deviations, not just known signatures.',
@@ -64,6 +72,8 @@ const capabilities: Services21Item[] = [
     title: 'Managed SOC',
     href: '/services/managed-soc',
     icon: 'Eye',
+    image: '/services/managed-soc-tile.webp',
+    photoCredit: { name: 'Declan Sun', url: 'https://unsplash.com/photos/a-wooden-spiral-staircase-viewed-from-above-aW5DB2T4r4o' },
     ctaLabel: 'Managed SOC & 24/7 Monitoring',
     description: [
       '24/7 monitoring across endpoint, network, and email signals.',
@@ -77,6 +87,8 @@ const capabilities: Services21Item[] = [
     title: 'Penetration Testing',
     href: '/services/penetration-testing',
     icon: 'Target',
+    image: '/services/penetration-testing-tile.webp',
+    photoCredit: { name: 'Declan Sun', url: 'https://unsplash.com/photos/a-room-with-a-lamp-and-a-curtain-AM5z4MaTlwg' },
     ctaLabel: 'Penetration Testing',
     description: [
       'Conducted via vPenTest — external, internal, and web application testing.',
@@ -91,6 +103,8 @@ const capabilities: Services21Item[] = [
     title: 'Incident Response',
     href: '/services/incident-response',
     icon: 'Siren',
+    image: '/services/incident-response-tile.webp',
+    photoCredit: { name: 'DL314 Lin', url: 'https://unsplash.com/photos/a-close-up-of-a-wall-made-of-wavy-lines-28M_Ugm8UrM' },
     ctaLabel: 'Incident Response & Breach Containment',
     description: [
       'Active investigation and containment — not just "restore from backup and hope."',
@@ -129,8 +143,14 @@ const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
   <!-- Hero -->
   <section class="surface-dark relative overflow-hidden">
+    <!-- client:load, not client:visible — this is the page's hero, always in
+         the initial viewport. client:visible defers hydration until an
+         IntersectionObserver fires, so the canvas waveform (blank until its
+         useEffect runs) and the framer-motion fade-in (SSR-rendered at
+         opacity 0) sat unrendered a beat too long, showing as a blank flash
+         when scrolling back up to the top. -->
     <SonicWaveformHero
-      client:visible
+      client:load
       eyebrow="Cybersecurity · Managed Security Services"
       title="Security run by engineers who"
       highlightedTitle="know your environment."
