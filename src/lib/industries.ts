@@ -55,6 +55,8 @@ export const industries: Industry[] = [
     slug: 'financial-services',
     title: 'Financial Services',
     body: "Uptime for transactions that can't wait, fraud controls that actually get monitored, and compliance (GLBA, PCI) treated as an ongoing posture, not a once-a-year audit scramble.",
+    image: '/industries/financial-services-tile.webp',
+    photoCredit: { name: 'Kelly Sikkema', url: 'https://unsplash.com/photos/tax-forms-and-calculator-on-a-desk-QDwagaLNco4' },
   },
   {
     slug: 'healthcare',
