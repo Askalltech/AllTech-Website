@@ -23,11 +23,12 @@ const industryBackgrounds = [
 
 // Moved here from the homepage — this is now the Industries nav dropdown's
 // actual landing page (src/lib/industries.ts is shared between the two).
-const whoWeSupportSlides: SqueezeSlide[] = industries.map(({ slug, title, body }, i) => ({
+const whoWeSupportSlides: SqueezeSlide[] = industries.map(({ slug, title, body, image, photoCredit }, i) => ({
   id: slug,
   title,
   description: body,
-  background: industryBackgrounds[i],
+  ...(image ? { image, imageAlt: title } : { background: industryBackgrounds[i] }),
+  photoCredit,
   action: 'Scope your environment',
   href: '/assessment',
 }));
