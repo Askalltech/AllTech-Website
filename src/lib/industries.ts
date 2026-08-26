@@ -104,5 +104,7 @@ export const industries: Industry[] = [
     slug: 'growing-businesses',
     title: 'Growing Businesses',
     body: 'The point where email, invoicing, and a shared drive stop being enough. We help you build the network and security foundation before you outgrow it twice.',
+    image: '/industries/growing-businesses-tile.webp',
+    photoCredit: { name: 'Steph Quernemoen', url: 'https://unsplash.com/photos/thank-you-for-supporting-local-sign-on-window-2vBTXkv-N20' },
   },
 ];
