@@ -1,26 +1,25 @@
 /**
- * Shared sender for /api/contact and /api/assessment, built on Cloudflare's
- * own Email Routing "Send Email" binding — no third-party transactional
- * provider (Resend/Postmark/etc.) needed.
+ * Shared sender for /api/contact and /api/assessment, built on Resend's
+ * REST API (https://resend.com/docs/api-reference/emails/send-email) via a
+ * plain `fetch` call — no SDK dependency, since this runs in the Workers
+ * runtime where a lightweight fetch is preferable to a Node-oriented client.
  *
- * Requires, per environment (see wrangler.toml):
- *   - a `send_email` binding named SEND_EMAIL
- *   - the `from` domain added and verified under Email Routing
- *   - the `to` address listed in that binding's `allowed_destination_addresses`
- *     (Cloudflare enforces this at the binding level, not just at send time)
+ * Cloudflare's own "Send Email" Worker binding was tried first, but its
+ * destination-address verification piggybacks on Cloudflare Email Routing,
+ * which requires taking over the domain's MX records — askalltech.com's MX
+ * is already Cloudflare Email Security, fronting the company's real mailbox
+ * (Microsoft 365). Replacing that MX to satisfy a contact-form binding would
+ * risk breaking live inbound company email, so Resend is used instead:
+ * mail *sending* only needs SPF/DKIM (TXT/CNAME) records, which coexist with
+ * any existing MX setup without touching it.
  *
- * Locally (`astro dev`), the SSR code runs under plain Node rather than
- * workerd, which can't resolve the `cloudflare:email` built-in module at
- * all — platformProxy only simulates the *binding's presence/absence*, not
- * the runtime. So the import below is deferred until we already know a
- * binding exists (i.e. we're actually deployed on Cloudflare); dev without
- * the binding configured never touches it and just logs instead.
+ * Requires, per environment:
+ *   - RESEND_API_KEY env var (a Resend API key)
+ *   - CONTACT_FROM on a domain verified as a sending domain in Resend
  */
 
-import { createMimeMessage, Mailbox } from 'mimetext';
-
-/** Thrown when the binding exists but the send itself failed. Routes catch
- * this and return a clean 502 rather than letting it escape as a 500. */
+/** Thrown when the API key is present but the send itself failed. Routes
+ * catch this and return a clean 502 rather than letting it escape as a 500. */
 export class EmailSendError extends Error {
   constructor(readonly reason: unknown) {
     super('Email delivery failed');
@@ -28,12 +27,8 @@ export class EmailSendError extends Error {
   }
 }
 
-export interface SendEmailBinding {
-  send(message: import('cloudflare:email').EmailMessage): Promise<void>;
-}
-
 interface SendEmailArgs {
-  binding?: SendEmailBinding;
+  apiKey?: string;
   to?: string;
   from?: string;
   replyTo?: string;
@@ -41,39 +36,46 @@ interface SendEmailArgs {
   text: string;
 }
 
-export async function sendEmail({ binding, to, from, replyTo, subject, text }: SendEmailArgs) {
-  if (!binding || !to || !from) {
+export async function sendEmail({ apiKey, to, from, replyTo, subject, text }: SendEmailArgs) {
+  if (!apiKey || !to || !from) {
     console.log(
-      `[email] Not sent — SEND_EMAIL binding, CONTACT_FROM, or the forward-to address isn't configured.\n` +
+      `[email] Not sent — RESEND_API_KEY, CONTACT_FROM, or the forward-to address isn't configured.\n` +
         `To: ${to ?? '(unset)'}\nFrom: ${from ?? '(unset)'}\nSubject: ${subject}\n\n${text}`,
     );
     return;
   }
 
-  const { EmailMessage } = await import('cloudflare:email');
-
-  const msg = createMimeMessage();
-  msg.setSender({ addr: from });
-  msg.setRecipient(to);
-  // Reply-To is a *known* header in mimetext, validated with
-  // validateMailboxSingle — passing a plain string throws
-  // 'The value for the header "Reply-To" is invalid.' and, because that
-  // happens on every submission with an email address (i.e. all of them),
-  // it silently dropped every inquiry. It must be a Mailbox instance.
-  if (replyTo) msg.setHeader('Reply-To', new Mailbox(replyTo));
-  msg.setSubject(subject);
-  msg.addMessage({ contentType: 'text/plain', data: text });
-
+  let res: Response;
   try {
-    await binding.send(new EmailMessage(from, to, msg.asRaw()));
+    res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from,
+        to: [to],
+        ...(replyTo ? { reply_to: replyTo } : {}),
+        subject,
+        text,
+      }),
+    });
   } catch (err) {
-    // Log the full message before rethrowing: a delivery failure should still
-    // leave the lead recoverable from logs rather than vanishing.
     console.error(
-      `[email] Delivery FAILED — the inquiry below was not sent.\n` +
+      `[email] Delivery FAILED (network error) — the inquiry below was not sent.\n` +
         `To: ${to}\nFrom: ${from}\nSubject: ${subject}\n\n${text}`,
       err,
     );
     throw new EmailSendError(err);
+  }
+
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    console.error(
+      `[email] Delivery FAILED (Resend ${res.status}) — the inquiry below was not sent.\n` +
+        `To: ${to}\nFrom: ${from}\nSubject: ${subject}\n\n${text}\n\nResend response: ${body}`,
+    );
+    throw new EmailSendError(new Error(`Resend API returned ${res.status}: ${body}`));
   }
 }
