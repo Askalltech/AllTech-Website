@@ -149,7 +149,7 @@ const serviceSchema = {
   areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
   name: 'Private Cloud Routing — Cloudflare Tunnel & Private Networking',
   description:
-    'AllTech deploys Cloudflare Tunnel and private network routing — reach servers, RDP, SSH, and internal apps with no open inbound ports and no public IPs.',
+    'AllTech deploys Cloudflare Tunnel and private network routing — reach servers, RDP, SSH, and internal apps with no open inbound ports or public IPs.',
 };
 
 const faqSchema = {
@@ -174,7 +174,7 @@ const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 <BaseLayout
   breadcrumbs={breadcrumbEntries}
   title="Private Cloud Routing — Cloudflare Tunnel & Private Networking"
-  description="AllTech deploys Cloudflare Tunnel and private network routing — reach servers, RDP, SSH, and internal apps with no open inbound ports and no public IPs. Cloudflare Partner serving Northern Utah."
+  description="AllTech deploys Cloudflare Tunnel and private network routing — reach servers, RDP, SSH, and internal apps with no open inbound ports or public IPs."
   canonical={`${site.url}/services/private-cloud-routing`}
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />

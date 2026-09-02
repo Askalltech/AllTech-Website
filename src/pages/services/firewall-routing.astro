@@ -82,7 +82,7 @@ const serviceSchema = {
   areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
   name: 'Firewall & Routing — Edge Security & Multi-WAN Failover',
   description:
-    'Business firewall configuration, VLAN segmentation, and multi-WAN failover. UniFi and Cloudflare-integrated edge security, deployed and managed by local engineers.',
+    'Business firewall configuration, VLAN segmentation, and multi-WAN failover for Northern Utah businesses — UniFi and Cloudflare-integrated edge security.',
 };
 
 const breadcrumbEntries = [
@@ -97,7 +97,7 @@ const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 <BaseLayout
   breadcrumbs={breadcrumbEntries}
   title="Firewall & Routing — Edge Security & Multi-WAN Failover"
-  description="Business firewall configuration, VLAN segmentation, and multi-WAN failover for Northern Utah businesses. UniFi and Cloudflare-integrated edge security, deployed and managed by local engineers."
+  description="Business firewall configuration, VLAN segmentation, and multi-WAN failover for Northern Utah businesses — UniFi and Cloudflare-integrated edge security."
   canonical={`${site.url}/services/firewall-routing`}
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />

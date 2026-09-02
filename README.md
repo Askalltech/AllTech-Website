@@ -111,15 +111,31 @@ No GitHub Actions — the build/deploy pipeline is entirely Cloudflare's own Wor
 
 ### Environment variables
 
-Set these in the Worker's dashboard (Workers & Pages → this Worker → Settings → Variables and Secrets):
+There are **three** different places a variable can live, and picking the
+wrong one is the single most common way to break the forms. The difference
+is *when* the value is read:
 
-| Variable | Purpose |
-|---|---|
-| `PUBLIC_TURNSTILE_SITE_KEY` | Cloudflare Turnstile public key (exposed to browser) |
-| `TURNSTILE_SECRET` | Turnstile secret (server-side verification) |
-| `CONTACT_FROM` | From address (must be on a domain verified in Cloudflare Email Routing) |
-| `CONTACT_FORWARD_TO` | Where contact form submissions are delivered |
-| `ASSESSMENT_FORWARD_TO` | Where gap-assessment results are delivered (falls back to `CONTACT_FORWARD_TO`) |
+| Variable | Kind | Where it goes |
+|---|---|---|
+| `PUBLIC_TURNSTILE_SITE_KEY` | **Build-time** | Settings → **Builds** → Variables and secrets |
+| `TURNSTILE_SECRET` | Runtime **secret** | Settings → Runtime variables and secrets (as a Secret) |
+| `RESEND_API_KEY` | Runtime **secret** | Settings → Runtime variables and secrets (as a Secret) |
+| `CONTACT_FROM` | Runtime plain var | **`wrangler.toml` `[vars]`** (committed) |
+| `CONTACT_FORWARD_TO` | Runtime plain var | **`wrangler.toml` `[vars]`** (committed) |
+| `ASSESSMENT_FORWARD_TO` | Runtime plain var | **`wrangler.toml` `[vars]`** (falls back to `CONTACT_FORWARD_TO`) |
+
+- **Build-time** (`PUBLIC_*`) is read through `import.meta.env`, so Vite bakes
+  it into the compiled output during `astro build`. Setting it as a *runtime*
+  variable does nothing — the built HTML simply won't contain the Turnstile
+  widget. It also needs a **rebuild** (not just a redeploy) to take effect.
+  This exact mistake is why the captcha silently didn't render at first.
+- **Runtime secrets** are read via `locals.runtime.env.X` at request time.
+  Cloudflare stores Secrets separately from the script, so they **survive**
+  a Workers Builds redeploy.
+- **Runtime plain vars** are part of the uploaded script config, so Workers
+  Builds **wipes any set only in the dashboard** on the next push. That's why
+  they're declared in `wrangler.toml` instead. Never put a secret there — it's
+  committed to git.
 
 `SHADCNBLOCKS_API_KEY` is only needed locally when pulling new blocks (see "Design system" above) — it's not used at runtime, so it doesn't need to be set on the Worker.
 
@@ -130,19 +146,43 @@ Both `/api/contact.ts` and `/api/assessment.ts` run as routes on the Worker itse
 1. Honeypot check (`company_website` field)
 2. Required-field validation
 3. Optional Turnstile verification (active once `PUBLIC_TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET` are set)
-4. Send via **Cloudflare Email Routing's Send Email binding** — see `src/lib/email.ts`. No third-party transactional provider (Resend, Postmark, etc.) needed. This repo's `wrangler.toml` currently doesn't declare `[[send_email]]` and instructs adding the binding from the dashboard instead — written under the assumption this was a Pages project (see the note on this in "Open items" below; since it turned out to be a plain Worker, it's worth re-testing whether the binding can just be declared in `wrangler.toml` directly). Until that's re-verified, set it up from the dashboard:
-   - Add the binding: Workers & Pages → this Worker → Settings → Bindings → Add → Email → Send email → name it `SEND_EMAIL` (must match `src/env.d.ts`' `Env.SEND_EMAIL`).
-   - Your domain must be added under Email Routing (dashboard → your zone → Email → Email Routing), with `CONTACT_FROM`'s domain verified there.
-   - Every address you set `CONTACT_FORWARD_TO` / `ASSESSMENT_FORWARD_TO` to must also be added there **and** selected as an allowed destination on the binding itself — Cloudflare enforces that allow-list at the binding level, so it can't be driven purely by runtime env vars. Keep them in sync.
-   - Without a working binding (e.g. running `astro dev` locally, or before the above is set up), submissions are still validated and scored — they just get logged instead of emailed.
+4. Send via **Resend's REST API** — see `src/lib/email.ts` (a plain `fetch`
+   to `https://api.resend.com/emails`; no SDK, so nothing Node-specific has
+   to run on the Worker).
+
+**Why Resend and not Cloudflare's own Send Email binding.** That binding
+requires Cloudflare **Email Routing**, which in turn requires Cloudflare to
+be authoritative for the domain's **MX** records. `askalltech.com`'s MX
+already points at **Cloudflare Email Security**, which fronts the live
+company mailbox (Microsoft 365) — taking over MX for Email Routing would have
+broken real inbound mail. (Email Security and Email Routing are different
+products and can't both own MX.) Sending, by contrast, is authorized by
+**SPF/DKIM** (TXT/CNAME), never MX, so Resend coexists with the existing
+setup untouched. `wrangler.toml` therefore declares no `[[send_email]]`
+binding.
+
+Setup, once:
+   - Add and verify a sending domain in Resend. We use the subdomain
+     **`mail.askalltech.com`** rather than the apex: the apex already has an
+     SPF record with three includes under a `p=quarantine` DMARC policy, and
+     only one SPF TXT record per domain is valid — a subdomain gets its own
+     independent SPF/DKIM and can't disturb the apex.
+   - Set `CONTACT_FROM` to an address on that verified subdomain
+     (`noreply@mail.askalltech.com`). The forward-to addresses are ordinary
+     inboxes and need no verification — unlike the Cloudflare binding, Resend
+     has no destination allow-list to keep in sync.
+   - Store `RESEND_API_KEY` as a **Secret** (see the table above).
+   - Without a key (e.g. running `astro dev` locally), submissions are still
+     validated and scored — they just get logged instead of emailed.
 
 ## Before launch
 
 - [ ] Replace `https://askalltech.com` in `src/lib/site.ts` and `astro.config.mjs` if domain changes
 - [ ] Add the Cloudflare Web Analytics token in `BaseLayout.astro` (uncomment script tag)
-- [ ] Generate `/public/og-default.png` (1200×630 brand image)
-- [ ] Add the `SEND_EMAIL` binding via the Worker's dashboard (NOT `wrangler.toml` — see "Contact form & security gap assessment" above), add your domain to Cloudflare Email Routing, verify `CONTACT_FROM`'s domain, and allow-list the real forward-to address(es) on the binding
-- [ ] Set environment variables in the Worker's dashboard
+- [x] Generate `/public/og-default.png` (1200×630 brand image) — done; wired up as the default `image` in `src/components/SEO.astro`
+- [ ] Verify the Resend sending domain and store `RESEND_API_KEY` as a Secret — see "Contact form & security gap assessment" above
+- [ ] Set the remaining environment variables, each in the right place (see the three-way table under "Environment variables" — build-time vs. secret vs. `wrangler.toml` `[vars]`)
+- [ ] Send one real end-to-end test submission through `/contact` and confirm it lands in the shared inbox
 - [ ] Verify Google Business Profile NAP exactly matches `site.ts`
 - [ ] Submit `sitemap-index.xml` to Google Search Console
 - [ ] Confirm the hero video (`public/hero-video.mp4`) is standard H.264 High Profile / yuv420p before replacing it — some export tools (including some Vecteezy/stock-footage downloads) default to a 4:2:2 profile that no browser can decode. `ffprobe -show_entries stream=profile,pix_fmt <file>` should report `High` and `yuv420p`.
@@ -158,24 +198,18 @@ implemented yet.
 - [x] **Non-customer inquiry flow.** `/contact` now splits into "already a
   customer" (client portal) vs. "new to AllTech" (the free security gap
   assessment) up top, mirroring the homepage hero's existing CTA pair.
-- [ ] **Wire up real email delivery.** The code path is done — both
-  `/api/contact.ts` and `/api/assessment.ts` send via Cloudflare Email
-  Routing's Send Email binding (`src/lib/email.ts`), no third-party sender
-  needed. What's left is account/dashboard setup, not code: add the
-  `SEND_EMAIL` binding itself (Worker's dashboard → Settings → Bindings),
-  add the domain to Email Routing, verify `CONTACT_FROM`'s domain, and
-  allow-list the real forward-to address(es) — see "Contact form &
-  security gap assessment" above. Note: the original reasoning for why
-  `[[send_email]]` can't go in `wrangler.toml` assumed this was a Pages
-  project; it turned out to actually be a plain Cloudflare Worker (see
-  "Deployment"), where that binding type is normally declarable directly
-  in `wrangler.toml` — worth re-testing whether the dashboard-only
-  workaround is still necessary before assuming it is.
-- [ ] **Turnstile site key / secret.** Same category — `PUBLIC_TURNSTILE_SITE_KEY`
-  and `TURNSTILE_SECRET` aren't set yet, so the captcha on the contact and
-  assessment forms is currently inactive. The widget and server-side
-  verification are already wired up in both forms; it just needs a
-  Turnstile site created in the Cloudflare dashboard.
+- [x] **Wire up real email delivery.** Done in code and configuration:
+  `/api/contact.ts` and `/api/assessment.ts` send via Resend
+  (`src/lib/email.ts`), the `mail.askalltech.com` sending domain is verified,
+  and `RESEND_API_KEY` is stored as a Secret. What remains is a single real
+  end-to-end test submission to confirm delivery to the shared inbox.
+- [ ] **Turnstile site key / secret.** `TURNSTILE_SECRET` is set as a
+  Secret, but `PUBLIC_TURNSTILE_SITE_KEY` must be added under Settings →
+  **Builds** → Variables and secrets (it's build-time, not runtime — see
+  "Environment variables") and the Worker rebuilt. Until that rebuild runs,
+  the captcha doesn't render at all. Verified: a build with the var present
+  takes the Turnstile script tag from 0 to 1 on both `/contact` and
+  `/assessment`.
 - [ ] **Client portal branding + wider access.** Only a limited set of
   clients currently have portal access; the meeting wants it broadened and
   visually matched to the site. External system (askalltech.itclientportal.com),

@@ -155,7 +155,7 @@ const serviceSchema = {
   provider: { '@id': `${site.url}/#organization` },
   areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
   name: 'Managed IT & Cloud Services',
-  description: 'Outsourced IT for northern Utah businesses: local help desk, Datto RMM monitoring and patching, vendor management, Microsoft 365, Entra ID and Intune, and tested backup and disaster recovery.',
+  description: 'Outsourced IT for Northern Utah businesses: local help desk, Datto RMM monitoring and patching, Microsoft 365 and Entra ID, and tested backup and DR.',
 };
 
 const breadcrumbEntries = [
@@ -169,7 +169,7 @@ const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 <BaseLayout
   breadcrumbs={breadcrumbEntries}
   title="Managed IT & Cloud Services"
-  description="Outsourced IT for northern Utah businesses: local help desk, Datto RMM monitoring and patching, vendor management, Microsoft 365, Entra ID and Intune, and tested backup and disaster recovery."
+  description="Outsourced IT for Northern Utah businesses: local help desk, Datto RMM monitoring and patching, Microsoft 365 and Entra ID, and tested backup and DR."
   canonical={`${site.url}/services/it-cloud`}
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />

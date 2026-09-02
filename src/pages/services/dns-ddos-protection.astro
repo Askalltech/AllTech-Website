@@ -142,7 +142,7 @@ const serviceSchema = {
   areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
   name: 'DNS & DDoS Protection — Authoritative DNS & Attack Mitigation',
   description:
-    'AllTech runs Cloudflare authoritative DNS and DDoS mitigation as a managed service — anycast DNS, DNSSEC, always-on L3/4 and L7 attack absorption, WAF and rate limiting.',
+    'AllTech runs Cloudflare authoritative DNS and DDoS mitigation as a managed service — anycast DNS, DNSSEC, always-on L3/4 and L7 protection, and WAF.',
 };
 
 const faqSchema = {
@@ -167,7 +167,7 @@ const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 <BaseLayout
   breadcrumbs={breadcrumbEntries}
   title="DNS & DDoS Protection — Authoritative DNS & Attack Mitigation"
-  description="AllTech runs Cloudflare authoritative DNS and DDoS mitigation as a managed service — anycast DNS, DNSSEC, always-on L3/4 and L7 attack absorption, WAF and rate limiting. Cloudflare Partner serving Northern Utah."
+  description="AllTech runs Cloudflare authoritative DNS and DDoS mitigation as a managed service — anycast DNS, DNSSEC, always-on L3/4 and L7 protection, and WAF."
   canonical={`${site.url}/services/dns-ddos-protection`}
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />

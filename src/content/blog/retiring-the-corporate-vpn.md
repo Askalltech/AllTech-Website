@@ -1,7 +1,7 @@
 ---
 slug: "cloudflare-zero-trust-vpn-migration"
 title: "Retiring the Corporate VPN: A Phased Cloudflare Zero Trust Rollout"
-description: "See how AllTech phases corporate VPN retirement with Cloudflare Zero Trust—from application discovery and Access/Tunnel deployment to validation, rollback planning, and secure decommissioning."
+description: "How AllTech phases corporate VPN retirement with Cloudflare Zero Trust — from application discovery and Access/Tunnel rollout to safe decommissioning."
 pubDate: 2026-02-10
 updatedDate: 2026-08-25
 author: "AllTech"

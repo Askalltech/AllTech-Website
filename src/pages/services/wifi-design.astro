@@ -125,7 +125,7 @@ const serviceSchema = {
   areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
   name: 'Business Wi-Fi Design & Installation',
   description:
-    'AllTech designs, installs, and manages business Wi-Fi — predictive and on-site surveys, UniFi access points, VLAN segmentation, and post-install validation.',
+    'AllTech designs, installs, and manages business Wi-Fi across Northern Utah — site surveys, UniFi access points, VLAN segmentation, and post-install validation.',
 };
 
 const faqSchema = {
@@ -150,7 +150,7 @@ const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 <BaseLayout
   breadcrumbs={breadcrumbEntries}
   title="Business Wi-Fi Design & Installation — Site Surveys, UniFi Deployment"
-  description="AllTech designs, installs, and manages business Wi-Fi across Northern Utah — predictive and on-site surveys, UniFi access points, VLAN segmentation, and post-install validation. UniFi specialists since 2009."
+  description="AllTech designs, installs, and manages business Wi-Fi across Northern Utah — site surveys, UniFi access points, VLAN segmentation, and post-install validation."
   canonical={`${site.url}/services/wifi-design`}
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
