@@ -11,29 +11,23 @@ routes = [
 directory = "./dist"
 binding = "ASSETS"
 
-# Environment variables set in the Cloudflare Pages dashboard, not committed:
+# Environment variables set in the Worker's dashboard, not committed:
 #   CONTACT_FORWARD_TO    - email address contact form submissions are forwarded to
 #   ASSESSMENT_FORWARD_TO - sales inbox for gap-assessment results (falls back to CONTACT_FORWARD_TO)
-#   CONTACT_FROM          - sender address (must be on a domain verified in Cloudflare Email Routing)
-#   TURNSTILE_SECRET     - Cloudflare Turnstile secret key (for spam protection)
+#   CONTACT_FROM          - sender address (must be on a domain verified as a
+#                            SENDING domain in Resend — see src/lib/email.ts)
+#   RESEND_API_KEY        - Resend API key, used to send contact/assessment mail
+#   TURNSTILE_SECRET      - Cloudflare Turnstile secret key (for spam protection)
 # The public Turnstile site key goes in PUBLIC_TURNSTILE_SITE_KEY (PUBLIC_ prefix exposes it to client code).
-
-# Cloudflare Email Routing's "Send Email" binding — used by src/lib/email.ts
-# to deliver both /api/contact and /api/assessment, no third-party
-# transactional provider needed.
+# Both CONTACT_FORWARD_TO and ASSESSMENT_FORWARD_TO should be set to
+# hello@askalltech.com (shared inbox).
 #
-# IMPORTANT: unlike plain Workers, Pages projects can't declare this binding
-# in wrangler.toml — a `[[send_email]]` block here fails Pages config
-# validation entirely ("does not support send_email") and blocks every
-# deploy. It must be added instead via the dashboard:
-#   Workers & Pages → this project → Settings → Bindings → Add → Email →
-#   Send email → binding name SEND_EMAIL (must match src/env.d.ts' Env.SEND_EMAIL).
-# Requirements before this can actually send:
-#   1. The site's domain must be added under Email Routing (dashboard → your
-#      zone → Email → Email Routing) with routing enabled.
-#   2. Every address you intend to forward to (i.e. whatever you set
-#      CONTACT_FORWARD_TO / ASSESSMENT_FORWARD_TO to) must be added and
-#      verified there, AND selected as an allowed destination on the binding
-#      itself — Cloudflare enforces that allow-list at the binding level, so
-#      it can't be driven purely by the runtime env vars above. Keep them
-#      in sync.
+# Contact/assessment mail is sent via Resend's REST API (src/lib/email.ts),
+# not Cloudflare's own "Send Email" Worker binding. That binding's
+# destination-address verification requires Cloudflare Email Routing, which
+# in turn requires taking over the domain's MX records — askalltech.com's MX
+# is already Cloudflare Email Security, fronting the real company mailbox
+# (Microsoft 365), and replacing it risked breaking live inbound mail. Resend
+# only needs SPF/DKIM (TXT/CNAME) records to send as askalltech.com, which
+# coexist with the existing MX setup untouched. No `[[send_email]]` binding
+# is declared here as a result.

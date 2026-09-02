@@ -68,8 +68,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
   });
   if (!captcha.ok) return json({ ok: false, message: captcha.message }, captcha.status);
 
-  // 4. Forward via Cloudflare Email Routing's Send Email binding (see
-  //    src/lib/email.ts and the `send_email` block in wrangler.toml).
+  // 4. Forward via Resend's REST API (see src/lib/email.ts for why — the
+  //    Cloudflare Email Routing binding this used to use would have required
+  //    taking over the domain's MX, conflicting with the live Cloudflare
+  //    Email Security setup already in front of the real mailbox).
   //
   //    Routing note: help@askalltech.com is reserved for EXISTING customers.
   //    New/prospective inquiries from this form should go to the shared managers'
@@ -89,7 +91,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   try {
     await sendEmail({
-      binding: env.SEND_EMAIL,
+      apiKey: env.RESEND_API_KEY,
       to: env.CONTACT_FORWARD_TO,
       from: env.CONTACT_FROM,
       replyTo: email,

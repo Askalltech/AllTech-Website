@@ -67,7 +67,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   // 4. Forward to SALES — the prospect's contact info + their score + every answer.
   //    Set ASSESSMENT_FORWARD_TO to the sales inbox (falls back to CONTACT_FORWARD_TO).
-  //    Sent via the same Cloudflare Send Email binding as contact.ts (src/lib/email.ts).
+  //    Sent via the same Resend REST call as contact.ts (src/lib/email.ts).
   const labelFor = (id: string) => allQuestions.find((q) => q.id === id)?.text ?? id;
   const answerLabel: Record<Answer, string> = { yes: 'Yes', no: 'No', unsure: 'Not sure' };
 
@@ -105,7 +105,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   try {
     await sendEmail({
-      binding: env.SEND_EMAIL,
+      apiKey: env.RESEND_API_KEY,
       to: env.ASSESSMENT_FORWARD_TO || env.CONTACT_FORWARD_TO,
       from: env.CONTACT_FROM,
       replyTo: email,
