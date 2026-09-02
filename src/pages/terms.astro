@@ -8,10 +8,13 @@ import { site } from '~/lib/site';
  * prose-alltech instead of the .legal classes, and the postal address and phone
  * number now come from site.ts so they cannot drift from the rest of the site.
  *
- * FLAGGED, not changed: Section 15 lists legal@askalltech.com. site.ts uses
- * help@askalltech.com and notes the shared mailbox is still TBD. If legal@ does
- * not route anywhere, notices sent to it — including the permission requests
- * Sections 2 and 5 tell people to send — land nowhere.
+ * RESOLVED: Section 15 originally listed legal@askalltech.com, which does not
+ * route anywhere — notices sent to it, including the permission requests
+ * Sections 2 and 5 tell people to send, would have landed nowhere. Confirmed
+ * with the team and repointed at the monitored shared mailbox,
+ * hello@askalltech.com (the same address the contact form delivers to).
+ * Note help@askalltech.com is deliberately NOT used here: it is reserved for
+ * existing customers.
  */
 
 const effectiveDate = 'July 29, 2026';
@@ -225,7 +228,7 @@ const addr = site.address;
           {addr.street}<br />
           {addr.city}, {addr.region} {addr.postalCode}<br />
           Phone: <a href={`tel:${site.phoneE164}`}>{site.phone}</a><br />
-          Email: <a href="mailto:legal@askalltech.com">legal@askalltech.com</a>
+          Email: <a href="mailto:hello@askalltech.com">hello@askalltech.com</a>
         </p>
       </div>
     </div>
