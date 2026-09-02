@@ -11,29 +11,34 @@ routes = [
 directory = "./dist"
 binding = "ASSETS"
 
-# Environment variables set in the Cloudflare Pages dashboard, not committed:
+# Environment variables set in the Worker's dashboard, not committed:
 #   CONTACT_FORWARD_TO    - email address contact form submissions are forwarded to
 #   ASSESSMENT_FORWARD_TO - sales inbox for gap-assessment results (falls back to CONTACT_FORWARD_TO)
 #   CONTACT_FROM          - sender address (must be on a domain verified in Cloudflare Email Routing)
 #   TURNSTILE_SECRET     - Cloudflare Turnstile secret key (for spam protection)
 # The public Turnstile site key goes in PUBLIC_TURNSTILE_SITE_KEY (PUBLIC_ prefix exposes it to client code).
+# Both CONTACT_FORWARD_TO and ASSESSMENT_FORWARD_TO should be set to
+# hello@askalltech.com (shared inbox) to match the allow-list below.
 
 # Cloudflare Email Routing's "Send Email" binding — used by src/lib/email.ts
 # to deliver both /api/contact and /api/assessment, no third-party
 # transactional provider needed.
 #
-# IMPORTANT: unlike plain Workers, Pages projects can't declare this binding
-# in wrangler.toml — a `[[send_email]]` block here fails Pages config
-# validation entirely ("does not support send_email") and blocks every
-# deploy. It must be added instead via the dashboard:
-#   Workers & Pages → this project → Settings → Bindings → Add → Email →
-#   Send email → binding name SEND_EMAIL (must match src/env.d.ts' Env.SEND_EMAIL).
-# Requirements before this can actually send:
-#   1. The site's domain must be added under Email Routing (dashboard → your
-#      zone → Email → Email Routing) with routing enabled.
-#   2. Every address you intend to forward to (i.e. whatever you set
-#      CONTACT_FORWARD_TO / ASSESSMENT_FORWARD_TO to) must be added and
-#      verified there, AND selected as an allowed destination on the binding
-#      itself — Cloudflare enforces that allow-list at the binding level, so
-#      it can't be driven purely by the runtime env vars above. Keep them
-#      in sync.
+# This project is a plain Cloudflare Worker (not Pages), so — unlike the
+# Pages product, which rejects a `[[send_email]]` block outright — this
+# binding can be declared directly here (confirmed against Cloudflare's
+# own docs: developers.cloudflare.com/workers/wrangler/configuration/
+# #email-bindings). No dashboard-only workaround needed for this part.
+#
+# Still required outside this repo, and NOT achievable via any API/CLI —
+# both involve Cloudflare emailing a confirmation link that a human has to
+# click:
+#   1. Add askalltech.com under Email Routing (dashboard → the zone →
+#      Email → Email Routing) and enable routing.
+#   2. Add and verify hello@askalltech.com as a destination address there.
+# Once verified, the "allowed_destination_addresses" list below already
+# matches it — no separate per-binding dashboard step needed for that part
+# (only Pages required setting the binding itself via the dashboard).
+[[send_email]]
+name = "SEND_EMAIL"
+allowed_destination_addresses = ["hello@askalltech.com"]
