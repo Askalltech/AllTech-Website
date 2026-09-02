@@ -11,16 +11,27 @@ routes = [
 directory = "./dist"
 binding = "ASSETS"
 
-# Environment variables set in the Worker's dashboard, not committed:
-#   CONTACT_FORWARD_TO    - email address contact form submissions are forwarded to
-#   ASSESSMENT_FORWARD_TO - sales inbox for gap-assessment results (falls back to CONTACT_FORWARD_TO)
-#   CONTACT_FROM          - sender address (must be on a domain verified as a
-#                            SENDING domain in Resend — see src/lib/email.ts)
+# Plain (non-secret) runtime vars — committed here rather than set only via
+# the dashboard because Workers Builds re-deploys the script fresh from this
+# repo on every push, and dashboard-added `vars` (unlike Secrets, which are
+# stored separately and do persist) get wiped on the next deploy unless
+# they're declared in this file. Confirmed the hard way: these three
+# vanished from "Runtime variables and secrets" after a redeploy while
+# RESEND_API_KEY and TURNSTILE_SECRET (real Secrets) survived it fine.
+[vars]
+CONTACT_FORWARD_TO = "hello@askalltech.com"
+ASSESSMENT_FORWARD_TO = "hello@askalltech.com"
+CONTACT_FROM = "noreply@mail.askalltech.com"
+
+# Secrets — set via the dashboard (Settings → Runtime variables and secrets),
+# NOT committed here, and NOT reset by a redeploy the way plain vars are:
 #   RESEND_API_KEY        - Resend API key, used to send contact/assessment mail
 #   TURNSTILE_SECRET      - Cloudflare Turnstile secret key (for spam protection)
-# The public Turnstile site key goes in PUBLIC_TURNSTILE_SITE_KEY (PUBLIC_ prefix exposes it to client code).
-# Both CONTACT_FORWARD_TO and ASSESSMENT_FORWARD_TO should be set to
-# hello@askalltech.com (shared inbox).
+# The public Turnstile site key is a BUILD-time var, not a runtime one — it's
+# read via import.meta.env.PUBLIC_TURNSTILE_SITE_KEY (Vite bakes it into the
+# compiled output at `astro build` time), so it must be set under
+# Settings → Builds → Variables and secrets instead, and requires a rebuild
+# (not just a redeploy) to take effect after it's added.
 #
 # Contact/assessment mail is sent via Resend's REST API (src/lib/email.ts),
 # not Cloudflare's own "Send Email" Worker binding. That binding's
