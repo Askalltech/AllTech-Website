@@ -128,7 +128,7 @@ const serviceSchema = {
   areaServed: site.serviceArea.map((l) => `${l.city}, ${l.region}`),
   name: 'Secure Web Gateway (SWG) — DNS & Web Filtering',
   description:
-    'AllTech deploys Cloudflare Gateway as a managed secure web gateway — DNS filtering, TLS inspection, malware and DLP scanning for every user, in the office or not.',
+    'AllTech deploys Cloudflare Gateway as a managed secure web gateway — DNS filtering, TLS inspection, and malware and DLP scanning for every user.',
 };
 
 const faqSchema = {
@@ -153,7 +153,7 @@ const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 <BaseLayout
   breadcrumbs={breadcrumbEntries}
   title="Secure Web Gateway (SWG) — DNS & Web Filtering"
-  description="AllTech deploys Cloudflare Gateway as a managed secure web gateway — DNS filtering, TLS inspection, malware and DLP scanning for every user, in the office or not. Cloudflare Partner serving Northern Utah."
+  description="AllTech deploys Cloudflare Gateway as a managed secure web gateway — DNS filtering, TLS inspection, and malware and DLP scanning for every user."
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />

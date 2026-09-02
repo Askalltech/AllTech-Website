@@ -1,6 +1,6 @@
 ---
 title: "Giving Contractors Access Without Handing Them a VPN Client"
-description: "Contractors and temporary staff on personal devices are a real access problem most small businesses solve badly. Here's a browser-based alternative to VPN clients and shipped laptops, and where it does and doesn't fit."
+description: "Contractors and temporary staff on personal devices are a real access problem. A browser-based alternative to VPN clients — and where it does and doesn't fit."
 pubDate: 2026-08-27
 author: "AllTech"
 heroImage: "/insights/third-party-access-without-vpn.webp"

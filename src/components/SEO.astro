@@ -15,14 +15,14 @@ interface Props {
 const {
   title,
   description = site.description,
-  // /og-default.png was referenced here but never created, so every page's
-  // social preview and the LocalBusiness schema image pointed at a 404.
-  // Using the real logo until a purpose-made card exists: at 300x203 it
-  // clears the 200x200 floor platforms require, so previews render — just as
-  // a small thumbnail rather than a wide 1.91:1 banner. Dropping a
-  // 1200x630 og-default.png into /public and changing this one line back is
-  // the proper fix.
-  image = '/logo.webp',
+  // /public/og-default.png — a purpose-made 1200x630 (1.91:1) card, which is
+  // what the twitter:card="summary_large_image" below actually expects. This
+  // used to fall back to /logo.webp, which at 300x203 cleared the 200x200
+  // floor platforms require but rendered as a small square thumbnail rather
+  // than a wide banner. Regenerate the card from the same brand tokens
+  // (--color-bg-page, --color-amber-400, Space Grotesk) if the logo or
+  // tagline changes.
+  image = '/og-default.png',
   noindex = false,
   canonical,
   ogType = 'website',

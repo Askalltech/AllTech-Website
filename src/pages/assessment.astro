@@ -7,7 +7,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 
 <BaseLayout
   title="Security Gap Assessment"
-  description="Take AllTech's free self-serve security gap assessment. Answer a few questions about your backups, patching, firewall, identity, endpoints, and more — get a posture score and tailored next steps from our team."
+  description="Take AllTech's free security gap assessment. Answer a few questions about backups, patching, firewall, identity, and endpoints to get a posture score."
 >
   {turnstileSiteKey && (
     <script slot="head" src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer is:inline />
