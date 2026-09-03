@@ -15,15 +15,21 @@ Marketing site for AllTech — Astro + Tailwind v4 + React islands, deployed to 
 
 ```bash
 npm install
+cp .env.example .env.local        # build-time vars — see "Environment variables" below
 npm run dev          # http://localhost:4321
 ```
 
 For local development of the contact form endpoint with the Cloudflare runtime:
 
 ```bash
+cp .dev.vars.example .dev.vars    # runtime secrets — wrangler dev reads this, astro dev does not
 npm run build
 npm run preview      # runs `wrangler dev` against the built ./dist output
 ```
+
+Neither `.env.local` nor `.dev.vars` is committed (both gitignored). Real
+values come from the Cloudflare dashboard — see "Environment variables"
+below for which var goes where.
 
 ## Design system
 

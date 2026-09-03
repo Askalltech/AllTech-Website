@@ -1,0 +1,78 @@
+---
+description: AllTech website — architecture, deploy model, and hard rules. Always apply.
+alwaysApply: true
+---
+
+# Read these first, in order
+
+1. **README.md** — stack, local dev setup, deploy model, the three-way
+   environment-variable split (build-time / runtime secret / runtime plain
+   var — getting this wrong has broken the captcha and the contact form
+   before), and the "Before launch" checklist.
+2. **LAUNCH-CHECKLIST.md** — the ordered runbook for cutting `askalltech.com`
+   over from the old WordPress site to this build. If you're touching
+   `wrangler.toml` routes, `robots.txt`, redirects, or anything DNS/deploy
+   related, check here first — most of it is written down because getting it
+   wrong once already cost real time.
+3. **claude.md** — a GEO/SEO instruction set a previous session was handed,
+   annotated with a "Deployment Reality Addendum" (section 7) recording every
+   place its literal instructions would have caused a regression on this
+   specific codebase (wrong sitemap filename, an edge-level crawler block
+   that made the whole effort moot, etc.) and what was done instead. Read
+   section 7 before making SEO/robots.txt/meta-tag changes — the reasoning
+   there is the reasoning to follow, not the original instructions above it.
+
+# Non-negotiables (skim README.md and LAUNCH-CHECKLIST.md for the "why")
+
+- **This is a Cloudflare Worker with a static-assets binding, not classic
+  Cloudflare Pages.** Deploy is `astro build && wrangler deploy`. Workers
+  Builds auto-promotes commits on `main` only — other branches build but sit
+  inactive until manually promoted.
+- **Plain vars in `wrangler.toml`'s `[vars]` block are load-bearing.** Workers
+  Builds wipes any runtime var set only in the dashboard on the next deploy.
+  Real secrets (`RESEND_API_KEY`, `TURNSTILE_SECRET`) go in the dashboard as
+  Secrets instead — those persist. Never put a secret in `[vars]`; it's
+  committed to git.
+- **`PUBLIC_TURNSTILE_SITE_KEY` is build-time**, read via `import.meta.env`,
+  not `locals.runtime.env`. Setting it as a runtime var does nothing — it has
+  to be set under Cloudflare dashboard → Settings → Builds, and needs a
+  rebuild (not just a redeploy) to take effect.
+- **Turnstile fails closed on purpose** (`src/lib/turnstile.ts`): if the
+  public site key is configured but the secret isn't, submissions are
+  refused rather than silently accepted unverified. If contact/assessment
+  forms start rejecting everything, check both are set for the same
+  environment before assuming something's broken.
+- **`src/pages/robots.txt.ts` is host-aware, not a static file.** It serves
+  the full crawl-welcoming policy only for the production hostname
+  (`site.url` in `src/lib/site.ts`) and `Disallow: /` for every other host,
+  specifically so a staging/preview domain never gets indexed as the
+  canonical entity. Don't replace it with `public/robots.txt`.
+- **Two `noindex` pages are correct and deliberate — don't "fix" them:**
+  `/404` and `/legal/master-services-agreement` (an unsigned contract
+  template with unfilled blanks, not for public search). See `claude.md`
+  section 7A.
+- **The GEO scrape zone (`ai-scrape-zone`) lives on the homepage only**, not
+  in `BaseLayout.astro`. Every page uses that layout; putting it there would
+  duplicate the same summary across all ~66 URLs. See `claude.md` section 7E.
+- **Business facts have one source of truth: `src/lib/site.ts`.** Name,
+  address, phone, service area, service catalogue. Don't hardcode these
+  elsewhere — footer, schema, contact page, and sitemap location pages all
+  read from here.
+- **Email goes through Resend's REST API** (`src/lib/email.ts`), not
+  Cloudflare's own Send Email Worker binding — that binding needs Cloudflare
+  Email Routing, which needs authoritative MX, which would have broken the
+  company's live inbound mail (Cloudflare Email Security in front of
+  Microsoft 365). Don't reintroduce `[[send_email]]` in `wrangler.toml`
+  without re-reading why it isn't there.
+
+# Verifying a change before calling it done
+
+```bash
+npx astro check   # 0 errors is the bar, not "close enough"
+npm run build      # must complete; check dist/ output for anything unexpected
+```
+
+For anything touching forms, redirects, or robots.txt, prefer testing against
+a real `wrangler dev` (`npm run preview`) rather than `astro dev` — the two
+runtimes diverge exactly on the things most likely to break here (runtime env
+vars, the Cloudflare Worker's Host-based routing).
