@@ -1,5 +1,5 @@
 ---
-title: "What Is a 502 Bad Gateway Error? Causes and Fixes for Northern Utah Businesses"
+title: "502 Bad Gateway Error: Causes and How to Fix It"
 description: "A 502 bad gateway error means a server in your request chain got an invalid response from another server. Here's what causes it and how to fix it."
 pubDate: 2026-08-14
 author: "AllTech"
