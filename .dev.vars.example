@@ -1,22 +1,23 @@
-# Runtime secrets for local `wrangler dev` (`npm run preview`).
+# Runtime secrets for LOCAL DEV against the Cloudflare Worker runtime
+# (`npm run preview`, i.e. `wrangler dev` — NOT plain `astro dev`, which
+# doesn't read this file). Copy to .dev.vars (already gitignored) and fill
+# in real values.
 #
-# Copy this file to `.dev.vars` (gitignored) and fill in real values. Wrangler
-# loads `.dev.vars` and exposes these as the Worker's runtime `env` bindings,
-# read in code via `locals.runtime.env.*` (see src/pages/api/contact.ts and
-# src/pages/api/assessment.ts). In production these are stored as Cloudflare
-# Secrets (Settings → Runtime variables and secrets), NOT committed to git.
-#
-# The plain (non-secret) runtime vars — CONTACT_FROM, CONTACT_FORWARD_TO,
-# ASSESSMENT_FORWARD_TO — are already declared in wrangler.toml `[vars]`, so
-# they don't need to go here. See README.md → "Environment variables".
+# On the deployed Worker these are set under Cloudflare dashboard ->
+# Settings -> Runtime variables and secrets, as Secrets (not plain vars) —
+# see wrangler.toml's comments for why that distinction matters (plain vars
+# there survive a Workers Builds redeploy; secrets set only in the dashboard
+# do NOT, unless declared in wrangler.toml's [vars] block, which is fine for
+# non-secret values but wrong for these).
 
-# Resend API key — used to send contact/assessment mail via Resend's REST API
-# (src/lib/email.ts). If unset, `wrangler dev` still runs the endpoints but no
-# mail is sent (it logs that the key isn't configured).
+# Resend API key — sends contact/assessment form mail (src/lib/email.ts).
+# Without it, submissions are still validated and scored, just logged
+# instead of emailed (see sendEmail()'s early-return).
 RESEND_API_KEY=
 
-# Cloudflare Turnstile server-side secret. Pairs with PUBLIC_TURNSTILE_SITE_KEY
-# (see .env.example). Set both or neither: if the public site key is set but
-# this isn't, the endpoints fail closed and refuse submissions
-# (see src/lib/turnstile.ts).
+# Cloudflare Turnstile secret key, paired with PUBLIC_TURNSTILE_SITE_KEY in
+# .env.local. Server-side verification in src/lib/turnstile.ts.
+# NOTE the fail-closed policy: if PUBLIC_TURNSTILE_SITE_KEY is set (so the
+# widget renders) but TURNSTILE_SECRET is NOT, submissions are rejected
+# rather than silently skipping verification. Set both or neither locally.
 TURNSTILE_SECRET=
