@@ -51,40 +51,34 @@ confirm it lands in `hello@askalltech.com`. The assessment form was tested
 successfully before the rotation; contact has never completed an end-to-end
 send.
 
-### 4. Add redirects for the 15 old WordPress URLs
+### 4. ~~Add redirects for the 15 old WordPress URLs~~ — DONE
 
-Every indexed URL on the old site is a WordPress path with a trailing slash,
-and none of them exist in this build. Without redirects all 15 return 404 at
-cutover, losing whatever rankings and backlinks they carry. The `redirects`
-block in `astro.config.mjs` and `public/_redirects` currently cover only
-internal renames within this build — nothing maps the WordPress structure.
+Implemented and verified 2026-09-03. All 15 legacy URLs resolve in a single
+hop; nothing 404s at cutover.
 
-Ready to write (unambiguous):
+*   13 legacy paths 301 to their equivalent here. Mappings live in the
+    "Legacy WordPress URLs" block in `astro.config.mjs`; the trailing-slash
+    forms (which is how the old site actually linked and indexed them) are in
+    `public/_redirects` so they resolve in one hop instead of two.
+*   `/services/home-phone/` and `/services/internet-service-alltech-fiber/`
+    return **410 Gone** — both product lines are retired (confirmed with the
+    team) and have no equivalent, so a 301 would send people to a page that
+    doesn't sell what they came for. Each renders a real explanatory page with
+    onward links rather than a bare status code. Note `/services/fiber-optic`
+    is fiber *installation*, not internet service — do not "fix" the fiber 410
+    by pointing it there.
 
-| Old URL | New URL |
-|---|---|
-| `/about-us/` | `/team` |
-| `/about-us/blog/` | `/insights` |
-| `/category/blog/` | `/insights` |
-| `/about-us/testimonials/` | `/case-studies` |
-| `/contact-us/` | `/contact` |
-| `/leave-feedback/` | `/contact` |
-| `/mtr-management-threat-response/` | `/services/managed-soc` |
-| `/services/` | `/services` |
-| `/services/alltech-cyber-security/` | `/services/cybersecurity` |
-| `/services/alltech-data/` | `/services/utah-data-recovery` |
-| `/services/alltech-networking/` | `/services/network-design` |
-| `/services/computer-repair/` | `/services/help-desk` |
+Nothing to do at cutover. **Re-verify against production once DNS moves:**
 
-**Two need a business decision first** — are these product lines still sold?
+```bash
+for p in /about-us/ /contact-us/ /services/alltech-cyber-security/ \
+         /mtr-management-threat-response/ /services/home-phone/; do
+  curl -sS -o /dev/null -w "$p -> %{http_code} %{num_redirects} hop(s) %{url_effective}\n" \
+    -L "https://askalltech.com$p"
+done
+```
 
-| Old URL | Question |
-|---|---|
-| `/services/home-phone/` | Still offered? If retired: redirect to the nearest page, or return 410 Gone. A 410 is more honest than a misleading redirect and Google drops it faster. |
-| `/services/internet-service-alltech-fiber/` | Same question for AllTech Fiber. Note `/services/fiber-optic` is fiber *installation*, not internet service — redirecting there would mislead. |
-
-Old URLs carry trailing slashes; this site uses `trailingSlash: 'never'`.
-Verify each redirect resolves in one hop, not slash-strip → redirect → target.
+Expect 200 in 1 hop for the first four and 410 for the last.
 
 ### 5. Merge to `main`
 

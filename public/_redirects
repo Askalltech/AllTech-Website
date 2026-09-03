@@ -2,3 +2,23 @@
 # post was live at the old URL before the rename, so redirect rather than
 # let it 404.
 /insights/retiring-the-corporate-vpn  /insights/cloudflare-zero-trust-vpn-migration  301
+
+# ---- Legacy WordPress URLs, trailing-slash forms ----
+# The old Elementor site linked and indexed every URL WITH a trailing slash.
+# The slashless equivalents are generated from astro.config.mjs `redirects`,
+# but reaching them costs an extra hop: /about-us/ -> (slash strip) ->
+# /about-us -> /team. Listing the slashed forms here collapses that to one
+# hop. Rules from public/_redirects are emitted ABOVE the generated ones in
+# dist/_redirects and _redirects is first-match-wins, so these take priority.
+# Keep in sync with the legacy block in astro.config.mjs.
+/about-us/                          /team                              301
+/about-us/blog/                     /insights                          301
+/about-us/testimonials/             /case-studies                      301
+/category/blog/                     /insights                          301
+/contact-us/                        /contact                           301
+/leave-feedback/                    /contact                           301
+/mtr-management-threat-response/    /services/managed-soc              301
+/services/alltech-cyber-security/   /services/cybersecurity            301
+/services/alltech-data/             /services/utah-data-recovery       301
+/services/alltech-networking/       /services/network-design           301
+/services/computer-repair/          /services/help-desk                301

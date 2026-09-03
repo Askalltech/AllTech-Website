@@ -1,0 +1,55 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * Retired product line — 410 Gone.
+ *
+ * AllTech sold home phone service on the pre-2026 WordPress site. It is no
+ * longer offered and there is no equivalent page here, so this returns 410
+ * rather than 301'ing to a page that doesn't sell it. 410 tells search
+ * engines the resource is intentionally gone (they drop it faster than a
+ * 404, and much faster than a soft redirect), while the rendered body still
+ * gives a human who followed an old link somewhere useful to go.
+ *
+ * SSR because a status code has to be set at request time.
+ * See LAUNCH-CHECKLIST.md item 4.
+ */
+export const prerender = false;
+
+Astro.response.status = 410;
+Astro.response.statusText = 'Gone';
+---
+
+<BaseLayout
+  title="Home Phone Service (Discontinued)"
+  description="AllTech no longer offers home phone service."
+  noindex={true}
+>
+  <section class="surface-dark py-24 lg:py-32">
+    <div class="container-wide">
+      <div class="max-w-2xl">
+        <div class="eyebrow mb-4">No longer offered</div>
+        <h1 class="font-display text-4xl lg:text-5xl font-bold leading-tight mb-6">
+          AllTech no longer offers <span style="color: var(--color-amber-400);">home phone service</span>.
+        </h1>
+        <p class="text-lg leading-relaxed text-muted">
+          You've most likely followed a link from our previous website. This
+          service has been discontinued and we can't take new orders for it.
+        </p>
+        <p class="mt-4 text-lg leading-relaxed text-muted">
+          We do still handle business IT, cybersecurity, and network
+          infrastructure across Northern Utah — including vendor management,
+          where we deal with phone and ISP providers on your behalf.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-4">
+          <a href="/services" class="btn btn-primary">See what we do</a>
+          <a href="/contact" class="btn">Get in touch</a>
+        </div>
+        <p class="mt-8 text-subtle">
+          Prefer to call? <a href={`tel:${site.phoneE164}`}>{site.phone}</a>
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
