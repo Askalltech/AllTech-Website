@@ -177,6 +177,13 @@ Setup, once:
 
 ## Before launch
 
+> **Cutting the domain over? See [LAUNCH-CHECKLIST.md](./LAUNCH-CHECKLIST.md).**
+> That file is the ordered runbook for pointing `askalltech.com` at this build
+> — Worker routing, the Turnstile hostname allow-list, redirects for the 15 old
+> WordPress URLs, and what to verify afterwards. The list below is the older,
+> broader pre-launch backlog and overlaps with it.
+
+
 - [ ] Replace `https://askalltech.com` in `src/lib/site.ts` and `astro.config.mjs` if domain changes
 - [ ] Add the Cloudflare Web Analytics token in `BaseLayout.astro` (uncomment script tag)
 - [x] Generate `/public/og-default.png` (1200×630 brand image) — done; wired up as the default `image` in `src/components/SEO.astro`
