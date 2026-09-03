@@ -4,11 +4,12 @@ Everything that has to happen when `askalltech.com` stops serving the old
 WordPress/Elementor site and starts serving this Astro build.
 
 Written 2026-09-03, while the new site was live only at
-`development-preview.askalltech.com`. Nothing here is done yet.
+`development-preview.askalltech.com`. Item 4 is already done; everything else
+is outstanding.
 
-**Order matters.** Items 1–4 are hard blockers: skip any one and the site is
-either unreachable, un-submittable, or silently rejecting every form. Do 1–4
-before flipping DNS, 5–9 immediately after, 10–13 in the following days.
+**Order matters.** Items 1–3 are hard blockers: skip any one and the site is
+either unreachable or silently rejecting every form submission. Do 1–5 before
+flipping DNS, 6–9 immediately after, 10–13 in the following days.
 
 ---
 
