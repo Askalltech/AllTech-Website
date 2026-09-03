@@ -449,19 +449,20 @@
        --color-bg-tint fill that washes a mid-tone amber down to almost
        nothing (confirmed — it was here first, was nearly invisible).
        A flat translucent color is legible regardless of what's under it. */
-    color: color-mix(in oklch, var(--color-amber-600) 65%, transparent);
+    color: color-mix(in oklch, var(--color-amber-600) 28%, transparent);
     pointer-events: none;
     user-select: none;
-    /* Only visible within the same cursor-following circle as the glow —
-       an unmasked wall of characters would just be noise the rest of the
-       time. */
-    mask-image: radial-gradient(200px circle at var(--spot-x) var(--spot-y), #000, transparent 70%);
-    -webkit-mask-image: radial-gradient(200px circle at var(--spot-x) var(--spot-y), #000, transparent 70%);
+    /* No mask-image here (there was one — a radial circle following the
+       cursor, same shape as the glow's). It gave the character field a
+       visible hard edge, since text abruptly stops mid-line at the mask
+       boundary instead of fading like the glow's own gradient does. Full
+       coverage plus a low, flat opacity below reads as background texture
+       across the whole tile instead of a spotlight with a seam. */
     opacity: 0;
     transition: opacity 0.25s var(--ease-out-soft);
   }
   .dark .card-spotlight-text {
-    color: color-mix(in oklch, var(--color-amber-300) 65%, transparent);
+    color: color-mix(in oklch, var(--color-amber-300) 26%, transparent);
   }
   .card-feature-tile:hover .card-spotlight-text,
   .card-feature-wide:hover .card-spotlight-text {
