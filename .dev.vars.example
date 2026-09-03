@@ -1,0 +1,22 @@
+# Runtime secrets for local `wrangler dev` (`npm run preview`).
+#
+# Copy this file to `.dev.vars` (gitignored) and fill in real values. Wrangler
+# loads `.dev.vars` and exposes these as the Worker's runtime `env` bindings,
+# read in code via `locals.runtime.env.*` (see src/pages/api/contact.ts and
+# src/pages/api/assessment.ts). In production these are stored as Cloudflare
+# Secrets (Settings → Runtime variables and secrets), NOT committed to git.
+#
+# The plain (non-secret) runtime vars — CONTACT_FROM, CONTACT_FORWARD_TO,
+# ASSESSMENT_FORWARD_TO — are already declared in wrangler.toml `[vars]`, so
+# they don't need to go here. See README.md → "Environment variables".
+
+# Resend API key — used to send contact/assessment mail via Resend's REST API
+# (src/lib/email.ts). If unset, `wrangler dev` still runs the endpoints but no
+# mail is sent (it logs that the key isn't configured).
+RESEND_API_KEY=
+
+# Cloudflare Turnstile server-side secret. Pairs with PUBLIC_TURNSTILE_SITE_KEY
+# (see .env.example). Set both or neither: if the public site key is set but
+# this isn't, the endpoints fail closed and refuse submissions
+# (see src/lib/turnstile.ts).
+TURNSTILE_SECRET=

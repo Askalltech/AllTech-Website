@@ -25,6 +25,11 @@ npm run build
 npm run preview      # runs `wrangler dev` against the built ./dist output
 ```
 
+Environment variables: copy `.env.example` → `.env.local` (build-time vars) and
+`.dev.vars.example` → `.dev.vars` (runtime secrets read by `wrangler dev`). Both
+copies are gitignored. Everything is optional for local dev — the forms stay
+usable with nothing set. See "Environment variables" below for the full split.
+
 ## Design system
 
 Colors, spacing, radii, and shadows are defined once in `src/styles/global.css` and used everywhere else — don't hardcode hex values or one-off Tailwind color utilities in a page.

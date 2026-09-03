@@ -1,0 +1,69 @@
+---
+description: AllTech website — orientation, canonical docs, and the deploy/SEO gotchas that have each already caused a real bug.
+alwaysApply: true
+---
+
+# AllTech website — start here
+
+Astro 5 (static-first) + Tailwind v4 + React 18 islands, deployed to a
+**Cloudflare Worker with a static-assets binding** (not Cloudflare Pages).
+Full context lives in the docs below — read them before making changes; don't
+duplicate their content into new files.
+
+## Read these first, in order
+
+1. `README.md` — stack, local dev, the three-way env-var split, deploy model.
+2. `LAUNCH-CHECKLIST.md` — ordered runbook for cutting `askalltech.com` over
+   from the old WordPress site. Some items are still open.
+3. `claude.md` — the GEO/SEO instruction set, whose **§7 "Deployment Reality
+   Addendum"** documents every place its literal instructions would have broken
+   something on this specific codebase. §7 supersedes the earlier sections.
+4. `ARCHITECTURE.md` — deeper reference on structure and the contact/assessment
+   endpoints.
+
+## Local dev
+
+```bash
+npm install
+npm run dev        # Astro dev server on http://localhost:4321
+```
+
+To exercise the `/api/contact` and `/api/assessment` SSR endpoints against the
+real Workers runtime: `npm run build && npm run preview` (`wrangler dev`).
+`npm run typecheck` runs `astro check`. Package manager is npm; `.npmrc` pins
+`legacy-peer-deps=true`, so keep using npm and the committed `package-lock.json`.
+
+## Non-negotiables (each has already caused a real bug)
+
+- **Env vars live in three different places by *when* they're read** — see the
+  table in `README.md` → "Environment variables". Build-time `PUBLIC_*` (baked
+  in by Vite at `astro build`), runtime **secrets** (`RESEND_API_KEY`,
+  `TURNSTILE_SECRET`, read via `locals.runtime.env`), and runtime **plain vars**
+  (`CONTACT_FROM`, `CONTACT_FORWARD_TO`, `ASSESSMENT_FORWARD_TO`). Plain vars
+  MUST stay in `wrangler.toml` `[vars]`: Workers Builds redeploys from git on
+  every push and wipes any plain var set only in the dashboard. Never put a
+  secret in `wrangler.toml` — it's committed to git.
+- **Turnstile fails closed when half-configured** — see `src/lib/turnstile.ts`.
+  If `PUBLIC_TURNSTILE_SITE_KEY` is set but `TURNSTILE_SECRET` isn't, the form
+  endpoints refuse submissions rather than accept unverified ones. With neither
+  set (normal local dev) verification is skipped so forms stay usable. Set both
+  or neither.
+- **`robots.txt` is host-aware and generated per-request** — see
+  `src/pages/robots.txt.ts` (not a static file). Production gets the real
+  policy; any non-production host (e.g. `development-preview.askalltech.com`)
+  gets a blanket `Disallow: /`. The named AI-crawler group intentionally repeats
+  the `Disallow` lines because a named `User-agent` group does not inherit
+  `User-agent: *` rules.
+- **Deliberate `noindex` pages** — the retired-product pages
+  `src/pages/services/home-phone.astro` and
+  `src/pages/services/internet-service-alltech-fiber.astro` carry `noindex` on
+  purpose and return 410 rather than redirecting. Don't "fix" them into
+  redirects. Legal templates under `/legal/` and the 404 page are also `noindex`
+  by design.
+
+## Design system
+
+Colors, spacing, radii, shadows are defined once in `src/styles/global.css`
+(AllTech tokens + a shadcn bridge). Reference the semantic tokens; don't
+hardcode hex values or one-off Tailwind color utilities in a page. See
+`README.md` → "Design system" for the token layers and the shadcnblocks caveats.
