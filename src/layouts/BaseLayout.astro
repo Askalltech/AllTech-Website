@@ -120,17 +120,18 @@ const { title, description, image, noindex, canonical, ogType, breadcrumbs } = A
         // single fixed length. A hardcoded count (was 2000) filled the small
         // grid tiles but left the wide featured card (SASE Solutions) half
         // empty on larger viewports — the letters "ran out" partway down.
-        // Deriving the count from the card's own box, with the glyph cell
-        // deliberately UNDER-estimated so we always over-generate, guarantees
-        // the field overflows every tile; overflow: hidden (global.css) then
-        // clips the surplus. Metrics track .card-spotlight-text: 0.75rem
-        // padding, font-size 10px, line-height 1.35 (= 13.5px).
-        const PAD = 12; // 0.75rem
+        // The field also bleeds ~0.6rem past every edge (see the negative
+        // inset on .card-spotlight-text in global.css), so we count against
+        // the card box PLUS that bleed, with the glyph cell deliberately
+        // UNDER-estimated so we always over-generate; overflow: hidden then
+        // clips the surplus. Metrics track .card-spotlight-text: font-size
+        // 10px, line-height 1.35 (= 13.5px), no padding.
+        const BLEED = 12; // px past each edge, ≥ the 0.6rem CSS inset
         const CHAR_W = 5.5; // < real mono advance at 10px, so cols is over-counted
         const LINE_H = 12; // < 13.5px line box, so rows is over-counted
         function randomString(rect: DOMRect) {
-          const cols = Math.ceil((rect.width - PAD * 2) / CHAR_W);
-          const rows = Math.ceil((rect.height - PAD * 2) / LINE_H) + 3; // + slack rows
+          const cols = Math.ceil((rect.width + BLEED * 2) / CHAR_W);
+          const rows = Math.ceil((rect.height + BLEED * 2) / LINE_H) + 3; // + slack rows
           const count = Math.max(cols * rows, 400);
           let s = '';
           for (let i = 0; i < count; i++) s += CHARS[(Math.random() * CHARS.length) | 0];

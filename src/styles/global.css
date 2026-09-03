@@ -434,10 +434,15 @@
      title/description/link never need their own z-index to stay above it. */
   .card-spotlight-text {
     position: absolute;
-    inset: 0;
+    /* Bleed the character field past every edge (negative inset) with no
+       padding, so after the card's own overflow: hidden clips it the letters
+       run right up to — and off — all four edges with no visible gutter. A
+       0.75rem padding used to inset the text, leaving a blank buffer border
+       on the top/left/right; that's what this removes. */
+    inset: -0.6rem;
     z-index: -1;
     margin: 0;
-    padding: 0.75rem;
+    padding: 0;
     overflow: hidden;
     font-family: var(--font-mono);
     font-size: 10px;
