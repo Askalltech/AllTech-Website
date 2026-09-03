@@ -1,0 +1,23 @@
+# Runtime secrets for LOCAL DEV against the Cloudflare Worker runtime
+# (`npm run preview`, i.e. `wrangler dev` — NOT plain `astro dev`, which
+# doesn't read this file). Copy to .dev.vars (already gitignored) and fill
+# in real values.
+#
+# On the deployed Worker these are set under Cloudflare dashboard ->
+# Settings -> Runtime variables and secrets, as Secrets (not plain vars) —
+# see wrangler.toml's comments for why that distinction matters (plain vars
+# there survive a Workers Builds redeploy; secrets set only in the dashboard
+# do NOT, unless declared in wrangler.toml's [vars] block, which is fine for
+# non-secret values but wrong for these).
+
+# Resend API key — sends contact/assessment form mail (src/lib/email.ts).
+# Without it, submissions are still validated and scored, just logged
+# instead of emailed (see sendEmail()'s early-return).
+RESEND_API_KEY=
+
+# Cloudflare Turnstile secret key, paired with PUBLIC_TURNSTILE_SITE_KEY in
+# .env.local. Server-side verification in src/lib/turnstile.ts.
+# NOTE the fail-closed policy: if PUBLIC_TURNSTILE_SITE_KEY is set (so the
+# widget renders) but TURNSTILE_SECRET is NOT, submissions are rejected
+# rather than silently skipping verification. Set both or neither locally.
+TURNSTILE_SECRET=
