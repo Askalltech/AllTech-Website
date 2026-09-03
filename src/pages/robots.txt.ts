@@ -64,7 +64,13 @@ const DISALLOWED = [
  * by curling the dev server — test this function instead.
  */
 export function buildRobotsPolicy(host: string) {
-  return host.toLowerCase() === PRODUCTION_HOST ? productionPolicy() : nonProductionPolicy(host);
+  // Strip the port (Host carries one on non-443) and a leading "www.". The
+  // zone currently 301s www -> apex at the edge so the Worker shouldn't see it,
+  // but if that rule is ever removed or bypassed, treating www as
+  // "not production" would serve Disallow: / on the live site — a silent
+  // deindex. Cheap to be defensive about.
+  const normalized = host.toLowerCase().split(':')[0].replace(/^www\./, '');
+  return normalized === PRODUCTION_HOST ? productionPolicy() : nonProductionPolicy(host);
 }
 
 export const GET: APIRoute = ({ request }) => {
