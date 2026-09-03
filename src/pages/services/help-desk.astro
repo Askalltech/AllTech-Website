@@ -381,7 +381,8 @@ const breadcrumbSchema = {
       </div>
       <div class="grid md:grid-cols-3 gap-4">
         {tiers.map(([n, label, title, items], i) => (
-          <div class="card" style={i === 2 ? 'border-color: var(--color-amber-400);' : ''}>
+          <div class="card-feature-tile group relative overflow-hidden text-left" style={i === 2 ? 'border: 1px solid var(--color-amber-400);' : ''}>
+            <div class="card-spotlight-text" aria-hidden="true"></div>
             <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-amber-600);">{n} · {label}</div>
             <h3 class="font-display text-xl font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
             <ul class="space-y-2 list-none p-0 m-0">

@@ -338,7 +338,8 @@ const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
       </div>
       <div class="grid md:grid-cols-3 gap-4">
         {engage.map(([n, label, title, body], i) => (
-          <div class="card" style={i === 1 ? 'border-color: var(--color-teal-500);' : ''}>
+          <div class="card-feature-tile group relative overflow-hidden text-left" style={i === 1 ? 'border: 1px solid var(--color-teal-500);' : ''}>
+            <div class="card-spotlight-text" aria-hidden="true"></div>
             <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-teal-600);">{n} · {label}</div>
             <h3 class="font-display text-xl font-semibold mb-3" style="color: var(--color-text-primary);">{title}</h3>
             <p class="text-sm leading-relaxed" style="color: var(--color-text-default);">{body}</p>
