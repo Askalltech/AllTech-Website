@@ -1,5 +1,5 @@
 ---
-title: "The 10-Step SASE Framework, and Which Steps Actually Apply to You"
+title: "The 10-Step SASE Framework: Which Steps Apply"
 description: "Cloudflare's 10-step SASE maturity framework was written for enterprises. What it maps to for a small or mid-sized business, and where most should stop."
 pubDate: 2026-08-27
 author: "AllTech"

@@ -1,5 +1,5 @@
 ---
-title: "A Fileless PowerShell Attack That Hid Behind a Trusted Node.js Runtime"
+title: "Fileless PowerShell Attack Behind Node.js"
 description: "A ClickFix-style attack on a Cache Valley business skipped the disk entirely: a memory-only PowerShell payload that dropped a signed-runtime backdoor."
 pubDate: 2026-08-18
 author: "AllTech"

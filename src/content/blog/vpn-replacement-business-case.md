@@ -1,5 +1,5 @@
 ---
-title: "The Business Case for Replacing Your VPN (Before Something Forces the Issue)"
+title: "The Business Case for Replacing Your VPN"
 description: "New research shows most organizations are already moving off VPNs for Zero Trust access. The data on why, and what it takes to get buy-in."
 pubDate: 2026-08-27
 author: "AllTech"

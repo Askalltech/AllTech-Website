@@ -149,3 +149,4 @@ export function serviceLink(s: { slug: string; url?: string; path?: string }) {
   if (s.path) return { href: s.path, external: false as const };
   return { href: `/services/${s.slug}`, external: false as const };
 }
+

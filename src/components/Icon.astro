@@ -18,18 +18,11 @@
  * neutral hardware. Keeping that mapping inside the icon definitions is what
  * keeps the palette controlled across dozens of usages.
  */
+import type { IconName } from '~/lib/icon-names';
+export type { IconName };
+
 interface Props {
-  name:
-    | 'node'           // Network & Infrastructure — hub + spokes
-    | 'shield'         // Cybersecurity — square tapering to a point + check
-    | 'endpoint'       // Managed IT / Endpoint Security — device + status dot
-    | 'cloud-sync'     // Microsoft 365 & Cloud — stacked squares + sync marks
-    | 'gateway'        // SASE Solutions / Cloudflare Zero Trust — square + keyhole
-    | 'disk-recovery'  // Utah Data Recovery — square drive + restore arrow
-    | 'camera'         // Install: cameras
-    | 'door-access'    // Install: door access
-    | 'stack'          // AllTech Top 10 — three layered squares
-    | 'dashboard-gauge'; // Assessment / monitoring — screen + gauge + bars
+  name: IconName;
   size?: number;
   class?: string;
 }

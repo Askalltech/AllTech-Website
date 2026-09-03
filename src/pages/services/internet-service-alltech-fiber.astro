@@ -1,0 +1,58 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { site } from '~/lib/site';
+
+/**
+ * Retired product line — 410 Gone. Mirrors services/home-phone.astro.
+ *
+ * "AllTech Fiber" was an internet service sold on the pre-2026 WordPress
+ * site. It is no longer offered. Deliberately NOT redirected to
+ * /services/fiber-optic: that page is fiber *installation* (splicing,
+ * termination, OTDR testing), not internet service, so sending ISP traffic
+ * there would answer a question the visitor didn't ask.
+ *
+ * SSR because a status code has to be set at request time.
+ * See LAUNCH-CHECKLIST.md item 4.
+ */
+export const prerender = false;
+
+Astro.response.status = 410;
+Astro.response.statusText = 'Gone';
+---
+
+<BaseLayout
+  title="AllTech Fiber Internet (Discontinued)"
+  description="AllTech no longer offers fiber internet service."
+  noindex={true}
+>
+  <section class="surface-dark py-24 lg:py-32">
+    <div class="container-wide">
+      <div class="max-w-2xl">
+        <div class="eyebrow mb-4">No longer offered</div>
+        <h1 class="font-display text-4xl lg:text-5xl font-bold leading-tight mb-6">
+          AllTech no longer sells <span style="color: var(--color-amber-400);">fiber internet service</span>.
+        </h1>
+        <p class="text-lg leading-relaxed text-muted">
+          You've most likely followed a link from our previous website. We're no
+          longer an internet service provider and can't take new orders for
+          fiber connectivity.
+        </p>
+        <p class="mt-4 text-lg leading-relaxed text-muted">
+          We do still <a href="/services/fiber-optic">install and terminate fiber</a>
+          — single-mode and multimode runs, fusion splicing, and OTDR-tested
+          building-to-building links — as part of our low-voltage install work.
+          That's cabling infrastructure, not internet service. If you need a
+          circuit, our <a href="/services/vendor-management">vendor management</a>
+          team handles ISPs on your behalf.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-4">
+          <a href="/services/fiber-optic" class="btn btn-primary">Fiber installation</a>
+          <a href="/contact" class="btn">Get in touch</a>
+        </div>
+        <p class="mt-8 text-subtle">
+          Prefer to call? <a href={`tel:${site.phoneE164}`}>{site.phone}</a>
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

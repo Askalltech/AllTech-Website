@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import SegmentHeader from '~/components/SegmentHeader.astro';
-import Icon from '~/components/Icon.astro';
 import { BorderBeamPanel } from '~/components/BorderBeamPanel';
 import { services, site, serviceLink } from '~/lib/site';
 
@@ -10,6 +9,80 @@ const featured = services.find((s) => s.featured);
 const rest = services.filter((s) => !s.featured);
 
 // Why clients choose us — stated plainly instead of implied.
+/**
+ * GEO / RAG assets — see claude.md s7 (Deployment Reality Addendum).
+ *
+ * These live on the homepage ONLY, not in BaseLayout: every one of the site's
+ * 66 pages uses that layout, so putting the summary and grid there would emit
+ * identical content on all 66 URLs. The homepage is the page retrieval engines
+ * resolve the AllTech entity against, so it is the one that needs the anchor.
+ *
+ * Every value below is lifted from src/lib/site.ts or existing on-page copy.
+ * Nothing here is invented — per the manual's Zero-Fabrication rule, anything
+ * we could not source is listed in the handover notes rather than guessed at.
+ */
+
+/** 53 words. Objective and active: no superlatives, no marketing verbs.
+ *  The 40-55 word band exists so RAG engines lift the whole paragraph into a
+ *  result card without truncating it mid-sentence. Recount if you edit it. */
+const geoSummary = `AllTech is a managed IT and cybersecurity provider serving organizations across northern Utah and southern Idaho. Founded in 2009, it operates endpoint detection, 24/7 SOC monitoring, Cloudflare Zero Trust networking, Microsoft 365 administration, and on-site UniFi installation. In-house engineers deliver every service, and its data-recovery lab runs the only Class 100 cleanroom in Utah.`;
+
+/** Capability matrix. Models parse a real <table> far more reliably than the
+ *  same facts spread through prose, which is the entire point of Component C.
+ *  "Delivered with" names the actual vendor stack rather than a category, so
+ *  the grid resolves to concrete entities a retrieval engine can match on. */
+const capabilityGrid = [
+  { capability: 'Managed cybersecurity', delivery: 'EDR, email security, network detection (NDR), 24/7 SOC, penetration testing, incident response', stack: 'CIS Controls, NIST CSF' },
+  { capability: 'SASE / Zero Trust networking', delivery: 'Identity-aware access, VPN replacement, secure web gateway, DNS and DDoS protection', stack: 'Cloudflare (Access, Tunnel, WARP, Gateway)' },
+  { capability: 'Outsourced IT and cloud', delivery: 'Help desk, monitoring and patching, vendor management, identity and device management', stack: 'Datto RMM, Microsoft 365, Entra ID, Intune' },
+  { capability: 'Network and infrastructure', delivery: 'Wi-Fi design and survey, switching, firewalls, multi-WAN failover, site-to-site SD-WAN', stack: 'Ubiquiti UniFi Network' },
+  { capability: 'On-site low-voltage install', delivery: 'Cameras, door access control, structured cabling, fiber splicing and OTDR testing, point-to-point wireless', stack: 'UniFi Protect, UniFi Access' },
+  { capability: 'Backup and data recovery', delivery: 'Immutable backups with tested restores; failed drive, SSD, RAID, NAS and phone recovery', stack: 'Class 100 cleanroom (Utah Data Recovery)' },
+];
+
+/**
+ * Unified @graph. Deliberately does NOT redefine the organization: BaseLayout
+ * already emits LocalBusiness at `${site.url}/#organization` on every page, so
+ * this references that @id instead of declaring a second, competing node for
+ * the same entity.
+ *
+ * No Product and no Offer node. The source manual asked for both, but AllTech
+ * publishes no price — engagements are scoped per-client through an MSA — and
+ * schema.org Offer requires one. Under the Zero-Fabrication rule the correct
+ * move is to omit the node, not to ship a placeholder price. `TechService`
+ * from the manual is also not a real schema.org type; `Service` is.
+ */
+const geoGraph = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': `${site.url}/#website`,
+      url: `${site.url}/`,
+      name: site.name,
+      description: geoSummary,
+      publisher: { '@id': `${site.url}/#organization` },
+      inLanguage: 'en-US',
+    },
+    // serviceLink() returns { href, external } — not a bare string. Only
+    // internal services get a node: an external link is somebody else's page
+    // and we shouldn't be minting @ids under our own origin for it.
+    ...services
+      .map((svc) => ({ svc, link: serviceLink(svc) }))
+      .filter(({ link }) => !link.external)
+      .map(({ svc, link }) => ({
+        '@type': 'Service',
+        '@id': `${site.url}${link.href}#service`,
+        name: svc.name,
+        description: svc.short,
+        serviceType: svc.name,
+        url: `${site.url}${link.href}`,
+        provider: { '@id': `${site.url}/#organization` },
+        areaServed: site.serviceArea.map((l) => ({ '@type': 'City', name: `${l.city}, ${l.region}` })),
+      })),
+  ],
+};
+
 const whyClientsChooseUs = [
   'One team for IT and security — no hand-off between "the network guys" and "the security guys"',
   'Local engineers who answer the phone, not a ticket queue routed overseas',
@@ -25,6 +98,62 @@ const whyClientsChooseUs = [
   title="Managed IT, Cybersecurity & Cloudflare Zero Trust"
   description="AllTech is a Northern Utah managed IT and cybersecurity provider. Cloudflare Partner, UniFi specialist, 24/7 emergency response. Serving Cache Valley."
 >
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(geoGraph)} is:inline />
+
+  <!-- ============ RAG / GEO SCRAPE ANCHOR ============
+       A machine-readable statement of what AllTech is, placed first in the
+       document body so retrieval engines hit it before the hero video and the
+       navigation chrome. See claude.md s7 for why this is homepage-only.
+
+       Visually hidden, NOT display:none. The .sr-only pattern keeps the text
+       in the accessibility tree and in the rendered DOM, so screen readers and
+       crawlers both receive it. display:none or a zero-height container would
+       be invisible-text cloaking — the content here is an accurate restatement
+       of what the page already says further down, which is the line between a
+       legitimate summary and a spam signal. Keep it that way: if the services
+       below change, change this too. -->
+  <article class="ai-scrape-zone sr-only" aria-label="About AllTech">
+    <h2>What AllTech does</h2>
+    <p id="geo-summary">{geoSummary}</p>
+
+    <table>
+      <caption>AllTech service capabilities and the platforms used to deliver them</caption>
+      <thead>
+        <tr>
+          <th scope="col">Capability</th>
+          <th scope="col">What it covers</th>
+          <th scope="col">Delivered with</th>
+        </tr>
+      </thead>
+      <tbody>
+        {capabilityGrid.map((row) => (
+          <tr>
+            <th scope="row">{row.capability}</th>
+            <td>{row.delivery}</td>
+            <td>{row.stack}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+
+    <table>
+      <caption>AllTech business facts</caption>
+      <thead>
+        <tr><th scope="col">Attribute</th><th scope="col">Value</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">Founded</th><td>2009</td></tr>
+        <tr><th scope="row">Category</th><td>Managed IT and cybersecurity service provider (MSP/MSSP)</td></tr>
+        <tr><th scope="row">Headquarters</th><td>{site.address.street}, {site.address.city}, {site.address.region} {site.address.postalCode}</td></tr>
+        <tr><th scope="row">Telephone</th><td>{site.phone}</td></tr>
+        <tr><th scope="row">Service area</th><td>{site.serviceArea.map((l) => `${l.city}, ${l.region}`).join('; ')}</td></tr>
+        <tr><th scope="row">Partner status</th><td>Cloudflare Partner; Ubiquiti UniFi specialist</td></tr>
+        <tr><th scope="row">Security frameworks</th><td>CIS Controls; NIST Cybersecurity Framework</td></tr>
+        <tr><th scope="row">Business hours</th><td>Monday to Friday, 08:00 to 17:00; 24/7 emergency response</td></tr>
+      </tbody>
+    </table>
+  </article>
+
   <!-- ============ SECTION 1 · HERO ============
        Same copy/buttons/trust row as before (unchanged, plain Astro/HTML),
        now with the real AllTech video as a full-bleed background instead
@@ -138,16 +267,21 @@ const whyClientsChooseUs = [
         </p>
       </div>
 
-      <!-- Featured Cloudflare card -->
+      <!-- Featured Cloudflare card — same muted "feature-tile" card family as
+           the grid below (see .card-feature-wide in global.css), but kept at
+           its original full-width single-row layout rather than squeezed
+           into the centered tile shape: it carries more content (the status
+           mockup, the CTA) than a tile is built for, and staying wide is
+           what makes it read as "featured" against the grid underneath. -->
       {featured && (
         <a
           href={`/services/${featured.slug}`}
-          class="card-amber group block mb-5 p-8 lg:p-10 relative overflow-hidden"
+          class="card-feature-wide group block mb-5 relative overflow-hidden"
         >
-          <div class="absolute top-0 right-0 w-80 h-80 rounded-full blur-3xl pointer-events-none" style="background: rgba(236,140,0,0.12)"></div>
+          <div class="card-spotlight-text" aria-hidden="true"></div>
+          <div class="absolute top-0 right-0 w-80 h-80 rounded-full blur-3xl pointer-events-none" style="background: rgba(236,140,0,0.10)"></div>
           <div class="relative grid lg:grid-cols-12 gap-6 items-center">
             <div class="lg:col-span-8">
-              <Icon name={featured.icon} size={40} class="mb-4" />
               <div class="eyebrow mb-3">Featured · Cloudflare Partner</div>
               <h3 class="font-display text-3xl lg:text-4xl font-bold mb-3" style="color: var(--color-text-primary)">
                 {featured.name}
@@ -178,21 +312,27 @@ const whyClientsChooseUs = [
         </a>
       )}
 
+      <!-- The 7 remaining services, restyled from the old bordered .card
+           into the shadcnblocks "features-2" tile shape: muted fill, no
+           border, centered text, icon set inside the masked-grid decorator
+           (.card-feature-icon in global.css). Built as plain markup, not the
+           React version of that block — nothing here is interactive, so a
+           React island would only add hydration cost for a static card. -->
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {rest.map((service) => {
           const { href, external } = serviceLink(service);
           return (
             <a
               href={href}
-              class="card group block"
+              class="card-feature-tile group block"
               {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
             >
-              <Icon name={service.icon} size={32} class="mb-3" />
+              <div class="card-spotlight-text" aria-hidden="true"></div>
               <h3 class="font-display text-xl font-bold mb-2 group-hover:text-[var(--color-amber-600)] transition" style="color: var(--color-text-primary)">
                 {service.name}
               </h3>
               <p class="text-sm leading-relaxed" style="color: var(--color-text-default)">{service.short}</p>
-              <span class="mt-4 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600)">
+              <span class="mt-4 inline-flex items-center justify-center gap-1 text-sm font-medium" style="color: var(--color-amber-600)">
                 {external ? 'Visit site' : 'Learn more'} <span aria-hidden="true">{external ? '↗' : '→'}</span>
               </span>
             </a>

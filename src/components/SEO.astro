@@ -37,7 +37,13 @@ const ogImageURL = new URL(image, Astro.site).toString();
 
 // Title pattern: "Page Title — AllTech" except the home page which uses the brand tagline.
 const isHome = Astro.url.pathname === '/' || Astro.url.pathname === '';
-const fullTitle = isHome ? `${site.name} — ${site.tagline}` : `${title} — ${site.name}`;
+// The home page used the full tagline, which rendered an 83-character title —
+// well past the ~60 chars search results and RAG cards keep before truncating.
+// site.tagline itself is unchanged (it's the brand line, used as prose
+// elsewhere); the home title is just its short form, leading with the entity
+// keyword. See claude.md Guardrail B.
+const HOME_TITLE = `${site.name} — Managed IT & Cybersecurity in Northern Utah`;
+const fullTitle = isHome ? HOME_TITLE : `${title} — ${site.name}`;
 ---
 
 <!-- Primary meta -->

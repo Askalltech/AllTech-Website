@@ -133,4 +133,177 @@ When I input my raw business configurations or files, you must output your respo
 2.  **Structural HTML Payload:** The updated frontend block showing the Semantic `ai-scrape-zone`, the grid tables, and the target FAQs.
 3.  **JSON-LD Output:** The fully hydrated Knowledge Graph Schema ready for injection.
 
-Here is the baseline info for our final product. Company: AllTech. Product: [Your App/Service Name]. It provides [List 2-3 main features] for [Your target audience] using a tech stack of [Your tech stack]. Please build out my custom GEO assets now.
+Here is the baseline info for our final product.
+
+**Company:** AllTech. Founded 2009. 865 West Center Street, Bldg F,
+Hyde Park, UT 84318. (435) 557-3232. https://askalltech.com
+
+**Product:** Managed IT & Cybersecurity Services. This is a co-managed
+*service* offering, not a licensed software product: there is no SKU, no
+self-serve signup, and no public price list. Engagements are scoped
+per-client through a Master Services Agreement and an Order Form. Any
+schema that requires a `price` therefore cannot be hydrated — see the
+Deployment Reality Addendum, section D.
+
+**Main features:**
+1. **Managed cybersecurity** — EDR, email security, AI-driven network
+   detection (NDR), 24/7 SOC monitoring, penetration testing, and incident
+   response. Controls mapped to CIS Controls and NIST CSF.
+2. **SASE / Zero Trust networking**, delivered as a Cloudflare Partner —
+   Access, Tunnel, WARP, and Gateway as a VPN replacement.
+3. **Outsourced IT and cloud** — local help desk, Datto RMM monitoring and
+   patching, Microsoft 365, Entra ID and Intune, and tested backup and
+   disaster recovery.
+
+Also in scope: on-site low-voltage install (UniFi Protect cameras, UniFi
+Access door entry, structured cabling, fiber splicing and OTDR testing,
+point-to-point wireless) and Utah Data Recovery, which operates the only
+Class 100 cleanroom in Utah.
+
+**Target audience:** Small and mid-sized organizations across northern Utah
+and southern Idaho — municipalities and special districts, government
+contractors, nonprofits and associations, law firms, financial services,
+healthcare and dental practices, manufacturers, automotive dealerships,
+AEC/professional services, and multi-location businesses. Named service
+area: Logan, Hyde Park, North Logan, Smithfield, Richmond, Providence,
+Wellsville, Tremonton, Brigham City, and Willard (UT), plus Preston (ID).
+
+**Delivery tech stack** (the vendor stack AllTech operates for clients):
+Cloudflare (Zero Trust, Gateway, Tunnel, DNS and DDoS), Ubiquiti UniFi
+(Network, Protect, Access), Datto RMM, Microsoft 365 / Entra ID / Intune.
+
+**Website tech stack** (what this repository builds): Astro 5, static-first
+with SSR API routes, Tailwind v4, React islands, deployed as a Cloudflare
+Worker with a static-assets binding. Content lives in `src/content/`;
+business facts have a single source of truth in `src/lib/site.ts`.
+
+Please build out my custom GEO assets now.
+
+---
+
+## 7. DEPLOYMENT REALITY ADDENDUM
+
+This section was added after reconciling sections 1-6 against the actual
+repository and live DNS. Sections 1-6 were drafted without knowledge of this
+codebase; where they conflict with what is actually deployed, **this section
+wins**. Each item below records a specific instruction that would have caused
+a regression, and what to do instead.
+
+### A. Do not strip the existing `noindex` tags (supersedes s2, Task A)
+
+Task A assumes staging boundaries left behind by engineering. There are none.
+A full scan found exactly two `noindex` usages, both deliberate and both
+correct to keep:
+
+*   `/404` — indexing a not-found page wastes crawl budget and can surface an
+    error page in results.
+*   `/legal/master-services-agreement` — an unsigned MSA *template* with
+    unresolved blanks (`[CLIENT]`, `[DATE]`, term length, notice email) that
+    has not been through legal review. It is deliberately unlisted, excluded
+    from the sitemap filter in `astro.config.mjs`, and shared as a direct
+    link. Indexing it would publish a draft contract.
+
+The other `nofollow` matches are `rel="nofollow"` on outbound Unsplash
+photo-credit links. Those are attribution links, unrelated to crawl control.
+Leave them.
+
+**Net effect: Task A is a no-op on this codebase. That is the correct outcome,
+not a failure to execute.**
+
+### B. The AI crawlers are blocked at the Cloudflare edge, not in this repo
+
+This is the single highest-priority finding, and **no code change can fix it.**
+
+The `askalltech.com` zone has Cloudflare's managed robots.txt / AI Content
+Signals feature enabled. Cloudflare *prepends* its own block above whatever
+`public/robots.txt` contains:
+
+```text
+User-agent: *
+Content-Signal: search=yes,ai-train=no,use=reference
+User-agent: ClaudeBot          -> Disallow: /
+User-agent: GPTBot             -> Disallow: /
+User-agent: Google-Extended    -> Disallow: /
+User-agent: CCBot              -> Disallow: /
+User-agent: Bytespider         -> Disallow: /
+User-agent: Amazonbot          -> Disallow: /
+User-agent: Applebot-Extended  -> Disallow: /
+User-agent: meta-externalagent -> Disallow: /
+```
+
+In robots.txt a named user-agent group fully overrides `User-agent: *`. So
+GPTBot and ClaudeBot read `Disallow: /` and stop, no matter what we write
+further down the file. **Every generative-search objective in this manual is
+void until this is turned off in the Cloudflare dashboard** (zone → AI Crawl
+Control / manage AI bots). That is a business decision about whether AllTech
+wants its content used for AI training and retrieval — it is deliberately left
+to a human, and should be flipped at launch, not before (see F).
+
+### C. `robots.txt` must be host-aware (supersedes s2, Task B)
+
+Two defects in the Task B layout, plus one repo-specific fact:
+
+1.  The named-agent group carries `Allow: /` and **no `Disallow` lines**.
+    Because a named group overrides `User-agent: *` entirely, that grants
+    Googlebot, GPTBot, ClaudeBot and PerplexityBot access to `/api/`,
+    `/config/` and `/preview-development/` — the exact opposite of the stated
+    intent. The `Disallow` lines must be repeated inside the named group.
+2.  `Sitemap:` must point at **`/sitemap-index.xml`**. The `@astrojs/sitemap`
+    integration emits an index, not `sitemap.xml`. The manual's filename 404s.
+3.  `Googlebot-AI` is not a real crawler token; it is dropped. `Googlebot`,
+    `Google-Extended`, `GPTBot`, `ChatGPT-User`, `ClaudeBot`, `PerplexityBot`
+    and `cohere-ai` are real and are kept.
+
+`robots.txt` is therefore generated by `src/pages/robots.txt.ts`, not shipped
+as a static file, so it can vary by `Host` — see F.
+
+### D. Entity modelling: Service, not Product (supersedes s5)
+
+The s5 skeleton does not validate and would duplicate an existing entity:
+
+*   `"TechService"` is not a schema.org type. Valid neighbours are
+    `ProfessionalService` and `Service`.
+*   `"availability": "https://schema.org"` is not a valid enum value.
+*   `Product` + `Offer` requires a `price`. AllTech publishes none, so under
+    Guardrail A this must stay `[REQUIRES_REAL_DATA]` — which means the node
+    should not be emitted at all rather than shipped with a placeholder.
+*   The site **already** emits `LocalBusiness` at `@id
+    https://askalltech.com/#organization` on all 66 pages, plus 34 `Service`,
+    24 `FAQPage`, 37 `BreadcrumbList` and 7 `Article` nodes. A second
+    `#organization` node would define the same entity twice and is worse than
+    emitting nothing.
+
+**Rule: the `@graph` reuses the existing `#organization` `@id` by reference
+and adds `WebSite` and `Service` nodes only. No `Product`, no `Offer`, no
+invented price.**
+
+### E. The scrape zone goes on the homepage only (supersedes s4, Component A)
+
+The "primary template file" in this repo is `src/layouts/BaseLayout.astro`,
+which every one of the 66 pages uses. Injecting the summary and data grid
+there would emit identical content on all 66 URLs — duplicate content, which
+works against the goal. The entity summary belongs on `/` alone, which is the
+page RAG engines resolve the AllTech entity against. Per-page summaries may
+later be added to individual service pages, each written from that page's own
+content.
+
+### F. Sequencing: build now, open crawling at launch
+
+`askalltech.com` currently serves the previous WordPress/Elementor site. This
+Astro build is live only at `development-preview.askalltech.com`. That makes
+the ordering matter:
+
+*   **Safe to do now** — everything structural: the scrape zone, the data
+    grid, JSON-LD, titles and meta lengths. It is inert markup that simply
+    ships when the site launches, and it is far cheaper to write now than to
+    retrofit.
+*   **Must NOT take effect before launch** — the crawl invitation. Inviting
+    GPTBot, ClaudeBot and PerplexityBot to `development-preview` would let RAG
+    engines ingest the staging copy as the canonical AllTech entity. Those
+    caches are slow to refresh and hard to correct.
+
+`src/pages/robots.txt.ts` therefore serves `Disallow: /` for any host that is
+not the production domain, and the full AI-welcoming policy for
+`askalltech.com`. No launch-day edit is required; the policy switches itself
+when DNS moves. The one manual step left is B, the Cloudflare dashboard
+setting.

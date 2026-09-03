@@ -27,6 +27,34 @@ export default defineConfig({
     '/blog/[...slug]': '/insights/[...slug]',
     // The about page was retired — its "who we are" content is now covered by /team.
     '/about': '/team',
+
+    // ---- Legacy WordPress URLs (pre-2026 site) ----
+    // Every URL indexed from the old Elementor site, mapped to its closest
+    // equivalent here. Without these all 15 would 404 the moment the domain
+    // cuts over, dropping whatever rankings and backlinks they carry. The old
+    // paths all carried a trailing slash; Cloudflare normalises that before
+    // matching, so the slashless key covers both forms.
+    // See LAUNCH-CHECKLIST.md item 4.
+    '/about-us': '/team',
+    '/about-us/blog': '/insights',
+    '/category/blog': '/insights',
+    '/about-us/testimonials': '/case-studies',
+    '/contact-us': '/contact',
+    '/leave-feedback': '/contact',
+    // "MTR — Management Threat Response" was the old name for what is now sold
+    // as the managed SOC offering.
+    '/mtr-management-threat-response': '/services/managed-soc',
+    '/services/alltech-cyber-security': '/services/cybersecurity',
+    '/services/alltech-data': '/services/utah-data-recovery',
+    '/services/alltech-networking': '/services/network-design',
+    '/services/computer-repair': '/services/help-desk',
+    // NOT redirected, deliberately: /services/home-phone and
+    // /services/internet-service-alltech-fiber. Both product lines are
+    // retired and have no equivalent here, so they return 410 Gone from
+    // their own routes rather than 301 to a page that doesn't sell the
+    // thing the visitor came for. /services/fiber-optic in particular is
+    // fiber *installation*, not internet service — pointing ISP traffic
+    // there would mislead. See src/pages/services/home-phone.astro.
   },
 
   // Static by default; opt specific routes into SSR with `export const prerender = false`
