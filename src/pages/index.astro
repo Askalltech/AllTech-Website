@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import SegmentHeader from '~/components/SegmentHeader.astro';
-import Icon from '~/components/Icon.astro';
 import { BorderBeamPanel } from '~/components/BorderBeamPanel';
 import { services, site, serviceLink } from '~/lib/site';
 
@@ -268,16 +267,21 @@ const whyClientsChooseUs = [
         </p>
       </div>
 
-      <!-- Featured Cloudflare card -->
+      <!-- Featured Cloudflare card — same muted "feature-tile" card family as
+           the grid below (see .card-feature-wide in global.css), but kept at
+           its original full-width single-row layout rather than squeezed
+           into the centered tile shape: it carries more content (the status
+           mockup, the CTA) than a tile is built for, and staying wide is
+           what makes it read as "featured" against the grid underneath. -->
       {featured && (
         <a
           href={`/services/${featured.slug}`}
-          class="card-amber group block mb-5 p-8 lg:p-10 relative overflow-hidden"
+          class="card-feature-wide group block mb-5 relative overflow-hidden"
         >
-          <div class="absolute top-0 right-0 w-80 h-80 rounded-full blur-3xl pointer-events-none" style="background: rgba(236,140,0,0.12)"></div>
+          <div class="card-spotlight-text" aria-hidden="true"></div>
+          <div class="absolute top-0 right-0 w-80 h-80 rounded-full blur-3xl pointer-events-none" style="background: rgba(236,140,0,0.10)"></div>
           <div class="relative grid lg:grid-cols-12 gap-6 items-center">
             <div class="lg:col-span-8">
-              <Icon name={featured.icon} size={40} class="mb-4" />
               <div class="eyebrow mb-3">Featured · Cloudflare Partner</div>
               <h3 class="font-display text-3xl lg:text-4xl font-bold mb-3" style="color: var(--color-text-primary)">
                 {featured.name}
@@ -308,21 +312,27 @@ const whyClientsChooseUs = [
         </a>
       )}
 
+      <!-- The 7 remaining services, restyled from the old bordered .card
+           into the shadcnblocks "features-2" tile shape: muted fill, no
+           border, centered text, icon set inside the masked-grid decorator
+           (.card-feature-icon in global.css). Built as plain markup, not the
+           React version of that block — nothing here is interactive, so a
+           React island would only add hydration cost for a static card. -->
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {rest.map((service) => {
           const { href, external } = serviceLink(service);
           return (
             <a
               href={href}
-              class="card group block"
+              class="card-feature-tile group block"
               {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
             >
-              <Icon name={service.icon} size={32} class="mb-3" />
+              <div class="card-spotlight-text" aria-hidden="true"></div>
               <h3 class="font-display text-xl font-bold mb-2 group-hover:text-[var(--color-amber-600)] transition" style="color: var(--color-text-primary)">
                 {service.name}
               </h3>
               <p class="text-sm leading-relaxed" style="color: var(--color-text-default)">{service.short}</p>
-              <span class="mt-4 inline-flex items-center gap-1 text-sm font-medium" style="color: var(--color-amber-600)">
+              <span class="mt-4 inline-flex items-center justify-center gap-1 text-sm font-medium" style="color: var(--color-amber-600)">
                 {external ? 'Visit site' : 'Learn more'} <span aria-hidden="true">{external ? '↗' : '→'}</span>
               </span>
             </a>

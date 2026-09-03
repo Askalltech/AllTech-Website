@@ -329,6 +329,145 @@
   }
   .card-amber:hover { transform: translateY(-2px); }
 
+  /* ----- feature-tile card family -----
+     Adapted from shadcnblocks' "features-2" pattern (muted fill, no border,
+     centered content, a masked-grid square behind the icon) and applied to
+     the homepage service grid in place of the old bordered .card. Built as
+     plain CSS + Astro markup rather than pulling in the React version of
+     that block: nothing here is interactive, so a React island would only
+     add hydration cost for a static card. */
+  .card-feature-tile {
+    @apply rounded-lg p-6 text-center transition-all duration-200;
+    background: var(--color-bg-elevated);
+    transition-timing-function: var(--ease-out-soft);
+  }
+  .card-feature-tile:hover {
+    background: var(--color-bg-tint);
+    transform: translateY(-2px);
+  }
+
+  /* .card-feature-icon / -icon-frame (the masked-grid icon decorator) were
+     removed from every card's markup — didn't read well at this size once
+     built. Deliberately not left in the CSS as dead code: nothing renders
+     them any more, so if a future service tile wants an icon back, treat it
+     as new design work rather than un-deleting this. */
+
+  /* Full-width variant for the single featured card (the Cloudflare/SASE
+     slot) — same muted-fill family so it reads as one set with the grid
+     below it, but sized and laid out for the wider one-item row it has
+     always occupied rather than forced into the centered tile shape. */
+  .card-feature-wide {
+    @apply rounded-lg p-8 lg:p-10 transition-all duration-200;
+    background: var(--color-bg-elevated);
+    transition-timing-function: var(--ease-out-soft);
+  }
+  .card-feature-wide:hover {
+    background: var(--color-bg-tint);
+    transform: translateY(-2px);
+  }
+
+  /* ----- cursor-tracking spotlight -----
+     A soft glow that follows the pointer across a feature-tile/wide card on
+     hover — the interaction from shadcnblocks' "Evervault"-style cards,
+     minus the decrypting-text gimmick and the framer-motion dependency:
+     these cards are static content (icon, title, link), not standalone
+     widgets, so the glow is layered on with plain CSS custom properties
+     + a few lines of vanilla JS (see the <script> in BaseLayout.astro)
+     rather than pulling in a React island for something this small.
+
+     --spot-x/--spot-y are set by that script on pointermove, in px relative
+     to the card. Defaulted to the card's own center so a card that somehow
+     gets :hover without a prior pointermove (rare, but possible via
+     scroll-into-view + synthetic focus) still shows the glow centered
+     rather than pinned at 0,0.
+
+     Painted via ::before at z-index: -1, not a background-image layer on
+     the card itself, so its opacity can transition independently of the
+     card's own background-color swap on hover. z-index: -1 (not 0 or auto)
+     is what keeps it from covering the icon/title/text: per the CSS2
+     stacking-order rules, a positioned descendant with a NEGATIVE z-index
+     paints after its stacking-context parent's own background but BEFORE
+     that parent's normal-flow children — exactly "behind the content, above
+     the fill" — with no need to also promote the icon/title/link to their
+     own stacking context. */
+  .card-feature-tile,
+  .card-feature-wide {
+    --spot-x: 50%;
+    --spot-y: 50%;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-feature-tile::before,
+  .card-feature-wide::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(240px circle at var(--spot-x) var(--spot-y), rgba(0, 103, 146, 0.16), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.25s var(--ease-out-soft);
+  }
+  .dark .card-feature-tile::before,
+  .dark .card-feature-wide::before {
+    background: radial-gradient(240px circle at var(--spot-x) var(--spot-y), rgba(77, 179, 221, 0.20), transparent 70%);
+  }
+  .card-feature-tile:hover::before,
+  .card-feature-wide:hover::before {
+    opacity: 1;
+  }
+  /* Cards whose whole box already moves up on hover (translateY(-2px) above)
+     would otherwise fight the glow for smoothness — respected already since
+     both transition on the same easing curve, listed here only so the next
+     person editing either rule remembers they're coupled. */
+
+  /* The "decrypting" character layer — same idea as the shadcnblocks
+     Evervault card's random-string background, but a real DOM element (not
+     a React island) since it just needs its textContent replaced on
+     pointermove, and layered behind the card's actual content instead of
+     being the card. It's an empty <div> in the markup (see e.g.
+     src/pages/index.astro); the BaseLayout.astro pointermove script below
+     fills and refreshes it.
+
+     Same z-index: -1 trick as the glow ::before above, and for the same
+     reason: a negative-z positioned descendant paints after the card's own
+     background-color but before the card's normal-flow children, so the
+     title/description/link never need their own z-index to stay above it. */
+  .card-spotlight-text {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    margin: 0;
+    padding: 0.75rem;
+    overflow: hidden;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    line-height: 1.35;
+    letter-spacing: 0.02em;
+    word-break: break-all;
+    /* Plain color, no mix-blend-mode: overlay/soft-light both compare
+       against the pixel underneath, and against this card's very light
+       --color-bg-tint fill that washes a mid-tone amber down to almost
+       nothing (confirmed — it was here first, was nearly invisible).
+       A flat translucent color is legible regardless of what's under it. */
+    color: color-mix(in oklch, var(--color-amber-600) 65%, transparent);
+    pointer-events: none;
+    user-select: none;
+    /* Only visible within the same cursor-following circle as the glow —
+       an unmasked wall of characters would just be noise the rest of the
+       time. */
+    mask-image: radial-gradient(200px circle at var(--spot-x) var(--spot-y), #000, transparent 70%);
+    -webkit-mask-image: radial-gradient(200px circle at var(--spot-x) var(--spot-y), #000, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.25s var(--ease-out-soft);
+  }
+  .dark .card-spotlight-text {
+    color: color-mix(in oklch, var(--color-amber-300) 65%, transparent);
+  }
+  .card-feature-tile:hover .card-spotlight-text,
+  .card-feature-wide:hover .card-spotlight-text {
+    opacity: 1;
+  }
+
   /* "Matrix" dot grid — tiny dots on a 3px pitch, tinted with the shadcn
      theme's --primary token. From shadcnblocks background-pattern117 (see
      GlobalBackground.astro); shared here so the global background, footer,
