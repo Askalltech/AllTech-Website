@@ -290,8 +290,8 @@ export default function AssessmentForm({ turnstileSiteKey }: Props) {
               role="alert"
               className="rounded-md px-4 py-3 text-sm"
               style={{
-                background: 'rgba(220, 38, 38, 0.08)',
-                border: '1px solid rgba(220, 38, 38, 0.3)',
+                background: 'color-mix(in srgb, var(--color-signal-error) 8%, transparent)',
+                border: '1px solid color-mix(in srgb, var(--color-signal-error) 30%, transparent)',
                 color: 'var(--color-signal-error)',
               }}
             >

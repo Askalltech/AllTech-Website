@@ -37,7 +37,7 @@ const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
       <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {site.serviceArea.map((loc) => (
           <a href={`/locations/${loc.slug}`} class="card group block">
-            <h3 class="font-display text-lg font-semibold mb-1.5 group-hover:text-amber-300 transition-colors">
+            <h3 class="font-display text-lg font-semibold mb-1.5 group-hover:text-[var(--color-amber-600)] transition-colors">
               {loc.city}, {loc.region}
             </h3>
             <p class="text-sm text-muted leading-relaxed">

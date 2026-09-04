@@ -318,7 +318,7 @@
   }
   .surface-inverse .card:hover {
     border-color: var(--color-ink-200);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px -8px rgba(15,24,40,0.08);
+    box-shadow: var(--shadow-raw-md);
   }
 
   .card-amber {
@@ -403,13 +403,13 @@
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: radial-gradient(240px circle at var(--spot-x) var(--spot-y), rgba(0, 103, 146, 0.16), transparent 70%);
+    background: radial-gradient(240px circle at var(--spot-x) var(--spot-y), color-mix(in srgb, var(--color-amber-500) 16%, transparent), transparent 70%);
     opacity: 0;
     transition: opacity 0.25s var(--ease-out-soft);
   }
   .dark .card-feature-tile::before,
   .dark .card-feature-wide::before {
-    background: radial-gradient(240px circle at var(--spot-x) var(--spot-y), rgba(77, 179, 221, 0.20), transparent 70%);
+    background: radial-gradient(240px circle at var(--spot-x) var(--spot-y), color-mix(in srgb, var(--color-amber-500) 20%, transparent), transparent 70%);
   }
   .card-feature-tile:hover::before,
   .card-feature-wide:hover::before {
@@ -509,7 +509,7 @@
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
-  text-decoration-color: rgba(255,194,102,0.4);
+  text-decoration-color: color-mix(in srgb, var(--color-text-link) 40%, transparent);
 }
 .prose-alltech a:hover { text-decoration-color: var(--color-text-link); }
 .prose-alltech code {
@@ -596,7 +596,7 @@
     width: 600px;
     height: 600px;
     border-radius: 9999px;
-    background: radial-gradient(circle, rgba(0,131,179,0.14) 0%, transparent 60%);
+    background: radial-gradient(circle, color-mix(in srgb, var(--color-amber-400) 14%, transparent) 0%, transparent 60%);
     filter: blur(40px);
     pointer-events: none;
     z-index: 0;
@@ -661,8 +661,8 @@
 
 /* Token aliases for legacy names used in pages */
 @theme {
-  --color-line:       #cfd8e8; /* alias of border-default */
-  --color-line-faint: #e4e9f2; /* alias of border-subtle */
+  --color-line:       var(--color-border-default); /* alias of border-default */
+  --color-line-faint: var(--color-border-subtle); /* alias of border-subtle */
 }
 .dark {
   --color-line:       var(--color-border-default);
