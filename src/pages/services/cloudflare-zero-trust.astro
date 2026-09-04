@@ -130,7 +130,8 @@ const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
           { n: '02', label: 'DEPLOY', title: 'Project-based Rollout',    body: 'Fixed-scope deployment of Tunnel, WARP, Gateway, and Access. From kickoff to production in 4–8 weeks depending on size.', highlight: true },
           { n: '03', label: 'OPERATE', title: 'Managed Cloudflare',       body: 'Ongoing tuning, policy changes, user provisioning, and incident response — billed monthly per seat.' },
         ].map(({ n, label, title, body, highlight }) => (
-          <div class="card" style={highlight ? 'border-color: var(--color-amber-400);' : ''}>
+          <div class="card-feature-tile group relative overflow-hidden text-left" style={highlight ? 'border: 1px solid var(--color-amber-400);' : ''}>
+            <div class="card-spotlight-text" aria-hidden="true"></div>
             <div class="font-mono text-xs mb-2 tracking-wider" style="color: var(--color-amber-300);">{n} · {label}</div>
             <h3 class="font-display text-xl font-semibold mb-3">{title}</h3>
             <p class="text-sm text-muted leading-relaxed">{body}</p>

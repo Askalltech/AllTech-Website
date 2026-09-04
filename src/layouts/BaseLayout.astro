@@ -116,22 +116,33 @@ const { title, description, image, noindex, canonical, ogType, breadcrumbs } = A
     <script>
       if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
         const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        // Enough characters to fill the largest card (the wide featured
-        // card) at the CSS's 9px/1.3 line-height even after wrapping —
-        // overflow: hidden in global.css clips the rest for smaller tiles,
-        // so one fixed length works for both without measuring each card.
-        const CHAR_COUNT = 2000;
-        function randomString() {
+        // Size the character field to the card it's covering instead of a
+        // single fixed length. A hardcoded count (was 2000) filled the small
+        // grid tiles but left the wide featured card (SASE Solutions) half
+        // empty on larger viewports — the letters "ran out" partway down.
+        // The field also bleeds ~0.6rem past every edge (see the negative
+        // inset on .card-spotlight-text in global.css), so we count against
+        // the card box PLUS that bleed, with the glyph cell deliberately
+        // UNDER-estimated so we always over-generate; overflow: hidden then
+        // clips the surplus. Metrics track .card-spotlight-text: font-size
+        // 10px, line-height 1.35 (= 13.5px), no padding.
+        const BLEED = 12; // px past each edge, ≥ the 0.6rem CSS inset
+        const CHAR_W = 5.5; // < real mono advance at 10px, so cols is over-counted
+        const LINE_H = 12; // < 13.5px line box, so rows is over-counted
+        function randomString(rect: DOMRect) {
+          const cols = Math.ceil((rect.width + BLEED * 2) / CHAR_W);
+          const rows = Math.ceil((rect.height + BLEED * 2) / LINE_H) + 3; // + slack rows
+          const count = Math.max(cols * rows, 400);
           let s = '';
-          for (let i = 0; i < CHAR_COUNT; i++) s += CHARS[(Math.random() * CHARS.length) | 0];
+          for (let i = 0; i < count; i++) s += CHARS[(Math.random() * CHARS.length) | 0];
           return s;
         }
 
         // Regenerating the string on every pointermove (the effect this is
-        // modeled on does exactly that) would mean writing 2000 characters
-        // to the DOM 60+ times a second per hovered card. Throttled to
-        // every 60ms instead — fast enough to still read as "shimmering",
-        // cheap enough not to matter.
+        // modeled on does exactly that) would mean writing a full tile's
+        // worth of characters to the DOM 60+ times a second per hovered
+        // card. Throttled to every 60ms instead — fast enough to still read
+        // as "shimmering", cheap enough not to matter.
         let lastRegen = 0;
 
         document.addEventListener(
@@ -147,7 +158,7 @@ const { title, description, image, noindex, canonical, ogType, breadcrumbs } = A
             if (now - lastRegen > 60) {
               lastRegen = now;
               const textLayer = card.querySelector<HTMLElement>(':scope > .card-spotlight-text');
-              if (textLayer) textLayer.textContent = randomString();
+              if (textLayer) textLayer.textContent = randomString(rect);
             }
           },
           { passive: true },
