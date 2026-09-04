@@ -44,7 +44,7 @@ const { crumbs } = Astro.props;
               <a
                 href={crumb.path}
                 class="inline-flex items-center transition-colors hover:text-[var(--color-text-primary)]"
-                style="color: var(--color-text-muted)"
+                style="color: var(--color-text-secondary)"
               >
                 {isFirst && (
                   <svg class="size-3.5 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -57,7 +57,7 @@ const { crumbs } = Astro.props;
             )}
           </li>
           {!isLast && (
-            <li role="presentation" aria-hidden="true" class="flex items-center" style="color: var(--color-text-subtle)">
+            <li role="presentation" aria-hidden="true" class="flex items-center" style="color: var(--color-text-muted)">
               <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="m9 18 6-6-6-6" />
               </svg>
