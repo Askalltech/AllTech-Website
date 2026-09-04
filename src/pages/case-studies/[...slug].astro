@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { site } from '~/lib/site';
+import { buildBreadcrumbSchema } from '~/lib/schema';
 
 export async function getStaticPaths() {
   const studies = await getCollection('caseStudies', ({ data }) => !data.draft);
@@ -10,9 +12,39 @@ export async function getStaticPaths() {
 interface Props { study: CollectionEntry<'caseStudies'> }
 const { study } = Astro.props;
 const { Content } = await study.render();
+const articleUrl = `${site.url}/case-studies/${study.slug}`;
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: study.data.title,
+  description: study.data.summary,
+  author: { '@id': `${site.url}/#organization` },
+  datePublished: study.data.pubDate.toISOString(),
+  dateModified: study.data.pubDate.toISOString(),
+  ...(study.data.heroImage ? { image: `${site.url}${study.data.heroImage}` } : {}),
+  publisher: { '@id': `${site.url}/#organization` },
+  mainEntityOfPage: { '@type': 'WebPage', '@id': articleUrl },
+};
+const breadcrumbEntries = [
+  { name: 'Home', path: '/' },
+  { name: 'Case Studies', path: '/case-studies' },
+  { name: study.data.title, path: `/case-studies/${study.slug}` },
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
-<BaseLayout title={study.data.title} description={study.data.summary} ogType="article">
+<BaseLayout
+  title={study.data.title}
+  description={study.data.summary}
+  image={study.data.heroImage}
+  ogType="article"
+  articlePublishedTime={study.data.pubDate.toISOString()}
+  articleModifiedTime={study.data.pubDate.toISOString()}
+  articleAuthor={site.name}
+  breadcrumbs={breadcrumbEntries}
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(articleSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
   <article class="surface-dark py-16">
     <div class="container-prose">
       <a href="/case-studies" class="text-sm font-medium" style="color: var(--color-amber-300);">← Back to case studies</a>

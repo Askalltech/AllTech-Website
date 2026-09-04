@@ -18,7 +18,16 @@
  *   - CONTACT_FROM on a domain verified as a sending domain in Resend
  */
 
-/** Thrown when the API key is present but the send itself failed. Routes
+/** Thrown when required delivery configuration is absent. Routes return a
+ * 503 so a deployment problem can never masquerade as a successful send. */
+export class EmailConfigurationError extends Error {
+  constructor(readonly missing: string[]) {
+    super(`Email delivery is not configured: ${missing.join(', ')}`);
+    this.name = 'EmailConfigurationError';
+  }
+}
+
+/** Thrown when delivery was attempted but the send itself failed. Routes
  * catch this and return a clean 502 rather than letting it escape as a 500. */
 export class EmailSendError extends Error {
   constructor(readonly reason: unknown) {
@@ -37,12 +46,14 @@ interface SendEmailArgs {
 }
 
 export async function sendEmail({ apiKey, to, from, replyTo, subject, text }: SendEmailArgs) {
-  if (!apiKey || !to || !from) {
-    console.log(
-      `[email] Not sent — RESEND_API_KEY, CONTACT_FROM, or the forward-to address isn't configured.\n` +
-        `To: ${to ?? '(unset)'}\nFrom: ${from ?? '(unset)'}\nSubject: ${subject}\n\n${text}`,
-    );
-    return;
+  const missing = [
+    !apiKey && 'RESEND_API_KEY',
+    !to && 'forward-to address',
+    !from && 'CONTACT_FROM',
+  ].filter((value): value is string => Boolean(value));
+  if (missing.length > 0) {
+    console.error(`[email] Delivery unavailable — missing ${missing.join(', ')}.`);
+    throw new EmailConfigurationError(missing);
   }
 
   let res: Response;

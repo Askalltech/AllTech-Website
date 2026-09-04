@@ -114,6 +114,11 @@ export default function ContactForm({ defaultService, turnstileSiteKey }: Props)
       setErrorMsg('Name, company, and email are required.');
       return;
     }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setStatus('error');
+      setErrorMsg('Enter a valid email address.');
+      return;
+    }
 
     // At least ONE of "What do you need help with?" or "Tell us more" must be
     // provided — not both. (Name + email are still required via the inputs.)
@@ -151,6 +156,7 @@ export default function ContactForm({ defaultService, turnstileSiteKey }: Props)
     } catch (err) {
       setStatus('error');
       setErrorMsg(err instanceof Error ? err.message : 'Something went wrong.');
+      window.turnstile?.reset();
     }
   }
 

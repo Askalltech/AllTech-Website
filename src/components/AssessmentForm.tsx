@@ -40,6 +40,7 @@ declare global {
     turnstile?: {
       render(el: HTMLElement, opts: { sitekey: string; theme?: string }): string;
       remove(id: string): void;
+      reset(id?: string): void;
     };
   }
 }

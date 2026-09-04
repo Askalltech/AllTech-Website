@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { EmailSendError, sendEmail } from '~/lib/email';
+import { EmailConfigurationError, EmailSendError, sendEmail } from '~/lib/email';
 import {
   FIELD_LIMITS,
   cleanField,
@@ -99,6 +99,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
       text,
     });
   } catch (err) {
+    if (err instanceof EmailConfigurationError) {
+      return json(
+        { ok: false, message: 'Messaging is temporarily unavailable. Please call us instead.' },
+        503,
+      );
+    }
     if (err instanceof EmailSendError) {
       // Already logged with the full body in sendEmail — surface a clean error
       // rather than an unhandled 500.

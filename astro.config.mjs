@@ -71,7 +71,11 @@ export default defineConfig({
     mdx(),
     sitemap({
       filter: (page) =>
-        !page.includes('/api/') && !page.includes('/draft/') && !page.includes('/legal/'),
+        !page.includes('/api/') &&
+        !page.includes('/draft/') &&
+        !page.includes('/legal/') &&
+        !page.endsWith('/services/home-phone') &&
+        !page.endsWith('/services/internet-service-alltech-fiber'),
       changefreq: 'weekly',
       priority: 0.7,
     }),

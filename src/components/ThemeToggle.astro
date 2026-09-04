@@ -9,7 +9,7 @@
   type="button"
   class="p-2 rounded-md transition"
   style="color: var(--color-text-muted); border: 1px solid var(--color-border-default);"
-  aria-label="Dark mode"
+  aria-label="Switch to dark mode"
   aria-pressed="false"
 >
   <!-- Sun: shown in dark mode (click to go light) -->
@@ -27,8 +27,11 @@
   // Reflect the current mode to assistive tech. The class itself is set
   // pre-paint by the FOUC guard in BaseLayout, so sync once on load too —
   // otherwise the control always announces "not pressed" regardless of theme.
-  const syncPressed = () =>
-    btn?.setAttribute('aria-pressed', String(document.documentElement.classList.contains('dark')));
+  const syncPressed = () => {
+    const dark = document.documentElement.classList.contains('dark');
+    btn?.setAttribute('aria-pressed', String(dark));
+    btn?.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+  };
   syncPressed();
   btn?.addEventListener('click', () => {
     const dark = document.documentElement.classList.toggle('dark');

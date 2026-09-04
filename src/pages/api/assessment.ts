@@ -1,12 +1,12 @@
 import type { APIRoute } from 'astro';
 import { domains, allQuestions, scoreAssessment, type Answer } from '~/lib/assessment';
-import { EmailSendError, sendEmail } from '~/lib/email';
+import { EmailConfigurationError, EmailSendError, sendEmail } from '~/lib/email';
 import { readJsonBody, validateContactFields } from '~/lib/formValidation';
 import { verifyTurnstile } from '~/lib/turnstile';
 
 /**
  * Opt out of prerendering — this needs to run server-side on Cloudflare.
- * Mirrors src/pages/api/contact.ts (honeypot, Turnstile, Cloudflare Send Email).
+ * Mirrors src/pages/api/contact.ts (honeypot, Turnstile, Resend delivery).
  */
 export const prerender = false;
 
@@ -63,6 +63,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
       answers[q.id] = value as Answer;
     }
   }
+  if (Object.keys(answers).length === 0) {
+    return json({ ok: false, message: 'Answer at least one assessment question before submitting.' }, 400);
+  }
   const score = scoreAssessment(answers);
 
   // 4. Forward to SALES — the prospect's contact info + their score + every answer.
@@ -113,6 +116,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
       text,
     });
   } catch (err) {
+    if (err instanceof EmailConfigurationError) {
+      return json(
+        { ok: false, message: 'Assessment delivery is temporarily unavailable. Please call us instead.' },
+        503,
+      );
+    }
     if (err instanceof EmailSendError) {
       return json({ ok: false, message: 'Could not send your results. Please try again or call us.' }, 502);
     }

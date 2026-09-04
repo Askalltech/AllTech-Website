@@ -16,10 +16,24 @@ interface Props {
   noindex?: boolean;
   canonical?: string;
   ogType?: 'website' | 'article';
+  articlePublishedTime?: string;
+  articleModifiedTime?: string;
+  articleAuthor?: string;
   breadcrumbs?: BreadcrumbEntry[];
 }
 
-const { title, description, image, noindex, canonical, ogType, breadcrumbs } = Astro.props;
+const {
+  title,
+  description,
+  image,
+  noindex,
+  canonical,
+  ogType,
+  articlePublishedTime,
+  articleModifiedTime,
+  articleAuthor,
+  breadcrumbs,
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -59,6 +73,9 @@ const { title, description, image, noindex, canonical, ogType, breadcrumbs } = A
       noindex={noindex}
       canonical={canonical}
       ogType={ogType}
+      articlePublishedTime={articlePublishedTime}
+      articleModifiedTime={articleModifiedTime}
+      articleAuthor={articleAuthor}
     >
       <LocalBusinessSchema />
       <slot name="head" />
