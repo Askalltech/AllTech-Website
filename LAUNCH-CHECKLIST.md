@@ -31,13 +31,13 @@ serving `Disallow: /` automatically — see item 6.
 
 ### 2. Add the production hostname to the Turnstile widget
 
-**This one fails closed and takes both forms down with it.**
+**This one fails closed and takes the assessment form down with it.**
 
 Turnstile site keys are scoped to a hostname allow-list. The widget currently
 accepts `development-preview.askalltech.com`. If `askalltech.com` is not added
 to the same Turnstile site, tokens fail validation on the live domain — and
-`src/lib/turnstile.ts` deliberately fails CLOSED, so `/contact` and
-`/assessment` would reject every genuine submission with a captcha error.
+`src/lib/turnstile.ts` deliberately fails CLOSED, so `/assessment` would
+reject every genuine submission with a captcha error.
 
 Cloudflare dashboard → Turnstile → the site → add the hostname.
 
@@ -45,12 +45,11 @@ Cloudflare dashboard → Turnstile → the site → add the hostname.
 
 `RESEND_API_KEY` was rotated on 2026-09-03. Confirm the **new** value is
 stored under Settings → Runtime variables and secrets (as a Secret, not a
-plain var). If it's stale, both form endpoints return 502.
+plain var). If it's stale, the assessment endpoint returns 502.
 
-Send one real submission through `/contact` on the live domain afterwards and
-confirm it lands in `hello@askalltech.com`. The assessment form was tested
-successfully before the rotation; contact has never completed an end-to-end
-send.
+Send one real submission through `/assessment` on the live domain afterwards
+and confirm it lands in `hello@askalltech.com`. The assessment form was tested
+successfully before the rotation.
 
 ### 4. ~~Add redirects for the 15 old WordPress URLs~~ — DONE
 
@@ -119,10 +118,9 @@ Canonicals are built from `site.url` in `src/lib/site.ts`, already
 `https://askalltech.com`. Spot-check a few pages — while the preview host was
 the only live one, every page canonicalised to a domain serving WordPress.
 
-### 9. Spot-check the forms and a redirect
+### 9. Spot-check the assessment form and a redirect
 
-One `/contact` submission, one `/assessment` submission, and two or three of
-the old URLs from item 4.
+One `/assessment` submission, and two or three of the old URLs from item 4.
 
 ---
 

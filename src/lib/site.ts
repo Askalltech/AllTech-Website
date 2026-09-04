@@ -18,8 +18,8 @@ export const site = {
   phone: "(435) 557-3232",
   phoneE164: "+14355573232",
   // Existing contract customers only — intentionally NOT displayed on the public
-  // site. New/prospective inquiries come through the contact form, which routes
-  // to the shared leadership/sales mailbox (address TBD).
+  // site. New/prospective inquiries use the security gap assessment, which
+  // routes to the shared leadership/sales mailbox.
   email: "help@askalltech.com",
   address: {
     street: "865 West Center Street, Bldg F",

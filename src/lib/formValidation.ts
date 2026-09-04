@@ -1,8 +1,7 @@
 /**
- * Shared request-body limits and field validation for /api/contact and
- * /api/assessment.
+ * Shared request-body limits and field validation for /api/assessment.
  *
- * Neither route previously bounded anything: request.json() accepted an
+ * The assessment route previously bounded nothing: request.json() accepted an
  * unbounded body, no field had a length cap, and every value was interpolated
  * verbatim into the email subject/body. A caller that got past the honeypot
  * could push arbitrarily large payloads into the sales inbox.
@@ -21,28 +20,7 @@ export const FIELD_LIMITS = {
   company: 200,
   phone: 200,
   email: 320, // RFC 5321 practical maximum
-  message: 5000,
-  service: 200,
 } as const;
-
-/** Max number of entries accepted in the `services` array. */
-export const MAX_SERVICES = 10;
-
-/** Canonical service options — mirrors the checkbox list in
- * src/components/ContactForm.tsx. Submissions are allow-listed against this so
- * arbitrary attacker-chosen text can't reach the email subject line. */
-export const SERVICE_OPTIONS = [
-  'Managed IT',
-  'Cybersecurity',
-  'Cloudflare Zero Trust',
-  'Network & Infrastructure',
-  'Microsoft 365 / Cloud',
-  'Backup & Disaster Recovery',
-  'Penetration Testing',
-  'Incident Response',
-  'Utah Data Recovery',
-  'Other',
-] as const;
 
 /**
  * Reads the JSON body, rejecting anything over MAX_BODY_BYTES.
@@ -83,32 +61,7 @@ export function cleanField(value: unknown, max: number): string {
   return value.trim().slice(0, max);
 }
 
-/**
- * Normalizes the service selection from either the checkbox array or the
- * legacy single-value field, then allow-lists it.
- *
- * Previously this did `.map(s => s.trim())` on unvalidated input, so
- * `{"services":[1,2]}` threw `s.trim is not a function` as an unhandled 500,
- * and any arbitrary string reached the email subject.
- */
-export function cleanServices(services: unknown, legacy: unknown): string[] {
-  const raw: unknown[] = Array.isArray(services)
-    ? services
-    : typeof legacy === 'string' && legacy.trim()
-      ? [legacy]
-      : [];
-
-  const allowed = new Set<string>(SERVICE_OPTIONS);
-  const out: string[] = [];
-
-  for (const entry of raw.slice(0, MAX_SERVICES)) {
-    const value = cleanField(entry, FIELD_LIMITS.service);
-    if (value && allowed.has(value) && !out.includes(value)) out.push(value);
-  }
-  return out;
-}
-
-/** Shape shared by both forms' contact block. */
+/** Shape of the assessment form's contact block. */
 export interface ContactFields {
   name: string;
   email: string;
@@ -116,7 +69,7 @@ export interface ContactFields {
   company: string;
 }
 
-/** Validates the name/company/email block both routes require. */
+/** Validates the name/company/email block the assessment route requires. */
 export function validateContactFields(data: {
   name?: unknown;
   email?: unknown;

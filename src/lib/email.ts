@@ -1,5 +1,5 @@
 /**
- * Shared sender for /api/contact and /api/assessment, built on Resend's
+ * Shared sender for /api/assessment, built on Resend's
  * REST API (https://resend.com/docs/api-reference/emails/send-email) via a
  * plain `fetch` call — no SDK dependency, since this runs in the Workers
  * runtime where a lightweight fetch is preferable to a Node-oriented client.
@@ -8,7 +8,7 @@
  * destination-address verification piggybacks on Cloudflare Email Routing,
  * which requires taking over the domain's MX records — askalltech.com's MX
  * is already Cloudflare Email Security, fronting the company's real mailbox
- * (Microsoft 365). Replacing that MX to satisfy a contact-form binding would
+ * (Microsoft 365). Replacing that MX to satisfy a form-mail binding would
  * risk breaking live inbound company email, so Resend is used instead:
  * mail *sending* only needs SPF/DKIM (TXT/CNAME) records, which coexist with
  * any existing MX setup without touching it.

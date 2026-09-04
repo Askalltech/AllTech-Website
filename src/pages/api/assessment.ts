@@ -6,7 +6,7 @@ import { verifyTurnstile } from '~/lib/turnstile';
 
 /**
  * Opt out of prerendering — this needs to run server-side on Cloudflare.
- * Mirrors src/pages/api/contact.ts (honeypot, Turnstile, Cloudflare Send Email).
+ * Honeypot, Turnstile, then Resend (see src/lib/email.ts).
  */
 export const prerender = false;
 
@@ -67,7 +67,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   // 4. Forward to SALES — the prospect's contact info + their score + every answer.
   //    Set ASSESSMENT_FORWARD_TO to the sales inbox (falls back to CONTACT_FORWARD_TO).
-  //    Sent via the same Resend REST call as contact.ts (src/lib/email.ts).
+  //    Sent via Resend (src/lib/email.ts).
   const labelFor = (id: string) => allQuestions.find((q) => q.id === id)?.text ?? id;
   const answerLabel: Record<Answer, string> = { yes: 'Yes', no: 'No', unsure: 'Not sure' };
 

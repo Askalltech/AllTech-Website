@@ -9,7 +9,7 @@ Marketing site for AllTech — Astro + Tailwind v4 + React islands, deployed to 
 - **React 18** — hydrated islands where a component actually needs client interactivity (team grid, blog/case-study filtering and carousels, the interactive globe on the Cloudflare page); everything else stays static Astro/HTML
 - **shadcn / shadcnblocks** — the `ui/` primitives and several page sections are pulled from the shadcnblocks registry (see "Design system" below)
 - **Markdown content collections** — blog posts and case studies (plain `.md`, not MDX)
-- **Cloudflare Workers** — hosting (static assets + the Worker runtime), edge SSR for `/api/contact` and `/api/assessment`
+- **Cloudflare Workers** — hosting (static assets + the Worker runtime), edge SSR for `/api/assessment`
 
 ## Local development
 
@@ -19,7 +19,7 @@ cp .env.example .env.local        # build-time vars — see "Environment variabl
 npm run dev          # http://localhost:4321
 ```
 
-For local development of the contact form endpoint with the Cloudflare runtime:
+For local development of the assessment endpoint with the Cloudflare runtime:
 
 ```bash
 cp .dev.vars.example .dev.vars    # runtime secrets — wrangler dev reads this, astro dev does not
@@ -76,7 +76,7 @@ src/
 │                      AND src/pages/industries.astro (same data, single source)
 ├── lib/schema.ts      Shared JSON-LD builders (Service, FAQPage, BreadcrumbList)
 ├── pages/             File-based routes
-│   ├── api/contact.ts SSR endpoint (only non-static route)
+│   ├── api/assessment.ts SSR endpoint (only non-static route)
 │   ├── industries.astro  "Who we support" — moved off the homepage; nav links land here
 │   ├── locations/     index.astro (city directory) + [city].astro (auto-generated per city)
 │   ├── remote-it-support.astro  Location-agnostic "remote MSP" landing page
@@ -145,9 +145,9 @@ is *when* the value is read:
 
 `SHADCNBLOCKS_API_KEY` is only needed locally when pulling new blocks (see "Design system" above) — it's not used at runtime, so it doesn't need to be set on the Worker.
 
-## Contact form & security gap assessment
+## Security gap assessment
 
-Both `/api/contact.ts` and `/api/assessment.ts` run as routes on the Worker itself (Astro's SSR endpoints, not Cloudflare Pages Functions) and:
+`/api/assessment.ts` runs as a route on the Worker itself (Astro's SSR endpoint, not a Cloudflare Pages Function) and:
 
 1. Honeypot check (`company_website` field)
 2. Required-field validation
@@ -193,9 +193,9 @@ Setup, once:
 - [ ] Replace `https://askalltech.com` in `src/lib/site.ts` and `astro.config.mjs` if domain changes
 - [ ] Add the Cloudflare Web Analytics token in `BaseLayout.astro` (uncomment script tag)
 - [x] Generate `/public/og-default.png` (1200×630 brand image) — done; wired up as the default `image` in `src/components/SEO.astro`
-- [ ] Verify the Resend sending domain and store `RESEND_API_KEY` as a Secret — see "Contact form & security gap assessment" above
+- [ ] Verify the Resend sending domain and store `RESEND_API_KEY` as a Secret — see "Security gap assessment" above
 - [ ] Set the remaining environment variables, each in the right place (see the three-way table under "Environment variables" — build-time vs. secret vs. `wrangler.toml` `[vars]`)
-- [ ] Send one real end-to-end test submission through `/contact` and confirm it lands in the shared inbox
+- [ ] Send one real end-to-end test submission through `/assessment` and confirm it lands in the shared inbox
 - [ ] Verify Google Business Profile NAP exactly matches `site.ts`
 - [ ] Submit `sitemap-index.xml` to Google Search Console
 - [ ] Confirm the hero video (`public/hero-video.mp4`) is standard H.264 High Profile / yuv420p before replacing it — some export tools (including some Vecteezy/stock-footage downloads) default to a 4:2:2 profile that no browser can decode. `ffprobe -show_entries stream=profile,pix_fmt <file>` should report `High` and `yuv420p`.
@@ -212,22 +212,21 @@ implemented yet.
   customer" (client portal) vs. "new to AllTech" (the free security gap
   assessment) up top, mirroring the homepage hero's existing CTA pair.
 - [x] **Wire up real email delivery.** Done in code and configuration:
-  `/api/contact.ts` and `/api/assessment.ts` send via Resend
-  (`src/lib/email.ts`), the `mail.askalltech.com` sending domain is verified,
-  and `RESEND_API_KEY` is stored as a Secret. What remains is a single real
-  end-to-end test submission to confirm delivery to the shared inbox.
+  `/api/assessment.ts` sends via Resend (`src/lib/email.ts`), the
+  `mail.askalltech.com` sending domain is verified, and `RESEND_API_KEY` is
+  stored as a Secret. What remains is a single real end-to-end test
+  submission to confirm delivery to the shared inbox.
 - [ ] **Turnstile site key / secret.** `TURNSTILE_SECRET` is set as a
   Secret, but `PUBLIC_TURNSTILE_SITE_KEY` must be added under Settings →
   **Builds** → Variables and secrets (it's build-time, not runtime — see
   "Environment variables") and the Worker rebuilt. Until that rebuild runs,
   the captcha doesn't render at all. Verified: a build with the var present
-  takes the Turnstile script tag from 0 to 1 on both `/contact` and
-  `/assessment`.
+  takes the Turnstile script tag from 0 to 1 on `/assessment`.
 - [ ] **Client portal branding + wider access.** Only a limited set of
   clients currently have portal access; the meeting wants it broadened and
   visually matched to the site. External system (askalltech.itclientportal.com),
   not part of this repo.
-- [ ] **AutoTask ticket integration** for assessment/contact submissions —
+- [ ] **AutoTask ticket integration** for assessment submissions —
   external system integration, not started.
 - [ ] **Bios** — team page bios need updating (Speaker 2).
 - [x] **Install page tile photography.** All 7 capability tiles on
