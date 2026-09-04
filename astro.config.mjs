@@ -58,7 +58,7 @@ export default defineConfig({
   },
 
   // Static by default; opt specific routes into SSR with `export const prerender = false`
-  // (currently just /api/contact). Everything else is static HTML served from Cloudflare's edge.
+  // (currently /api/assessment). Everything else is static HTML served from Cloudflare's edge.
   output: 'static',
 
   adapter: cloudflare({

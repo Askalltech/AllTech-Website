@@ -1,10 +1,8 @@
 /**
- * Shared Cloudflare Turnstile verification for /api/contact and
- * /api/assessment.
+ * Shared Cloudflare Turnstile verification for /api/assessment.
  *
- * Both routes previously carried a near-identical copy of this logic, which is
- * how they drifted apart. It lives here now so there is one place to reason
- * about the fail-open/fail-closed policy.
+ * This lives here so there is one place to reason about the
+ * fail-open/fail-closed policy.
  *
  * POLICY — fail closed when the widget is live:
  *   The client only renders the Turnstile widget when
