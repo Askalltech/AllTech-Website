@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { site } from '~/lib/site';
-import { buildBreadcrumbSchema } from '~/lib/schema';
+import { buildBreadcrumbSchema, buildServiceSchema, REMOTE_AREA_SERVED } from '~/lib/schema';
 
 /**
  * THE THIRD SOURCE VIGNETTE IS DELIBERATELY NOT BUILT.
@@ -90,6 +90,13 @@ const breadcrumbEntries = [
   { name: 'Incident Response', path: '/services/incident-response' },
 ];
 const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
+const serviceSchema = buildServiceSchema({
+  serviceType: 'Incident Response and Breach Containment',
+  name: 'Incident Response & Breach Containment',
+  description:
+    'Incident response for Northern Utah businesses. AllTech contains active intrusions, removes attacker persistence, and documents what happened.',
+  areaServed: REMOTE_AREA_SERVED,
+});
 ---
 
 <BaseLayout
@@ -98,6 +105,7 @@ const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
   description="Incident response for Northern Utah businesses. AllTech contains active intrusions, removes attacker persistence, and tells you exactly what happened."
 >
 
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
   <!-- Hero. This is the one page on the site where the PHONE is the primary
        button — someone landing here mid-incident is not filling out a form. -->

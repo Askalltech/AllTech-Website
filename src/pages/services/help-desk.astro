@@ -185,12 +185,19 @@ const breadcrumbSchema = {
     { '@type': 'ListItem', position: 4, name: 'Help Desk', item: `${site.url}/services/help-desk` },
   ],
 };
+const breadcrumbEntries = [
+  { name: 'Home', path: '/' },
+  { name: 'Services', path: '/services' },
+  { name: 'IT & Cloud', path: '/services/it-cloud' },
+  { name: 'Help Desk', path: '/services/help-desk' },
+];
 ---
 
 <BaseLayout
   title="IT Help Desk Support — Northern Utah"
   description="Local IT help desk for Northern Utah businesses. Call, email, or submit a ticket and reach an AllTech engineer who already knows your network."
   canonical={`${site.url}/services/help-desk`}
+  breadcrumbs={breadcrumbEntries}
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} is:inline />

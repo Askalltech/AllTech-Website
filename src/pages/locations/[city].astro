@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { site, services, serviceLink } from '~/lib/site';
+import { buildBreadcrumbSchema } from '~/lib/schema';
 
 export function getStaticPaths() {
   return site.serviceArea.map((loc) => ({
@@ -11,12 +12,20 @@ export function getStaticPaths() {
 
 const { location } = Astro.props;
 const fullName = `${location.city}, ${location.region}`;
+const breadcrumbEntries = [
+  { name: 'Home', path: '/' },
+  { name: 'Locations', path: '/locations' },
+  { name: fullName, path: `/locations/${location.slug}` },
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
 <BaseLayout
   title={`IT Support & Cybersecurity in ${fullName}`}
   description={`AllTech provides managed IT, cybersecurity, Cloudflare Zero Trust, and UniFi network design for businesses in ${fullName}. Local engineers, fast response.`}
+  breadcrumbs={breadcrumbEntries}
 >
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
   <section class="surface-dark relative overflow-hidden">
     <div class="relative container-wide py-16 lg:py-20">
       <div class="eyebrow mb-4">Service Area · {location.region}</div>
@@ -24,7 +33,9 @@ const fullName = `${location.city}, ${location.region}`;
         IT support and cybersecurity<br/>in <span style="color: var(--color-amber-400);">{fullName}</span>.
       </h1>
       <p class="mt-6 text-xl max-w-2xl leading-relaxed text-muted">
-        AllTech is headquartered in Hyde Park, UT — a short drive to {location.city}.
+        {location.slug === 'hyde-park'
+          ? 'AllTech is headquartered here in Hyde Park, UT.'
+          : `AllTech is headquartered in Hyde Park, UT — a short drive to ${location.city}.`}
         Local engineers, real on-site response, no overseas help desks.
       </p>
       <div class="mt-8 flex flex-wrap gap-3">

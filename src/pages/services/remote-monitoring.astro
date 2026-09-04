@@ -104,12 +104,19 @@ const breadcrumbSchema = {
     { '@type': 'ListItem', position: 4, name: 'Remote Monitoring', item: `${site.url}/services/remote-monitoring` },
   ],
 };
+const breadcrumbEntries = [
+  { name: 'Home', path: '/' },
+  { name: 'Services', path: '/services' },
+  { name: 'IT & Cloud', path: '/services/it-cloud' },
+  { name: 'Remote Monitoring', path: '/services/remote-monitoring' },
+];
 ---
 
 <BaseLayout
   title="Remote Monitoring & Patch Management"
   description="Remote monitoring, patching, and IT automation for Northern Utah businesses. AllTech watches your workstations and servers with Datto RMM, around the clock."
   canonical={`${site.url}/services/remote-monitoring`}
+  breadcrumbs={breadcrumbEntries}
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(serviceSchema)} is:inline />
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />

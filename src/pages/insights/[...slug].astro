@@ -2,6 +2,7 @@
 import BaseLayout from '~/layouts/BaseLayout.astro';
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { site } from '~/lib/site';
+import { buildBreadcrumbSchema } from '~/lib/schema';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
@@ -15,7 +16,7 @@ const { Content } = await post.render();
 const articleUrl = `${site.url}/insights/${post.slug}`;
 const articleSchema = {
   '@context': 'https://schema.org',
-  '@type': 'Article',
+  '@type': 'BlogPosting',
   headline: post.data.title,
   description: post.data.description,
   author: { '@type': 'Organization', name: post.data.author },
@@ -27,10 +28,26 @@ const articleSchema = {
   publisher: { '@id': `${site.url}/#organization` },
   mainEntityOfPage: { '@type': 'WebPage', '@id': articleUrl },
 };
+const breadcrumbEntries = [
+  { name: 'Home', path: '/' },
+  { name: 'Insights', path: '/insights' },
+  { name: post.data.title, path: `/insights/${post.slug}` },
+];
+const breadcrumbSchema = buildBreadcrumbSchema(breadcrumbEntries);
 ---
 
-<BaseLayout title={post.data.title} description={post.data.description} ogType="article">
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description}
+  image={post.data.heroImage}
+  ogType="article"
+  articlePublishedTime={post.data.pubDate.toISOString()}
+  articleModifiedTime={(post.data.updatedDate ?? post.data.pubDate).toISOString()}
+  articleAuthor={post.data.author}
+  breadcrumbs={breadcrumbEntries}
+>
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(articleSchema)} is:inline />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} is:inline />
 
   <article class="surface-dark py-16">
     <div class="container-prose">
@@ -45,7 +62,7 @@ const articleSchema = {
 
       {post.data.heroImage && (
         <div class="relative mb-10 rounded-xl overflow-hidden">
-          <img src={post.data.heroImage} alt="" class="w-full h-auto object-cover" />
+          <img src={post.data.heroImage} alt={post.data.title} class="w-full h-auto object-cover" />
           {post.data.heroImageCredit && (
             <a
               href={post.data.heroImageCredit.url}
